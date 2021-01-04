@@ -10,7 +10,6 @@ Welcome to UNIFR API Epuck's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   readme2
    api_epuck
    graphic_user_interface
 
