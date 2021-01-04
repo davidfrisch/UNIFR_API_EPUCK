@@ -12,7 +12,7 @@ with open(os.path.join(HERE, "./docs/readme.rst")) as fid:
 # This call to setup() does all the work
 setup(
     name="unifr_api_epuck",
-    version="0.0.38",
+    version="0.0.42",
     description="An API to control the EPUCK from GCtronic in Webots and Python3",
     long_description=README,
     long_description_content_type="text/x-rst",

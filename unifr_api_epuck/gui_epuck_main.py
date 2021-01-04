@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, BOTH, filedialog as fd
+from tkinter import ttk, StringVar, BOTH, filedialog as fd
 from multiprocessing import Process
-from unifr_api_epuck.gui_epuck import gui_epuck_communication as gui_communication
-from unifr_api_epuck.gui_epuck import gui_epuck_camera as gui_camera
+from unifr_api_epuck import gui_epuck_communication as gui_communication
+from unifr_api_epuck import gui_epuck_camera as gui_camera
 import json
 import webbrowser
 
@@ -18,7 +18,7 @@ class MainWindow(tk.Frame):
         # init variables
         self.host_ips = []
         self.epuck_ips = []
-        self.folder_dir = tk.StringVar()
+        self.folder_dir = StringVar()
         self.folder_dir.set('Select location folder images')
         self.has_set_directory = False
 
