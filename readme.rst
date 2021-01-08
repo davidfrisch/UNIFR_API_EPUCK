@@ -2,7 +2,7 @@
 README
 ============
 
-link to read the docs : 
+link to read the docs : https://unifr-api-epuck.chack.app/index.html
 
 Welcome to the UNIFR API EPUCK's documentation. 
 Please find below the instructions to get started with the API.
