@@ -1929,7 +1929,7 @@ class __WebotsEpuck(Epuck):
         self.red, self.blue, self.green=[],[],[]
         cameraData = self.camera.getImage()
         
-        # get the rgv of each pixel
+        # get the rgb of each pixel
         for n in range(CAMERA_WIDTH):
             for m in range(CAMERA_HEIGHT):
                 # get the color component of the pixel (n,m)
@@ -1937,7 +1937,7 @@ class __WebotsEpuck(Epuck):
                 self.green += [self.camera.imageGetGreen(cameraData, CAMERA_WIDTH, n, m)]
                 self.blue += [self.camera.imageGetBlue(cameraData, CAMERA_WIDTH, n, m)]
         
-        return self.red, self.blue, self.green
+        return self.red, self.green, self.blue
         
 
     def live_camera(self):
