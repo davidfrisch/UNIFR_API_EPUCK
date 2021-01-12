@@ -1,6 +1,13 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,macos,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,macos,python
 
+### personal files ###
+makefile
+setup.py
+unifr_api_epuck.json
+
+
+
 ### macOS ###
 # General
 .DS_Store
