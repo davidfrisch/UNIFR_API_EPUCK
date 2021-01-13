@@ -5,15 +5,13 @@ About
 ------
 This is the main file to control the Epuck
 
+code structure :
 
-Epuck
-   __DirectEpuck
+Epuck (Parent class)
+   __DirectEpuck (Child class)
 
-   __WebotsEpuck
+   __WebotsEpuck (Child class)
 
-Parent Epuck class only for communication, common methods and variables and communication purposes. 
-
-Children __DirectEpuck and __WebotsEpuck hidden class which inherate from Epuck class.
 
 
 Constants
@@ -21,6 +19,8 @@ Constants
 .. code-block:: python
 
    #Equivalent constants for Webots and In Real Life (IRL) robots 
+   
+   TIME_STEP = 64
 
    MAX_SPEED = 6.9
    NBR_CALIB = 50
@@ -31,7 +31,6 @@ Constants
 
    CAMERA_WIDTH = 160
    CAMERA_HEIGHT = 120
-   CAMERA_RATE = 8
 
    PROX_SENSORS_COUNT = 8
 

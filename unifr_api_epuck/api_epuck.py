@@ -12,6 +12,8 @@ from multiprocessing import Process
 #####################################
 
 #Equivalent constants for Webots and In Real Life (IRL) robots 
+TIME_STEP = 64
+
 MAX_SPEED = 6.9
 NBR_CALIB = 50
 
@@ -21,7 +23,6 @@ OFFSET_CALIB = 5
 
 CAMERA_WIDTH = 160
 CAMERA_HEIGHT = 120
-CAMERA_RATE = 8
 
 PROX_SENSORS_COUNT = 8
 PROX_RIGHT_FRONT = 0
@@ -90,7 +91,7 @@ def robot_setup(ip_addr=None,main_loop=None):
         main_loop(rob)
 
     else:
-        print('Need help ? read the doc')
+        print('No instance of robot created.')
 
 
 
@@ -115,30 +116,30 @@ class Epuck:
     """
     .. note:: For IRL and Webots Epucks
 
-    :var ip_addr: str
+    :var ip_addr: str - 
         the private ip address of the robot
-    :var ps: array of int
+    :var ps: array of int - 
         for storing the values of the infra-red sensors 
-    :var ps_err: array of int
+    :var ps_err: array of int - 
         denoise the infra-red values
-    :var ls: array of int
+    :var ls: array of int - 
         for storing the values of the light sensors
-    :var ls_err: array of int
+    :var ls_err: array of int - 
         denoise the light values
-    :var gs: array of int
+    :var gs: array of int - 
         for storing the ground sensors values
 
-    :var red: array of red value in the camera of the robot
-    :var green: array of green value in the camera of the robot
-    :var blue: array of blue value in the camera of the robot
-    :var counter_img: number of picture taken 
+    :var red: array of red values of the camera from the robot
+    :var green: array of green values of the camera from the robot
+    :var blue: array of blue value in the camera from the robot
+    :var counter_img: number of picture taken from the robot
     """
 
     def __init__(self, ip_addr): 
         """
-        Init the robot
+        Initiate the robot
 
-        :param ip_addr: str The IP address of the Epuck
+        :param ip_addr: str - The IP address of the real Epuck
            
         """
         self.host = None
@@ -163,7 +164,7 @@ class Epuck:
         self.blue = [] 
 
         #var for camera
-        self.counter_img = 10
+        self.counter_img = 0
 
     def before_jpy_cell(self):
         """
@@ -179,7 +180,7 @@ class Epuck:
 
     def __tcp_init(self):
         """
-            Init the TCP communication between the robot and host computer.
+            Initiate the TCP communication between the robot and host computer.
 
             prints "connected to x.x.x.x" once connection succeed
 
@@ -209,35 +210,37 @@ class Epuck:
 
     def get_ip(self):
         """
-        .. note:: Specific IRL
+        same as get_id()
 
-        :returns: ip address of the robot
+        :returns:   On Webots : The id of the robot 
+
+                    On IRL : The ip address
         """
         pass
 
     def init_sensors(self):
         """
-        Start sensors of the EPUCK
+        Start sensors of the robot
         """
         pass
 
     def disable_sensors(self):
         """
-        Disable sensors of the EPUCK
+        Disable sensors of the robot
         """
         pass
 
     def init_camera(self, save_image_folder=None):
         """
-        Enable camera of the EPUCK
+        Enable camera of the robot
 
-        :param save_image_folder: insert directory folder where to save the image from camera.
+        :param save_image_folder: insert directory folder to save the image taken by the camera of the robot.
         
         """
         pass
 
     def disable_camera(self):
-        """Disable camera of the EPUCK"""
+        """Disable camera of the robot"""
         pass
 
     #############################
@@ -267,11 +270,11 @@ class Epuck:
         .. important:: 
             Mandatory method.
 
-            This method has to be put in the condition loop for infinite 
-            looping such that the robot running.
+            This method must be called before execution of next step of the robot.
 
         .. tip::
-            If you would like to finish the infinite loop, `break`.
+            Put it as a condition in a while loop.
+            Then, if you would like to finish this infinite loop, `break` inside.
 
         In Webots:
             Simulate next frame
@@ -281,7 +284,7 @@ class Epuck:
 
             
 
-        :returns: True (IRL: if no problem occured in __recevied_command())
+        :returns: True (IRL: if no problem occured)
         """
        
 
@@ -322,7 +325,7 @@ class Epuck:
 
 
     def set_speed(self, speed_left, speed_right=None):
-        """ Set speed of the robots motors . 
+        """Set speed of the robot motors. 
         
         :param speed_left: int
             left motor speed 
@@ -339,9 +342,9 @@ class Epuck:
         """ 
         Get the number of steps since the beggining of the process. 
 
-        .. hint:: 1000 steps are 1 revolution (1 full turn of the wheel)
+         .. warning:: Only available for IRL robots
 
-        .. note:: Only available for IRL robots
+        .. hint:: 1000 steps are 1 revolution (1 full turn of the wheel)
 
         :returns: [left_wheel, right_wheel]
         :rtype: [int, int]
@@ -361,13 +364,10 @@ class Epuck:
             * Only LED 1,3,5 and 7 are RGB
             * the three color must be specify to use rgb
 
-        :param red: red intensity (value between 0 and 100)
-        :param green: green intensity (value between 0 and 100)
-        :param blue: blue intensity (value between 0 and 100)
+        :param red: int - red intensity (value between 0 and 100)
+        :param green: int - green intensity (value between 0 and 100)
+        :param blue: int - blue intensity (value between 0 and 100)
 
-        :rtype red: int, optional
-        :rtype green: int, optional
-        :rtype bluee: int, optional
         """
         pass
 
@@ -375,7 +375,7 @@ class Epuck:
     def disable_led(self, led_position):
         """ Turn off led at led_position
 
-        :param led_position: int (value between 0 and 7)
+        :param led_position: int - (value between 0 and 7)
         """
         pass
 
@@ -434,8 +434,8 @@ class Epuck:
             6. prox left front diagonale 
             7. prox left front 
 
-        :returns: the proximities values (length 8) 
-        :rtype: int Array
+        :returns: the proximities values 
+        :rtype: int array - (length 8) 
         """
         pass 
 
@@ -445,9 +445,7 @@ class Epuck:
 
         Clean the default values of the infra-red proximitors when robot has no obstacles near it. (take off "noise")  
 
-        Robot is calibrating when its all LEDs are ON.
-        Turns off its LED when calibration is finish.
-
+        Robot is calibrating when all its LEDs are ON.
         """
         # init array for calibration values
         self.ps_err = [0 for _ in range(PROX_SENSORS_COUNT)]
@@ -494,8 +492,8 @@ class Epuck:
             6. prox left front diagonale 
             7. prox left front 
 
-        :returns:  The corrected proximities values (length 8)
-        :rtype: int Array
+        :returns:  The corrected proximities values 
+        :rtype: int array - (length 8)
         """
         prox_vals = self.get_prox()
         prox_corr = [0]*PROX_SENSORS_COUNT
@@ -524,8 +522,8 @@ class Epuck:
 
         .. note:: IR ambient: between 0 (strong light) and 4095 (dark)
 
-        :returns: The light sensors values (length 8)
-        :rtype: int Array
+        :returns: The light sensors values 
+        :rtype: int array - (length 8)
         """
         pass        
 
@@ -536,9 +534,7 @@ class Epuck:
         Clean the default values of the light proximitors when robot 
              is in ambient light. (take off "noise")  
 
-             Robot is calibrating when its all LEDs are ON.
-             Turns off its LED when calibration is finish.
-
+             Robot is calibrating when all its LEDs are ON.
         """
         pass       
 
@@ -551,8 +547,8 @@ class Epuck:
         .. note:: 
             IR ambient: between 0 (strong light) and 4095 (dark)
 
-        :returns:  The corrected lights values (length 8)
-        :rtype: int Array
+        :returns:  The corrected lights values 
+        :rtype: int array - (length 8)
         """
         pass 
 
@@ -562,6 +558,11 @@ class Epuck:
 
         .. note::
             On Webots, you must add ➕ the exentension node name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
+
+        .. image:: res/addGroundSensors.png
+            :width: 400
+            :alt: Picture of the main GUI Epuck
+
         """
         pass      
 
@@ -579,15 +580,14 @@ class Epuck:
             1. MIDDLE
             2. RIGHT
 
-        :returns: int array of the ground values (length 3)
-        :rtype: int array: [LEFT,MIDDLE,RIGHT]
+        :returns: int array of the ground values 
+        :rtype: int array - [LEFT,MIDDLE,RIGHT]
         """
         pass     
 
 
     def get_gyro(self):
-        """
-        
+        """  
         Get gyroscope values (axis x, y and z)
 
         .. note:: Raw axes values, between -32768 and 32767, range is +-250dps
@@ -600,14 +600,13 @@ class Epuck:
     def get_gyro_axes(self):
         """Get gyroscope values (axis x, y and z)
 
-        :return int: x,y,z
+        :return int: x, y, z
         
         """
         pass       
     
     def get_accelerometer(self):
         """
-        
         Get the accelerometer value
 
         .. note:: acceleration magnitude, between 0.0 and about 2600.0 (~3.46 g)
@@ -631,10 +630,9 @@ class Epuck:
         """
         .. note:: Specific IRL
 
-        Get microphones intensity
+        Get microphones intensity 
 
         .. note:: Mic volume: between 0 and 4095
-
 
         :returns: [front, right, back, left]
         :rtype: array of int
@@ -681,7 +679,7 @@ class Epuck:
         """
         Get the Time Of Flight value
 
-        .. caution:: The TOF sensor can have different orientation depending of the epuck.
+        .. caution:: The TOF sensor can physically have different orientation depending of the robot.
 
         :returns: values in millimiters
         :rtype: int
@@ -805,14 +803,13 @@ class Epuck:
     def init_communication(self, host_creator=None, host_ip='localhost'):
         """
 
-        .. attention:: If host_creator is not defined, you must first `run python -m unifr_api_epuck` before launching robots.
+        .. attention:: If host_creator is not defined, you must first `run python -m unifr_api_epuck` before launching the robots.
 
-        Initiate the communication between host and epucks.
-
-        Firstly creates host from host_creator (if host_creator specified to an e-puck)
-        Secondly robot connects to host
-
+        Initiate the communication between host and robots.
         """    
+        # Firstly it creates host from host_creator (if host_creator specified to an e-puck)
+        # Secondly robot connects to host
+
         #creating host manager
         if self.get_id() == host_creator:
             try:
@@ -973,16 +970,13 @@ class __DirectEpuck(Epuck):
         """
         A class used to represent a robot In Real Life (IRL).
 
-        :param ip_addr: str
-            The IP address of the Epuck
+        :param ip_addr: str - The IP address of the Epuck
         """
         #communication Robot <-> Computer
         self.sock = 0
         self.header = bytearray([0] * 1)
         self.command = bytearray([0] * COMMAND_PACKET_SIZE)
         
-       
-      
         #camera init specific for IRL
         self.camera_width = CAMERA_WIDTH
         self.camera_height = CAMERA_HEIGHT
@@ -1076,7 +1070,6 @@ class __DirectEpuck(Epuck):
 
     def init_sensors(self):
         self.command[1] = self.command[1] | (1 << 1)
-
         # start sensor calibration, with the intern calibration
         # --> command[2] = 1
         self.command[2] = 0  # calibrate on board
@@ -1098,9 +1091,9 @@ class __DirectEpuck(Epuck):
         # Force last bit to 0
         self.command[1] = self.command[1] & 0xFE
 
-    #############################
-    ## COMMUNICATION METHODS   ##
-    #############################
+    #####################################################
+    ## COMMUNICATION METHODS between robot and master  ##
+    #####################################################
     
     def __send_to_robot(self):
         byte_send = 0
@@ -1169,7 +1162,7 @@ class __DirectEpuck(Epuck):
 
 
     def __set_speed_left(self, speed_left):
-        #speed_left = int(super().bounded_speed(speed_left)*100)
+        speed_left = int(super().bounded_speed(speed_left)*100)
         
         # get the two's complement for neg values
         if speed_left < 0:
@@ -1180,7 +1173,9 @@ class __DirectEpuck(Epuck):
 
 
     def __set_speed_right(self, speed_right):
-        #speed_right = int(super().bounded_speed(speed_right)*100)
+        
+        # *100 offset with Webots
+        speed_right = int(super().bounded_speed(speed_right)*100)
 
         # get the two's complement for neg values
         if speed_right < 0:
@@ -1195,7 +1190,6 @@ class __DirectEpuck(Epuck):
         if not speed_right and speed_right != 0:
             speed_right = speed_left
 
-        # *100 offset with Webots
         self.__set_speed_left(speed_left)
         self.__set_speed_right(speed_right)
 
@@ -1651,10 +1645,8 @@ class __DirectEpuck(Epuck):
 ## CONSTANTS FOR WEBOTS ##
 ##########################
 
-TIME_STEP = 64
-
 """
-# To uncomment if you want to use Webot specific communication
+# Uncomment if you want to use Webot specific communication
 COM_CHANNEL = 1
 MSG_NONE = 'ZZZ'
 MSG_LENGTH = 4
