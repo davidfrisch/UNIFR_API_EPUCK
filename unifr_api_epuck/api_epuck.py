@@ -8,10 +8,10 @@ from multiprocessing import Process
 
 
 #####################################
-## CONSTANTS FOR WEBOTS AND IRL   ##
+## CONSTANTS FOR WEBOTS AND In Real Life   ##
 #####################################
 
-#Equivalent constants for Webots and In Real Life (IRL) robots 
+#Equivalent constants for Webots and In Real Life (In Real Life) robots 
 TIME_STEP = 64
 
 MAX_SPEED = 6.9
@@ -39,10 +39,10 @@ GS_LEFT = 0
 GS_CENTER = 1
 GS_RIGHT = 2
 
+MAX_MESSAGE = 30
 
 
-
-def __get_robot(ip_addr=None):
+def get_robot(ip_addr=None):
     """
     Get EPUCK instance
     :params ip_addr: ip address of the EPUCK.
@@ -54,7 +54,7 @@ def __get_robot(ip_addr=None):
     return __get_robot_webot()
     
 def __get_robot_direct(ip_addr):
-    "Return an IRL Epuck instance"
+    "Return an In Real Life Epuck instance"
     print('starting connection with ' + str(ip_addr))
     return __DirectEpuck(ip_addr)
 
@@ -79,15 +79,15 @@ def robot_setup(ip_addr=None,main_loop=None):
     """
 
     if not main_loop and ip_addr:
-        rob = __get_robot(ip_addr)
+        rob = get_robot(ip_addr)
         return rob
     
     if ip_addr:
-        rob = __get_robot(ip_addr)
+        rob = get_robot(ip_addr)
         main_loop(rob)
 
     elif main_loop:
-        rob = __get_robot()
+        rob = get_robot()
         main_loop(rob)
 
     else:
@@ -96,7 +96,7 @@ def robot_setup(ip_addr=None,main_loop=None):
 
 
 ######################
-## CONSTANTS FOR IRL ##
+## CONSTANTS FOR In Real Life ##
 ######################
 # For TCP communication
 COMMAND_PACKET_SIZE = 21
@@ -114,7 +114,8 @@ SyncManager.register("shutdown")
 
 class Epuck:
     """
-    .. note:: For IRL and Webots Epucks
+
+    .. note:: For In Real Life and Webots Epucks
 
     :var ip_addr: str - 
         the private ip address of the robot
@@ -204,7 +205,7 @@ class Epuck:
         """
         :returns:   On Webots : The id of the robot 
 
-                    On IRL : The ip address
+                    On In Real Life : The ip address
         """
         pass
 
@@ -214,33 +215,8 @@ class Epuck:
 
         :returns:   On Webots : The id of the robot 
 
-                    On IRL : The ip address
+                    On In Real Life : The ip address
         """
-        pass
-
-    def init_sensors(self):
-        """
-        Start sensors of the robot
-        """
-        pass
-
-    def disable_sensors(self):
-        """
-        Disable sensors of the robot
-        """
-        pass
-
-    def init_camera(self, save_image_folder=None):
-        """
-        Enable camera of the robot
-
-        :param save_image_folder: insert directory folder to save the image taken by the camera of the robot.
-        
-        """
-        pass
-
-    def disable_camera(self):
-        """Disable camera of the robot"""
         pass
 
     #############################
@@ -279,34 +255,19 @@ class Epuck:
         In Webots:
             Simulate next frame
 
-        In IRL:
+        In Real Life:
             Send and receive commands between computer and robot.
 
             
 
-        :returns: True (IRL: if no problem occured)
+        :returns: True (In Real Life: if no problem occured)
         """
-       
-
-    def bounded_speed(self, speed):
-        """
-        Bounds the motor speeds of the robot in case if the user put an excessive value.
-
-        :param speed: speed of a wheel of the Epuck
-        """
-        if speed > MAX_SPEED:
-            print('over the threshold speed, please reduce')
-            return MAX_SPEED
-        elif speed < -MAX_SPEED:
-            print('under the threshlod speed speed increase')
-            return -MAX_SPEED
-        return speed
 
     def __set_speed_left(self, speed_left):
         """
         Set speed of the left motor of the robot
         
-        .. note: Specific IRL 
+        .. note: Specific In Real Life 
 
         :param speed_left: left wheel speed
         """
@@ -315,7 +276,7 @@ class Epuck:
 
     def __set_speed_right(self, speed_right):
         """
-        .. note: Specific IRL
+        .. note: Specific In Real Life
 
         Set speed of the right motor of the robot
         
@@ -338,11 +299,25 @@ class Epuck:
         """
         pass
 
+    def bounded_speed(self, speed):
+        """
+        Bounds the motor speeds of the robot in case if the user put an excessive value.
+
+        :param speed: speed of a wheel of the Epuck
+        """
+        if speed > MAX_SPEED:
+            print('over the threshold speed, please reduce')
+            return MAX_SPEED
+        elif speed < -MAX_SPEED:
+            print('under the threshlod speed speed increase')
+            return -MAX_SPEED
+        return speed
+
     def get_motors_steps(self):
         """ 
         Get the number of steps since the beggining of the process. 
 
-         .. warning:: Only available for IRL robots
+         .. warning:: Only available for In Real Life robots
 
         .. hint:: 1000 steps are 1 revolution (1 full turn of the wheel)
 
@@ -350,7 +325,6 @@ class Epuck:
         :rtype: [int, int]
         """
         pass
-
 
 
     def toggle_led(self, led_position, red=None, green=None, blue=None):
@@ -414,6 +388,18 @@ class Epuck:
     #    LED     #
     ##############
 
+    def init_sensors(self):
+        """
+        Start sensors of the robot
+        """
+        pass
+
+    def disable_sensors(self):
+        """
+        Disable sensors of the robot
+        """
+        pass
+
     def get_prox(self):
         """Get proximity sensors values of the robot
 
@@ -441,7 +427,7 @@ class Epuck:
 
     def calibrate_prox(self):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         Clean the default values of the infra-red proximitors when robot has no obstacles near it. (take off "noise")  
 
@@ -473,7 +459,7 @@ class Epuck:
 
     def get_calibrate_prox(self):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         Get the array prox values without the noise of the proximitors
 
@@ -513,7 +499,7 @@ class Epuck:
         """
             .. note:: Specific to Webots
 
-            This will not affect IRL code but it is only useful to initiate lights on Webots.
+            This will not affect In Real Life code but it is only useful to initiate lights on Webots.
         """
         pass
 
@@ -529,7 +515,7 @@ class Epuck:
 
     def __calibrate_lights(self):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         Clean the default values of the light proximitors when robot 
              is in ambient light. (take off "noise")  
@@ -540,7 +526,7 @@ class Epuck:
 
     def get_lights_calibrated(self):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         Get the array lights values without the noise of the lights
 
@@ -623,22 +609,7 @@ class Epuck:
         :returns: x,y,z
         :rtype: three int
         """
-        pass       
-
-    # return front, right, back. left microphones
-    def get_microphones(self):
-        """
-        .. note:: Specific IRL
-
-        Get microphones intensity 
-
-        .. note:: Mic volume: between 0 and 4095
-
-        :returns: [front, right, back, left]
-        :rtype: array of int
-        """
-        pass       
-
+        pass    
 
     #https://stackoverflow.com/questions/3755059/3d-accelerometer-calculate-the-orientation
     #definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
@@ -662,9 +633,8 @@ class Epuck:
         :returns: pitch axis degree 
         :rtype: float
         """
-        pass      
+        pass       
 
-    
     def get_temperature(self):
         """
         Returns temperature of robot in degree Celsius
@@ -705,13 +675,26 @@ class Epuck:
     
     def __save_bmp_image(self, filename):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         The bmp image save as the filename in the computer
 
         :param filename: str - filename where to save the images
         
         """
+        pass
+
+    def init_camera(self, save_image_folder=None):
+        """
+        Enable camera of the robot
+
+        :param save_image_folder: insert directory folder to save the image taken by the camera of the robot.
+        
+        """
+        pass
+
+    def disable_camera(self):
+        """Disable camera of the robot"""
         pass
 
     def get_camera(self):
@@ -726,15 +709,13 @@ class Epuck:
     
     def take_picture(self):
         """
-        .. note:: Specific IRL
-
         Take a picture and save it 
         """
         pass       
     
     def live_camera(self, live_time=None):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
         
         Live camera from the embedded camera of the robot
             The live_camera need to be refresh at each step
@@ -748,6 +729,30 @@ class Epuck:
         """
         pass
 
+    # return front, right, back. left microphones
+    def get_microphones(self):
+        """
+        .. note:: Specific In Real Life
+
+        Get microphones intensity 
+
+        .. note:: Mic volume: between 0 and 4095
+
+        :returns: [front, right, back, left]
+        :rtype: array of int
+        """
+        pass  
+
+    def play_sound(self, sound_number):
+        """
+        .. note:: Specific In Real Life
+
+        Plays correspond music of the sound_number
+
+        :param sound_number: int - (between 0 and 2)
+        
+        """
+        pass 
        
     def play_mario(self):
         """
@@ -778,21 +783,10 @@ class Epuck:
 
     def stop_sound(self):
         """
-        .. note:: Specific IRL
+        .. note:: Specific In Real Life
 
         Stop music from the robot
 
-        """
-        pass
-
-    def play_sound(self, sound_number):
-        """
-        .. note:: Specific IRL
-
-        Plays correspond music of the sound_number
-
-        :param sound_number: int - (between 0 and 2)
-        
         """
         pass
 
@@ -870,12 +864,9 @@ class Epuck:
             Put a message to each queue of other robots.
 
             :param msg: any - Message to send
-
-            :var max_messages: maximum number of messages in the epuck message box
             
         """
         #strictly subjective value to avoid overload
-        max_messages = 30
 
         if self.manager:
             try:
@@ -887,7 +878,7 @@ class Epuck:
                     if epuck_value != self.get_id():
                         current_array = current_dict[epuck_value]
 
-                        if len(current_array) < max_messages:
+                        if len(current_array) < MAX_MESSAGE:
                             current_array.append(msg)
                         
                         #update the dictionnary
@@ -968,7 +959,7 @@ class __DirectEpuck(Epuck):
        
         super().__init__(ip_addr)
         """
-        A class used to represent a robot In Real Life (IRL).
+        A class used to represent a robot In Real Life (In Real Life).
 
         :param ip_addr: str - The IP address of the Epuck
         """
@@ -977,7 +968,7 @@ class __DirectEpuck(Epuck):
         self.header = bytearray([0] * 1)
         self.command = bytearray([0] * COMMAND_PACKET_SIZE)
         
-        #camera init specific for IRL
+        #camera init specific for In Real Life
         self.camera_width = CAMERA_WIDTH
         self.camera_height = CAMERA_HEIGHT
         self.rgb565 = [0 for _ in range(IMAGE_PACKET_SIZE)]
@@ -1063,7 +1054,7 @@ class __DirectEpuck(Epuck):
         self.command[20] = 0  # speaker
     
     def get_id(self):
-        return self.ip_addr
+        return self.get_ip().replace('.','_')
 
     def get_ip(self):
         return self.ip_addr
@@ -1078,18 +1069,6 @@ class __DirectEpuck(Epuck):
         # put the second bit to last at 0
         self.command[1] = self.command[1] & 0xFD
 
-    def init_camera(self, save_image_folder=None):
-        if not save_image_folder:
-            save_image_folder = './'
-
-        self.my_filename_current_image = save_image_folder+'/'+self.get_ip()+'_image_video.bmp'
-        print(self.my_filename_current_image)
-        print('camera enable')
-        self.command[1] = self.command[1] | 1
-
-    def disable_camera(self):
-        # Force last bit to 0
-        self.command[1] = self.command[1] & 0xFE
 
     #####################################################
     ## COMMUNICATION METHODS between robot and master  ##
@@ -1370,7 +1349,7 @@ class __DirectEpuck(Epuck):
         return light_values
 
     def init_ground(self):
-        "No need for IRL robots"
+        "No need for In Real Life robots"
         pass
 
     def get_ground(self):
@@ -1540,6 +1519,19 @@ class __DirectEpuck(Epuck):
                 file.write(image[(width * (height - i - 1) * 3):(width * (height - i - 1) * 3) + (3 * width)])
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
+
+    def init_camera(self, save_image_folder=None, camera_rate = 1):
+        if not save_image_folder:
+            save_image_folder = './'
+
+        self.my_filename_current_image = save_image_folder+'/'+self.get_id()+'_image_video.bmp'
+        print(self.my_filename_current_image)
+        print('camera enable')
+        self.command[1] = self.command[1] | 1
+
+    def disable_camera(self):
+        # Force last bit to 0
+        self.command[1] = self.command[1] & 0xFE
     
     def get_camera(self):
         if self.camera_updated:
@@ -1555,18 +1547,18 @@ class __DirectEpuck(Epuck):
             self.green.append(self.bgr888[3 * i + 1])
             self.blue.append(self.bgr888[3 * i])
 
-        return self.red,self.green,self.blue
+        return self.red, self.green, self.blue
 
     
     def take_picture(self):
         if self.my_filename_current_image:
             #removing the last 4 character of my_filename_current_image
             #because we removing the file format to put it back to the end
-            self.__save_bmp_image(self.my_filename_current_image[:-4]+self.counter_img +'.bmp')  
+            self.__save_bmp_image(self.my_filename_current_image[:-4] + f"{self.counter_img:0>4}" +'.bmp')  
             self.counter_img+=1
 
     
-    def live_camera(self,live_time=None):
+    def live_camera(self, live_time=None):
         if not self.has_start_stream:
             # time setting
             self.start_time = time.process_time()
@@ -1701,7 +1693,7 @@ class __WebotsEpuck(Epuck):
         self.receiver.enable(TIME_STEP)
         """
 
-    
+   
     def go_on(self):
         super().go_on()
         self.robot.step(TIME_STEP)
@@ -1898,12 +1890,12 @@ class __WebotsEpuck(Epuck):
     #################
     #Need to init_camera before calling other methods
 
-    def init_camera(self, save_image_folder=None):
+    def init_camera(self, save_image_folder=None, camera_rate = 1):
         if not save_image_folder:
             save_image_folder = './'
 
         self.save_image_folder = save_image_folder
-        self.camera.enable(TIME_STEP)
+        self.camera.enable(TIME_STEP*camera_rate)
 
     #https://www.cyberbotics.com/doc/reference/camera?tab-language=python
     def take_picture(self):
@@ -1954,7 +1946,7 @@ class __WebotsEpuck(Epuck):
     def stop_sound(self):
         print('Cannot play music on Webots')
 
-    def play_sound(self,sound_number):
+    def play_sound(self, sound_number):
         print('Cannot play music on Webots')
 
     #################

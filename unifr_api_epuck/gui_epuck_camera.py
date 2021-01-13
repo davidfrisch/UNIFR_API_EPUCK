@@ -16,7 +16,7 @@ class MonitorCamera(tk.Frame):
     def __init__(self, file_directory, epuck_ip, master=None):
         tk.Frame.__init__(self, master)
 
-        self.epuck_ip = epuck_ip
+        self.epuck_id = epuck_ip.replace('.','_')
         self.file_directory = file_directory
         self.counter_img = 0
 
@@ -34,7 +34,7 @@ class MonitorCamera(tk.Frame):
         self.canvas = tk.Canvas(self)
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.image = None  # none yet
-        self.image_directory = file_directory+'/'+epuck_ip+'_image_video.bmp'
+        self.image_directory = file_directory+'/'+self.epuck_id+'_image_video.bmp'
 
         tk.Button(self, text='Take Picture', command=self.take_picture).pack()
 
@@ -72,22 +72,22 @@ class MonitorCamera(tk.Frame):
 
     def take_picture(self):
         src_dir = self.file_directory
-        name_epuck = self.epuck_ip.replace(".","_")
         # create a dir where we want to copy and rename
+
         try:
-            dest_dir = os.mkdir(self.file_directory+'/picture_taken_from_'+ name_epuck)
+            dest_dir = os.mkdir(self.file_directory+'/picture_taken_from_'+ self.epuck_id)
             os.listdir()
         except:
             pass
 
         
-        dest_dir = src_dir+'/picture_taken_from_'+ name_epuck
-        src_file = os.path.join(src_dir, self.epuck_ip+'_image_video.bmp')
+        dest_dir = src_dir+'/picture_taken_from_'+ self.epuck_id
+        src_file = os.path.join(src_dir, self.epuck_id+'_image_video.bmp')
         shutil.copy(src_file, dest_dir) #copy the file to destination dir
 
 
-        dst_file = os.path.join(dest_dir,self.epuck_ip+'_image_video.bmp')
-        new_dst_file_name = os.path.join(dest_dir, 'image'+str(self.counter_img)+'.bmp')
+        dst_file = os.path.join(dest_dir,self.epuck_id+'_image_video.bmp')
+        new_dst_file_name = os.path.join(dest_dir, 'btn_image'+ f"{self.counter_img:0>4}" +'.bmp')
 
         os.rename(dst_file, new_dst_file_name)#rename
         os.chdir(dest_dir)

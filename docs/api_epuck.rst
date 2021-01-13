@@ -48,6 +48,8 @@ Constants
    GS_CENTER = 1
    GS_RIGHT = 2
 
+   MAX_MESSAGE = 30
+
 
 Code
 ------
@@ -56,3 +58,27 @@ Code
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Table Of Contents
+-------------------
+
+* :py:meth:`Motors<api_epuck.Epuck.set_speed>`
+* :py:meth:`LED<api_epuck.Epuck.toggled_led>`
+* :py:meth:`Proximity Sensors<api_epuck.Epuck.init_sensors>`
+* :py:meth:`Ground Sensors<api_epuck.Epuck.init_ground>`
+* :py:meth:`Camera<api_epuck.Epuck.init_camera>`
+* :py:meth:`Communication<api_epuck.Epuck.init_communication>`
+* :py:meth:`Time Of Flight<api_epuck.Epuck.get_tof>`
+* :py:meth:`Ambient Light Sensors<api_epuck.Epuck.init_lights>`
+* :py:meth:`Gyroscope<api_epuck.Epuck.get_gyro>`
+* :py:meth:`Accelerometer<api_epuck.Epuck.get_accelerometer>`
+* :py:meth:`Microphones<api_epuck.Epuck.get_microphones>`
+* :py:meth:`Magnetometer<api_epuck.Epuck.get_magnetometer>`
+* :py:meth:`Play Sound<api_epuck.Epuck.play_sound>`
+
+
+
+
+
+

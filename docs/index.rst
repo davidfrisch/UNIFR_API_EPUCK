@@ -7,17 +7,9 @@ Welcome to UNIFR API Epuck's documentation!
 ===========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
+   readme
    api_epuck
    graphic_user_interface
-
-
-
-Indices and tables
-==================
-
-* :ref:`search`
-* :ref:`genindex`
-
