@@ -13,11 +13,11 @@ class MonitorCamera(tk.Frame):
         Frame tkinter Object to display the stream of the Epuck camera
     """
 
-    def __init__(self, file_directory, epuck_ip, master=None):
+    def __init__(self, folder_directory, epuck_ip, master=None):
         tk.Frame.__init__(self, master)
 
         self.epuck_id = epuck_ip.replace('.','_')
-        self.file_directory = file_directory
+        self.folder_directory = folder_directory
         self.counter_img = 0
 
         # begin of frame for refresh rate parameter
@@ -34,13 +34,27 @@ class MonitorCamera(tk.Frame):
         self.canvas = tk.Canvas(self)
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.image = None  # none yet
-        self.image_directory = file_directory+'/'+self.epuck_id+'_image_video.bmp'
+        
+
+        #check if is real robot
+        try:
+            self.image_directory = folder_directory+'/'+self.epuck_id+'_image_video.bmp'
+            load = Image.open(self.image_directory)
+            load = load.resize((320, 240), Image.ADAPTIVE)
+        except:
+            #check if it is simulation
+            try:
+                self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.jpg'
+                load = Image.open(self.image_directory)
+                load = load.resize((320, 240), Image.ADAPTIVE)
+            except:
+                load = None
 
         tk.Button(self, text='Take Picture', command=self.take_picture).pack()
 
         # begin of text to display directory of where the image is load
         data_string = tk.StringVar()
-        data_string.set('\''+file_directory+'\'')
+        data_string.set('\''+folder_directory+'\'')
         text_dir = tk.Entry(self, width=40, textvariable=data_string,
                             fg="black", bg="white", bd=0, state="readonly")
         text_dir.pack(side='bottom')
@@ -55,6 +69,8 @@ class MonitorCamera(tk.Frame):
             load = load.resize((320, 240), Image.ADAPTIVE)
         except:
             load = None
+
+            
 
         if load:
             w, h = load.size
@@ -71,22 +87,21 @@ class MonitorCamera(tk.Frame):
         self.after(self.refresh_rate_val.get(), self.update)
 
     def take_picture(self):
-        src_dir = self.file_directory
+        src_dir = self.folder_directory
         # create a dir where we want to copy and rename
 
         try:
-            dest_dir = os.mkdir(self.file_directory+'/picture_taken_from_'+ self.epuck_id)
+            dest_dir = os.mkdir(self.folder_directory+'/picture_taken_from_'+ self.epuck_id)
             os.listdir()
         except:
             pass
 
         
         dest_dir = src_dir+'/picture_taken_from_'+ self.epuck_id
-        src_file = os.path.join(src_dir, self.epuck_id+'_image_video.bmp')
+        src_file = os.path.join(src_dir, self.image_directory)
         shutil.copy(src_file, dest_dir) #copy the file to destination dir
 
-
-        dst_file = os.path.join(dest_dir,self.epuck_id+'_image_video.bmp')
+        dst_file = os.path.join(dest_dir, self.image_directory)
         new_dst_file_name = os.path.join(dest_dir, 'btn_image'+ f"{self.counter_img:0>4}" +'.bmp')
 
         os.rename(dst_file, new_dst_file_name)#rename
@@ -96,11 +111,11 @@ class MonitorCamera(tk.Frame):
 
 
 
-def main(file_directory, epuck_ip):
+def main(folder_directory, epuck_ip):
     """
     Main function for GUI Epuck Camera
 
-    :param file_directory: In which folder the image is loaded
+    :param folder_directory: In which folder the image is loaded
     :param epuck_ip: IP address of the epuck for unicity image load purpose.
     """
     # creating the window
@@ -109,7 +124,7 @@ def main(file_directory, epuck_ip):
     root.title(f'Camera of {epuck_ip}')
 
     # define the window
-    app = MonitorCamera(file_directory, epuck_ip, root)
+    app = MonitorCamera(folder_directory, epuck_ip, root)
     app.pack(fill=tk.BOTH, expand=1)
 
     # refresh after 1sec

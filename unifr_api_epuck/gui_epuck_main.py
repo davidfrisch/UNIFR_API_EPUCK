@@ -63,7 +63,7 @@ class MainWindow(tk.Frame):
         # camera tools positioning
         cam_frame = tk.Frame(self)
 
-        tk.Label(cam_frame, text='Enter IRL Epuck IP address').pack()
+        tk.Label(cam_frame, text='Enter IP address or Webots Epuck ID').pack()
         self.cmb_epuck_ips = ttk.Combobox(cam_frame, values=self.epuck_ips)
 
         # put first value as initial in the combobox
