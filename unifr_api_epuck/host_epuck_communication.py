@@ -67,13 +67,6 @@ class EpuckCommunicationManager(SyncManager):
                 if not self.is_gui:
                     os.system("python3 gui_epuck_communication.py " + self.ip_addr + " " + str(os.getpid()))
                     print('Shutting down host')
-                    
-
-
-           
-
-        
-   
 
         except OSError:
             print('Server already online')

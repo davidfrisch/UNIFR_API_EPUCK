@@ -109,17 +109,8 @@ class MonitorCamera(tk.Frame):
 
         self.counter_img+=1
 
-
-
-def main(folder_directory, epuck_ip):
-    """
-    Main function for GUI Epuck Camera
-
-    :param folder_directory: In which folder the image is loaded
-    :param epuck_ip: IP address of the epuck for unicity image load purpose.
-    """
-    # creating the window
-    root = tk.Tk()
+def open_new_window(master, folder_directory, epuck_ip):
+    root = tk.Toplevel(master)
     root.geometry("%dx%d" % (325, 330))
     root.title(f'Camera of {epuck_ip}')
 
@@ -130,3 +121,4 @@ def main(folder_directory, epuck_ip):
     # refresh after 1sec
     root.after(1000, app.update)
     root.mainloop()
+

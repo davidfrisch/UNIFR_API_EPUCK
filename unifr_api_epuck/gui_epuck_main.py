@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, StringVar, BOTH, filedialog as fd
 from multiprocessing import Process
-from unifr_api_epuck import gui_epuck_communication as gui_communication
-from unifr_api_epuck import gui_epuck_camera as gui_camera
+from . import gui_epuck_communication as gui_communication
+from . import gui_epuck_camera as gui_camera
 import json
 import webbrowser
 
@@ -99,11 +99,14 @@ class MainWindow(tk.Frame):
         if self.has_set_directory and current_epuck_ip != '':
             if current_epuck_ip in self.epuck_ips:
                 self.epuck_ips.remove(current_epuck_ip)
+                
             # put it in first position
             self.epuck_ips.insert(0, current_epuck_ip)
             self.insert_data_json()
-            Process(target=gui_camera.main, args=(
-                self.folder_dir.get(), current_epuck_ip, )).start()
+
+            # launch gui host communication with TopLevel
+            gui_camera.open_new_window(self, self.folder_dir.get(), current_epuck_ip)
+
 
     def open_communication_monitor(self):
         # default value
@@ -118,9 +121,9 @@ class MainWindow(tk.Frame):
         self.host_ips.insert(0, current_host_ip)
 
         self.insert_data_json()
-        # launch gui host communication process
-        Process(target=gui_communication.main,
-                args=(current_host_ip,)).start()
+
+        # launch gui host communication with TopLevel
+        gui_communication.open_new_window(self, current_host_ip)
 
     def insert_data_json(self):
         json_object = json.dumps(

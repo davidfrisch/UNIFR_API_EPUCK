@@ -2,8 +2,9 @@ import socket
 import logging
 import struct
 import time
+import sys
 from math import atan2, sqrt, pi, sin, cos
-from unifr_api_epuck import host_epuck_communication as hec
+from . import host_epuck_communication as hec
 from multiprocessing.managers import SyncManager
 from multiprocessing import Process
 
@@ -317,10 +318,8 @@ class Epuck:
         :param speed: speed of a wheel of the Epuck
         """
         if speed > MAX_SPEED:
-            print('over the threshold speed, please reduce')
             return MAX_SPEED
         elif speed < -MAX_SPEED:
-            print('under the threshlod speed speed increase')
             return -MAX_SPEED
         return speed
 
@@ -584,7 +583,7 @@ class Epuck:
         """
         pass
 
-    def get_accelerometer(self):
+    def get_acceleration(self):
         """
         Get the accelerometer value
 
@@ -797,7 +796,7 @@ class Epuck:
     # COMMUNICATION #
     #################
 
-    def init_communication(self, host_creator=None, host_ip='localhost'):
+    def init_communication(self, host_ip='localhost'):
         """
 
         .. attention:: If host_creator is not defined, you must first `run python -m unifr_api_epuck` before launching the robots.
@@ -808,7 +807,7 @@ class Epuck:
         # Secondly robot connects to host
 
         # creating host manager
-        if self.get_id() == host_creator:
+        if self.get_ip() == host_ip:
             try:
                 print('    starting server', end=" "),
 
@@ -827,7 +826,7 @@ class Epuck:
                 if time_fail < time.time():
                     print('No communication for ' + self.get_id() +
                           '. Not connected to host manager.')
-                    if not host_creator:
+                    if not host_ip:
                         print(
                             'Please create a GUI host by executing on your terminal: `python3 -m unifr_api_epuck`')
 
@@ -1089,6 +1088,7 @@ class __DirectEpuck(Epuck):
         except:
             print('\033[91m'+'Lost connection of : ' +
                   str(self.get_ip())+'\033[0m')
+            sys.exit(1)
 
     def __receive_from_robot(self):
 
@@ -1105,10 +1105,7 @@ class __DirectEpuck(Epuck):
             self.sensor = self.__receive_part_from_robot(SENSORS_PACKET_SIZE)
 
         # no information
-        # elif header == bytearray([3]):  # Empty ack
-        #   print("empty packet\r\n")
         else:
-            print(f"unexpected packet, please restart {self.get_id()}\r\n")
             return False
 
         return True

@@ -1,5 +1,6 @@
-from tkinter import Label, Frame, Tk, Menu, BOTH
-from unifr_api_epuck import host_epuck_communication as hec
+from tkinter import Label, Frame, Tk, Menu, Entry, Button, Toplevel, ttk
+from tkinter.constants import BOTTOM, BOTH, LEFT
+from . import host_epuck_communication as hec
 from threading import Thread
 from multiprocessing.managers import SyncManager
 import socket
@@ -92,7 +93,72 @@ class MonitorCommunication(Frame):
         except Exception as e:
             Label(text=e, fg='red').pack()
             print(e)
+            sys.exit(1)
 
+        
+        #add input text to send message
+        self.message_frame = Frame(self)
+
+        #list of available Epucks to send messages
+        self.lock.acquire()
+        tmp_dict = self.syncdict.copy()
+        self.available_epucks = [an_epuck for  an_epuck in tmp_dict]
+        self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_available_epucks)
+        self.cmb_available_epucks.pack(side=LEFT)
+        self.lock.release()
+
+        #input data
+        self.message = Entry(self.message_frame)
+        self.message.pack(side=LEFT)
+
+        #send button
+        Button(self.message_frame, text='Send', padx=5, command=self.send_msg).pack(side=LEFT)
+
+        #pack
+        self.message_frame.pack(side=BOTTOM)
+
+    def send_msg(self, event):
+        if self.message.get() != '':
+            if self.cmb_available_epucks.get() == 'All':
+                current_dict = self.syncdict.copy()
+                for epuck in current_dict:
+                    self.send_msg_to(epuck, self.message.get())
+            else:
+                self.send_msg_to(self.cmb_available_epucks.get(), self.message.get())
+            
+            self.message.delete(0, 'end')
+
+        
+    def send_msg_to(self, epuck, msg):
+        if self.manager:
+            try:
+                self.lock.acquire()
+
+                #send msg
+                current_dict = self.syncdict.copy()
+                epuck_inbox = current_dict[epuck]
+                epuck_inbox.append(msg)
+                current_dict.update({epuck: epuck_inbox})
+
+                self.syncdict.update(current_dict)
+                self.lock.release()
+
+            except AttributeError as e:
+                print(e)
+
+            except Exception as e:
+                print(e)
+
+
+    def refresh_available_epucks(self):
+         #list of available Epucks to send messages
+        self.lock.acquire()
+        tmp_dict = self.syncdict.copy()
+        self.available_epucks = [an_epuck for  an_epuck in tmp_dict]
+        self.cmb_available_epucks['values']= self.available_epucks
+        #self.cmb_available_epucks
+        self.lock.release()
+        
     def update_monitor_communication(self):
         try:
             if self.is_alive:
@@ -102,6 +168,7 @@ class MonitorCommunication(Frame):
                 for label in self.list_labels:
                     label.destroy()
 
+                #update pending messages
                 for an_epuck in tmp_dict:
                     text = an_epuck + " has " + \
                         str(len(tmp_dict[an_epuck])) + " messages pending."
@@ -118,41 +185,21 @@ class MonitorCommunication(Frame):
             print(e)
 
 
-def open_window_communication(ip_addr, pid_name):
-    """
-        Parameter of the window app 
-    """
-    root = Tk()
+
+def open_new_window(master, ip_addr):
+    #check if ip_addr exist and remove spaces
+    if not ip_addr or ip_addr == '':
+        ip_addr = 'localhost'
+    
+    pid_name = os.getpid()
+    
+    root = Toplevel(master)
     root.title("Monitor Host Communication")
     root.geometry("500x400")
     monitor = MonitorCommunication(root, ip_addr, pid_name)
+    root.bind('<Return>', monitor.send_msg)
     monitor.init_communication(ip_addr)
     monitor.after(1000, monitor.update_monitor_communication)
     monitor.mainloop()
 
 
-def main(ip_addr, pid_name=None):
-    #check if ip_addr exist and remove spaces
-    if not ip_addr or ip_addr == '':
-        ip_addr = 'localhost'
-    if not pid_name:
-        pid_name = os.getpid()
-
-    open_window_communication(ip_addr, pid_name)
-
-
-if __name__ == "__main__":
-    ip_addr = 'localhost'
-    pid_name = None
-    """
-    if arguments in the command line --> IRL
-    leave empy if using Webots
-    """
-
-    if len(sys.argv) == 2:
-        ip_addr = sys.argv[1]
-
-    if len(sys.argv) == 3:
-        pid_name = sys.argv[2]
-
-    main(ip_addr, pid_name)
