@@ -1,10 +1,10 @@
 import tkinter as tk
 from tkinter import ttk, StringVar, BOTH, filedialog as fd
 from multiprocessing import Process
-from . import gui_epuck_communication as gui_communication
-from . import gui_epuck_camera as gui_camera
 import json
 import webbrowser
+from unifr_api_epuck import gui_epuck_communication 
+from unifr_api_epuck import gui_epuck_camera 
 
 
 class MainWindow(tk.Frame):
@@ -41,13 +41,18 @@ class MainWindow(tk.Frame):
         file_menu = tk.Menu(menu)
         file_menu.add_command(label='Go to Github source',
                               command=self.open_github)
-        #file_menu.add_command(label='Go to Readthedocs', command=self.open_communication_monitor)
+
         file_menu.add_command(label='Exit', command=self.quit)
         menu.add_cascade(label="Window", menu=file_menu)
 
-        # communication
+        ##################################
+        ###    Communication Frame     ###
+        ##################################
+        
         com_frame = tk.Frame(self)
         tk.Label(com_frame, text='Enter Host IP address (default:localhost)').pack()
+
+        #combobox with input
         self.cmb_host_ips = ttk.Combobox(com_frame, values=self.host_ips)
 
         # put first value as initial
@@ -55,15 +60,22 @@ class MainWindow(tk.Frame):
             self.cmb_host_ips.current(0)
         self.cmb_host_ips.pack()
 
+        #insert button
         comm_btn = tk.Button(com_frame, text='Open Communication Monitor',
                              command=self.open_communication_monitor, fg='blue', bg='grey')
         comm_btn.pack(side=tk.TOP, pady=10, padx=10)
         com_frame.pack(pady=40)
 
+        ############################
+        ###    Camera Frame     ###
+        ###########################
+
         # camera tools positioning
         cam_frame = tk.Frame(self)
 
         tk.Label(cam_frame, text='Enter IP address or Webots Epuck ID').pack()
+
+        #combobox with input
         self.cmb_epuck_ips = ttk.Combobox(cam_frame, values=self.epuck_ips)
 
         # put first value as initial in the combobox
@@ -71,6 +83,8 @@ class MainWindow(tk.Frame):
             self.cmb_epuck_ips.current(0)
 
         self.cmb_epuck_ips.pack(pady=10)
+        
+        # directory images selection
         if self.folder_dir.get() != 'Select location folder images':
             self.has_set_directory = True
 
@@ -83,6 +97,7 @@ class MainWindow(tk.Frame):
 
         cam_btn = tk.Button(cam_frame, text='Open Camera Monitor',
                             command=self.open_camera_monitor, fg='blue', bg='grey')
+        
         cam_btn.pack(side=tk.TOP, pady=10, padx=10)
 
         cam_frame.pack(pady=40)
@@ -105,7 +120,7 @@ class MainWindow(tk.Frame):
             self.insert_data_json()
 
             # launch gui host communication with TopLevel
-            gui_camera.open_new_window(self, self.folder_dir.get(), current_epuck_ip)
+            gui_epuck_camera.open_new_window(self, self.folder_dir.get(), current_epuck_ip)
 
 
     def open_communication_monitor(self):
@@ -122,13 +137,13 @@ class MainWindow(tk.Frame):
 
         self.insert_data_json()
 
-        # launch gui host communication with TopLevel
-        gui_communication.open_new_window(self, current_host_ip)
+        # launch gui host communication in TopLevel
+        gui_epuck_communication.open_new_window(self, current_host_ip)
 
     def insert_data_json(self):
         json_object = json.dumps(
-            # [:5] --> will only keep the last 5 records
-            {'host_ips': self.host_ips[:5], 'epuck_ips': self.epuck_ips[:5], 'last_folder_dir': self.folder_dir.get()}, indent=4)
+            # [:10] --> will only keep the last 10 records
+            {'host_ips': self.host_ips[:10], 'epuck_ips': self.epuck_ips[:10], 'last_folder_dir': self.folder_dir.get()}, indent=4)
         with open('unifr_api_epuck.json', 'w') as outfile:
             outfile.write(json_object)
 
@@ -146,7 +161,7 @@ class MainWindow(tk.Frame):
 
     def open_github(self):
         webbrowser.open(
-            'https://github.com/davidfrisch/TravailBachelor', new=2)
+            'https://github.com/davidfrisch/UNIFR_API_EPUCK', new=2)
 
 
 def main():

@@ -102,7 +102,8 @@ class MonitorCamera(tk.Frame):
         shutil.copy(src_file, dest_dir) #copy the file to destination dir
 
         dst_file = os.path.join(dest_dir, self.image_directory)
-        new_dst_file_name = os.path.join(dest_dir, 'btn_image'+ f"{self.counter_img:0>4}" +'.bmp')
+        counter = '{:04d}'.format(self.counter_img)
+        new_dst_file_name = os.path.join(dest_dir, 'btn_image'+ counter +'.bmp')
 
         os.rename(dst_file, new_dst_file_name)#rename
         os.chdir(dest_dir)
@@ -112,7 +113,7 @@ class MonitorCamera(tk.Frame):
 def open_new_window(master, folder_directory, epuck_ip):
     root = tk.Toplevel(master)
     root.geometry("%dx%d" % (325, 330))
-    root.title(f'Camera of {epuck_ip}')
+    root.title('Camera of ' +  epuck_ip)
 
     # define the window
     app = MonitorCamera(folder_directory, epuck_ip, root)
