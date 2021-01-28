@@ -3,8 +3,10 @@ from tkinter import ttk, StringVar, BOTH, filedialog as fd
 from multiprocessing import Process
 import json
 import webbrowser
-from unifr_api_epuck import gui_epuck_communication 
-from unifr_api_epuck import gui_epuck_camera 
+from .gui_epuck_communication import open_new_window_communication
+from .gui_epuck_camera import open_new_window_camera
+#from unifr_api_epuck import gui_epuck_communication 
+#from unifr_api_epuck import gui_epuck_camera
 
 
 class MainWindow(tk.Frame):
@@ -120,7 +122,7 @@ class MainWindow(tk.Frame):
             self.insert_data_json()
 
             # launch gui host communication with TopLevel
-            gui_epuck_camera.open_new_window(self, self.folder_dir.get(), current_epuck_ip)
+            open_new_window_camera(self, self.folder_dir.get(), current_epuck_ip)
 
 
     def open_communication_monitor(self):
@@ -138,7 +140,7 @@ class MainWindow(tk.Frame):
         self.insert_data_json()
 
         # launch gui host communication in TopLevel
-        gui_epuck_communication.open_new_window(self, current_host_ip)
+        open_new_window_communication(self, current_host_ip)
 
     def insert_data_json(self):
         json_object = json.dumps(

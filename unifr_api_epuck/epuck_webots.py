@@ -1,15 +1,11 @@
+#from unifr_api_epuck.epuck import *
+from .epuck import Epuck
 from .epuck import *
-from time import time
+import time
+
 ##########################
 ## CONSTANTS FOR WEBOTS ##
 ##########################
-
-"""
-# Uncomment if you want to use Webot specific communication
-COM_CHANNEL = 1
-MSG_NONE = 'ZZZ'
-MSG_LENGTH = 4
-"""
 
 class WebotsEpuck(Epuck):
 
@@ -63,6 +59,7 @@ class WebotsEpuck(Epuck):
         self.robot.step(TIME_STEP)
 
         # count step of the robot on Webots
+        # TODO odometry
         if self.left_motor.getVelocity() > 0:
             self.left_motor_counter += 1
         elif self.left_motor.getVelocity() < 0:
@@ -190,12 +187,25 @@ class WebotsEpuck(Epuck):
 
 
     def init_ground(self):
+        """
+        Initiates the ground sensors of the robot.
+
+        .. note::
+            On Webots, you must add ➕ the exentension node name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
+        
+        .. image:: ../res/addGroundSensors.png
+            :width: 400
+            :alt: Picture of the main GUI Epuck
+        """
         gsNames = [
             'gs0', 'gs1', 'gs2'
         ]
-        for i in range(GROUND_SENSORS_COUNT):
-            self.gs.append(self.robot.getDevice(gsNames[i]))
-            self.gs[i].enable(TIME_STEP)
+        try:
+            for i in range(GROUND_SENSORS_COUNT):
+                self.gs.append(self.robot.getDevice(gsNames[i]))
+                self.gs[i].enable(TIME_STEP)
+        except Exception as e:
+            print('Did you add the ground sensor extension ? \n'+str(e))
 
     def get_ground(self):
         try:
@@ -256,7 +266,28 @@ class WebotsEpuck(Epuck):
         except Exception as e:
             print(e)
 
-    def live_camera_webots(self, live_time=None):
+    def get_camera(self):
+        self.red, self.blue, self.green = [], [], []
+        cameraData = self.camera.getImage()
+
+        # get the rgb of each pixel
+        for n in range(CAMERA_WIDTH):
+            for m in range(CAMERA_HEIGHT):
+                # get the color component of the pixel (n,m)
+                self.red += [self.camera.imageGetRed(
+                    cameraData, CAMERA_WIDTH, n, m)]
+                self.green += [self.camera.imageGetGreen(
+                    cameraData, CAMERA_WIDTH, n, m)]
+                self.blue += [self.camera.imageGetBlue(
+                    cameraData, CAMERA_WIDTH, n, m)]
+
+        return self.red, self.green, self.blue
+
+    def live_camera(self, live_time=None):
+        """
+        .. note:: 
+            Only call this method if you prefer to stream from the unifr_api_epuck GUI instead of Webots.
+        """
         if not self.has_start_stream:
             # time setting
             self.start_time = time.time()
@@ -275,44 +306,11 @@ class WebotsEpuck(Epuck):
         else:
             self.disable_camera()
 
-    def get_camera(self):
-        self.red, self.blue, self.green = [], [], []
-        cameraData = self.camera.getImage()
-
-        # get the rgb of each pixel
-        for n in range(CAMERA_WIDTH):
-            for m in range(CAMERA_HEIGHT):
-                # get the color component of the pixel (n,m)
-                self.red += [self.camera.imageGetRed(
-                    cameraData, CAMERA_WIDTH, n, m)]
-                self.green += [self.camera.imageGetGreen(
-                    cameraData, CAMERA_WIDTH, n, m)]
-                self.blue += [self.camera.imageGetBlue(
-                    cameraData, CAMERA_WIDTH, n, m)]
-
-        return self.red, self.green, self.blue
-
-    def live_camera(self):
-        print('Not necessary to call the live_camera method on Webots.')
-
     #################
     #       MUSIC   #
     #################
 
-    def play_mario(self):
-        pass
-
-    def play_underworld(self):
-        pass
-
-    def play_star_wars(self):
-        pass
-
-    def stop_sound(self):
-        print('Cannot play music on Webots')
-
-    def play_sound(self, sound_number):
-        print('Cannot play music on Webots')
+    # No music on Webots
 
     #################
     # COMMUNICATION #
@@ -324,6 +322,10 @@ class WebotsEpuck(Epuck):
     # send message to other epucks.
     # It can only send strings
     def send_msg(self, msg):
+        """
+             .. warning ::
+                If you use Webots communication then you can only send strings.
+        """
         if self.emitter == None:
             super().send_msg(msg)
         else:
@@ -354,8 +356,11 @@ class WebotsEpuck(Epuck):
         return None
     
     def init_host_communication(self, _ = None):
-        """if host_id == self.get_id():
-            Thread(target=hec.main, args=(host_ip,)).start()"""
+        """
+            Call this method to use Webots specific communication
+        """
+        #if host_id == self.get_id():
+        #   Thread(target=hec.main, args=(host_ip,)).start()"""
         self.emitter = self.robot.getDevice('emitter')
         self.receiver = self.robot.getDevice('receiver')
         self.emitter.setChannel(1)
@@ -363,6 +368,13 @@ class WebotsEpuck(Epuck):
         self.receiver.enable(TIME_STEP)
 
     def init_client_communication(self, host_ip='localhost'):
+        """
+            If you called the init_host_communication(), then the epuck will connect to the Webots 
+            communication.
+
+            If you do not call the init_host_communication, then the simulated webots will try to find 
+            a host communication.
+        """
         if self.emitter == None:
             return super().init_client_communication(host_ip=host_ip)
 

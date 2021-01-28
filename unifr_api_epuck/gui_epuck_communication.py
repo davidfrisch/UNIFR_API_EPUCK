@@ -6,7 +6,7 @@ import socket
 import os
 import time
 import sys
-from unifr_api_epuck import host_epuck_communication as hec
+from .host_epuck_communication import start_manager_gui, get_available_epucks, DEATH, WARNING_COMM_LIFE_TIME
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
@@ -60,7 +60,7 @@ class MonitorCommunication(Frame):
             try:
                 print('    starting server', end=" "),
                 self.host = Thread(
-                    target=hec.start_manager_gui, args=(host_ip,))
+                    target=start_manager_gui, args=(host_ip,))
                 self.host.start()
                 animation = "|/-\\"
                 for i in range(25):
@@ -100,7 +100,7 @@ class MonitorCommunication(Frame):
         self.lock.acquire(timeout=1)
         tmp_dict = self.syncdict.copy()
         
-        self.available_epucks = hec.get_available_epucks(tmp_dict['connected'])
+        self.available_epucks = get_available_epucks(tmp_dict['connected'])
         self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_combo_list_epucks, state="readonly" )
         self.cmb_available_epucks.pack(side=LEFT)
         
@@ -159,7 +159,7 @@ class MonitorCommunication(Frame):
         #list of available Epucks to send messages
         self.lock.acquire(timeout=1)
         tmp_dict = self.syncdict.copy()
-        available_epucks = hec.get_available_epucks(tmp_dict['connected'])
+        available_epucks = get_available_epucks(tmp_dict['connected'])
         number_available_epucks = len(available_epucks)
 
         if number_available_epucks > 1:
@@ -179,9 +179,9 @@ class MonitorCommunication(Frame):
         
    
     def update_label_connected(self, connected_dict):
-        number_epucks_alive = len(hec.get_available_epucks(connected_dict))
+        number_epucks_alive = len(get_available_epucks(connected_dict))
 
-        if number_epucks_alive > hec.DEATH:
+        if number_epucks_alive > DEATH:
             if number_epucks_alive == 1:
                 text = "There is " + str(number_epucks_alive) + " epuck connected."
 
@@ -198,12 +198,12 @@ class MonitorCommunication(Frame):
     def update_epuck(self, tmp_dict, epuck):
         epuck_mailbox = tmp_dict[epuck]
         life_time = tmp_dict['connected'][epuck]
-        if life_time > hec.DEATH:
+        if life_time > DEATH:
             text = epuck + " has " + \
                 str(len(epuck_mailbox)) + " messages pending."
             a_label = Label(self, text=text)
 
-            if life_time < hec.WARNING_COMM_LIFE_TIME:
+            if life_time < WARNING_COMM_LIFE_TIME:
                     text += '(connecting...)'
        
       
@@ -240,7 +240,7 @@ class MonitorCommunication(Frame):
 
 
 
-def open_new_window(master, ip_addr):
+def open_new_window_communication(master, ip_addr):
     #check if ip_addr exist and remove spaces
     if not ip_addr or ip_addr == '':
         ip_addr = 'localhost'

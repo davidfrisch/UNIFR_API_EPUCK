@@ -63,6 +63,8 @@ Communication Manager Epuck
 
 In this window, you will be able to monitor how many pending messages the E-pucks have.
 
+If an epuck lose the communication with the host, then the robot will disapear from the list and all its pending messages will be erased.
+
 Camera Epuck
 --------------
 

@@ -1,5 +1,5 @@
-from unifr_api_epuck import gui_epuck_main as gem
+from . import gui_epuck_main 
 
 if __name__ == "__main__":   
-    gem.main()
+    gui_epuck_main.main()
     

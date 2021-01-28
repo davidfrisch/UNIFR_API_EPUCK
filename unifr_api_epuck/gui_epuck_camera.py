@@ -110,7 +110,7 @@ class MonitorCamera(tk.Frame):
 
         self.counter_img+=1
 
-def open_new_window(master, folder_directory, epuck_ip):
+def open_new_window_camera(master, folder_directory, epuck_ip):
     root = tk.Toplevel(master)
     root.geometry("%dx%d" % (325, 330))
     root.title('Camera of ' +  epuck_ip)

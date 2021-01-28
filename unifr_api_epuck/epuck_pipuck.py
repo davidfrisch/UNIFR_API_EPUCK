@@ -1,5 +1,8 @@
 # https://github.com/yorkrobotlab/pi-puck/blob/master/python-library/
 
+#from unifr_api_epuck.epuck import *
+#from unifr_api_epuck.ft903 import FT903
+from .epuck import Epuck
 from .epuck import *
 from .ft903 import FT903
 import sys
@@ -399,9 +402,7 @@ class PiPuckEpuck(Epuck):
         return self.prox_ir
 
 
-    def init_ground(self):
-        pass
-
+   
     def get_ground(self):
         ground_data= self.read_register(I2C_GROUND_SENSOR_ADDRESS, 0, 6)
         ground_value = [0] * GROUND_SENSORS_COUNT
@@ -474,6 +475,7 @@ class PiPuckEpuck(Epuck):
         return accValue
 
     def get_temperature(self):
+        #TODO
         pass
 
     #TODO pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python

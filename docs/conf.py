@@ -12,7 +12,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../unifr_api_epuck'))
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../unifr_api_epuck'))
 
 
 # -- Project information -----------------------------------------------------
@@ -33,9 +34,10 @@ release = '1.0.0'
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosectionlabel'
 ]
+add_module_names = False
 
 autodoc_member_order = 'bysource'
-autodoc_mock_imports = ['PIL', 'unifr_api_epuck']
+autodoc_mock_imports = ['PIL','socket','time','sys','smbus2']
 
 
 # Add any paths that contain templates here, relative to this directory.

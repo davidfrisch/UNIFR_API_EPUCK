@@ -1,11 +1,12 @@
+from .epuck import Epuck
 from .epuck import *
-from .api_epuck import *
-from threading import Thread
 import struct
 import socket
 import sys
+import time
 import logging
-#from .host_epuck_communication import * as hec
+import threading as Thread
+from . import host_epuck_communication as hec
 
 ######################
 ## CONSTANTS FOR Real Robot ##
@@ -27,6 +28,7 @@ class WifiEpuck(Epuck):
         super().__init__(ip_addr)
         """
         A class used to represent a robot Real Robot.
+
         :param ip_addr: str - The IP address of the Epuck
         """
         # communication Robot <-> Computer
@@ -46,13 +48,6 @@ class WifiEpuck(Epuck):
         # start communication with computer
         self.__tcp_init()
         self.__init_command()
-
-    def before_jpy_cell(self):
-        self.__tcp_init()
-        self.go_on()
-
-    def after_jpy_cell(self):
-        self.go_on()
 
     def __tcp_init(self):
         """
@@ -186,7 +181,9 @@ class WifiEpuck(Epuck):
             sys.exit(1)
 
     def __receive_from_robot(self):
-        """Receive the packet from the robot
+        """
+        Receive the packet from the robot
+        
         :returns: True if no problem occured
         """
         # depending of the header, we know what data we receive
@@ -231,7 +228,7 @@ class WifiEpuck(Epuck):
     def __set_speed_left(self, speed_left):
         """
         Set speed of the left motor of the robot
-        .. note: Only works with real robots 
+        
         :param speed_left: left wheel speed
         """
         speed_left = int(self.bounded_speed(speed_left))
@@ -559,7 +556,7 @@ class WifiEpuck(Epuck):
             file.write(bmpfileheader)
             file.write(bmpinfoheader)
             for i in range(height):
-                file.write(image[(width * (height - i - 1) * 3)                                 :(width * (height - i - 1) * 3) + (3 * width)])
+                file.write(image[(width * (height - i - 1) * 3):(width * (height - i - 1) * 3) + (3 * width)])
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
     def init_camera(self, save_image_folder=None, camera_rate=1):
@@ -651,8 +648,7 @@ class WifiEpuck(Epuck):
     ##############
 
     def init_host_communication(self, host_ip='localhost'):
-        pass
-        #Thread(target=hec.main, args=(host_ip,)).start()
+        Thread(target=hec.main, args=(host_ip,)).start()
 
     def clean_up(self):
         if self.sock != 0:

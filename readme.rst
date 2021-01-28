@@ -4,7 +4,7 @@ README
 
 link to read the docs : https://unifr-api-epuck.chack.app/index.html
 
-Welcome to the UNIFR API EPUCK's documentation. 
+Welcome to the UNIFR API EPUCK's github. 
 Please find below the instructions to get started with the API.
 
 Submitted by: David Frischer
@@ -33,29 +33,34 @@ How To Start
 
         from unifr_api_epuck import api_epuck as ae
     
-    * Write some code in my_controller method with the instance of the robot in paramater.
+    * Create the the instance of the robot 
+
+    .. code-block:: python
+    
+        MY_IP = None #leave None if using Webots, put IP address if using real robot
+        r = ae.get_robot(MY_IP)
+
+    * control the robot by calling its possilble actions 
 
     .. code-block:: python
 
-        def my_controller(rob):
-            #code here
-            pass
+        r.init_sensors() #init the sensors
+        r.set_speed(-2, 2) #make it turn around himself
 
-    * In your main() method, call the my_controller method 
+        #infinite loop
+        while r.go_on():
+            prox_values = r.get_prox() #get the proximity values
+            print(prox_values)
 
-    .. code-block:: python
-
-        def main():
-            #ip_addresse_of_robot = None #if using Webots simulation
-            ae.setup_robot(ip_addresse_of_robot, my_controller)
+        r.clean_up() #make a fresh clean_up
 
 
 3. If you are:
-    * In Real Life (IRL) run the following command in your terminal in the current directory
+    * In Real Life (IRL) run your python file in your CLI
     
     .. code-block:: shell
 
-        $ python3 my_controller_file.py [ip_adress_of_the_robot]
+        $ python3 my_controller_file.py 
 
     * In Webots : ⏯  press play 
 
@@ -64,36 +69,36 @@ How To Start
         
     .. code-block:: shell
 
-        $ python -m unifr_api_epuck
+        $ python3 -m unifr_api_epuck
 
 
 Example Code
 --------------
 
 | Q: What does it do ?
-| A: The Robot moves forward at a speed of 2, print its proximitors values and stream from its camera.
+| A: The Robot goes forward at a speed of 2, print its proximitors values and stream from its camera.
 
 .. code-block:: python
 
-    from unifr_api_epuck import api_epuck as ae
-    import sys 
+    from unifr_api_epuck_test import api_epuck as ae
+    import sys
 
-    def main_loop(rob):
+    def main_loop(ip_addr):
+        rob = ae.get_robot(ip_addr)
+        rob.set_speed(2)        #speed of the wheels
 
-        rob.set_speed(2)        #speed of the wheels 
+        rob.init_sensors()        #init the sensors for the proxies
+        rob.init_camera('./')     #save image in current directory
 
-        r.init_sensors()        #init the sensors for the proxies              
-        rob.init_camera('./')   #save image in current directory
-
-        #infinite loop 
+        #infinite loop
         while rob.go_on():
-            r.live_stream()     #live stream (you can watch the stream from the GUI !)
-            print(r.get_prox()) #print the proximities values on the console
+            rob.live_camera()     #live stream (you can watch the stream from the GUI !)
+            print(rob.get_prox()) #print the proximities values on the console
 
             #insert some more code here to control rob (your robot)
-            
-        
-        
+
+
+
         rob.clean_up()
 
     if __name__ == "__main__":
@@ -107,8 +112,9 @@ Example Code
 
         if len(sys.argv) == 2:
             ip_addr = sys.argv[1]
-        
-        ae.robot_setup(main_loop, ip_addr)  
+
+
+        main_loop(ip_addr)
 
 
 
@@ -133,5 +139,12 @@ Multiprocess
 Socket errors
     https://docs.python.org/3/library/exceptions.html#OSError
 
+
+Pi-Puck
+    https://pi-puck.readthedocs.io/en/latest/
+    
+    https://github.com/yorkrobotlab/pi-puck
+    
+    https://github.com/gctronic/Pi-puck
         
     

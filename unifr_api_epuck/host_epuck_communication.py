@@ -172,7 +172,3 @@ def main_hec(host_ip='localhost'):
     manager = EpuckCommunicationManager(False, host_ip)
     manager.start()
 
-if __name__ == "__main__":
-    host_ip = 'localhost'
-    main_hec(host_ip)
-    

@@ -1,19 +1,21 @@
-from .epuck_webots import *
-from .epuck_wifi import *
-from .epuck_pipuck import *
+from .epuck_webots import WebotsEpuck 
+from .epuck_wifi import WifiEpuck
+from .epuck_pipuck import PiPuckEpuck
 
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
     Get EPUCK instance
-    :params ip_addr: ip address of the EPUCK.
 
+    .. note::
+        Leave the parameters empty if you will be using Webots
+
+    :params ip_addr: ip address of the EPUCK.
     :returns: instance of the EPUCK
     """
 
     if is_pipuck:
         #IP address of the rasberry PI
-        #If none, cannot initiate communication with other Epuck/PI-Puck
         return __get_robot_pipuck(ip_addr)
 
     if ip_addr != None:
@@ -23,7 +25,9 @@ def get_robot(ip_addr=None, is_pipuck = False):
 
 
 def __get_robot_wifi(ip_addr):
-    "Return an Real Robot Epuck instance"
+    """
+    Return an Real Robot Epuck instance
+    """
     print('initiating connection with ' + str(ip_addr))
 
     return WifiEpuck(ip_addr)
@@ -43,18 +47,21 @@ def __get_robot_webot():
             '\033[91m'+'If you use a Pi-Puck, please put True in first parameter'+'\033[0m')
 
 def __get_robot_pipuck(ip_addr):
-    "Return a Real Robot Pi-puck instance"
+    """
+    Return a Real Robot Pi-puck instance
+    """
     print('initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)
 
-def robot_setup(ip_addr=None, main_loop=None, is_pipuck=False):
+def __robot_setup(ip_addr=None, main_loop=None, is_pipuck=False):
     """
-    configure the robot before launching it.
+    make possible tu run multiple robot with one 
+
+    .. note:: 
+        Leave empty the main_loop if you will be using a jupyter notebook.
 
     :params ip_addr: ip address of the EPUCK.
     :params main_loop: Robot code instructions during execution.
-
-    .. note:: Leave empty the main_loop if you will be using a jupyter notebook.
     """
 
     if not main_loop and ip_addr:
