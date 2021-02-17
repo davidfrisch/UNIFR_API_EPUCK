@@ -8,10 +8,10 @@ Table Of Contents
 * :py:meth:`Proximity Sensors<unifr_api_epuck.epuck_webots.WebotsEpuck.init_sensors>`
 * :py:meth:`Ground Sensors<unifr_api_epuck.epuck_webots.WebotsEpuck.init_ground>`
 * :py:meth:`Camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
-* :py:meth:`Communication<unifr_api_epuck.epuck_webots.WebotsEpuck.init_client_communication>`
+* :py:meth:`Communication<unifr_api_epuck.epuck_webots.WebotsEpuck.init_host_communication>`
 * :py:meth:`Time Of Flight<unifr_api_epuck.epuck_webots.WebotsEpuck.get_tof>`
-* :py:meth:`Gyroscope<unifr_api_epuck.epuck_webots.WebotsEpuck.get_gyro>`
-* :py:meth:`Accelerometer<unifr_api_epuck.epuck_webots.WebotsEpuck.get_accelerometer>`
+* :py:meth:`Gyroscope<unifr_api_epuck.epuck_webots.WebotsEpuck.get_gyro_axes>`
+* :py:meth:`Accelerometer<unifr_api_epuck.epuck_webots.WebotsEpuck.get_accelerometer_axes>`
 
 
 Code
@@ -19,3 +19,4 @@ Code
 
 .. automodule:: unifr_api_epuck.epuck_webots
     :members:
+    :inherited-members:

@@ -1,5 +1,5 @@
 
-Epuck documentation!
+Epuck Documentation
 ===========================================
 
 
@@ -8,7 +8,7 @@ Epuck documentation!
    :caption: Contents:
 
    api_epuck.rst
-   epuck.rst
+   constants.rst
    epuck_wifi.rst
    epuck_webots.rst
    epuck_pipuck.rst

@@ -7,6 +7,6 @@ Welcome to UNIFR API Epuck's documentation!
    :maxdepth: 3
    :caption: Contents:
 
-   readme
+   first_steps
    unifr_api_epuck/index.rst
    graphic_user_interface

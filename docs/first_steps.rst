@@ -1,5 +1,5 @@
 ============
-README
+First Steps
 ============
 
 Welcome to the UNIFR API EPUCK's documentation. 
