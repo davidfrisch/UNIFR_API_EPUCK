@@ -89,7 +89,7 @@ class Epuck:
         """
         Pause the execution during `duration`seconds
 
-        ..warning ::
+        .. warning ::
             This implementation is to be preferred to the standard Python time.sleep() which can lead to problems in the sequence of event handling.
 
         :param duration: duration in seconds
