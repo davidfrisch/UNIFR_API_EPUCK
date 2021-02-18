@@ -1,5 +1,5 @@
-Constants
-------------------------
+Global Constants  
+-------------------
 
 .. code-block:: python
 

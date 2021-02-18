@@ -1,14 +1,14 @@
-API_EPUCK
+api_epuck
 ------------
 
 
 About
 ========
+The api_epuck file lets you get an intance of an Epuck robot
 
 
 Code
 ========
-api_epuck let's you get an intance of an epuck robot
 
 .. automodule:: unifr_api_epuck.api_epuck
     :members:
@@ -17,7 +17,7 @@ api_epuck let's you get an intance of an epuck robot
 Examples
 ==========
 
-* Get instance of a real epuck with its ip address of '192.168.43.125'
+* Get an instance of a real Epuck with its ip address. e.g:IP is 192.168.43.125
 
 .. code-block:: python
 
@@ -26,7 +26,7 @@ Examples
     my_robot = api_epuck.get_robot('192.168.43.125')
 
 
-* Get instance of a webots epuck 
+* Get an instance of a simulated Epuck in Webots
 
 .. code-block:: python
 
@@ -37,12 +37,12 @@ Examples
 
 
 
-* Get instance of epuck from the PiPuck with the ip address of the PiPuck (soon available)
+* Get an instance of epuck from the PiPuck with the ip address of the PiPuck (soon available)
 
 .. code-block:: python
 
     from unifr_api_epuck import api_epuck
 
     #ip address of the pi-puck
-    my_robot = api_epuck.get_robot('192.168.43.11')
+    my_robot = api_epuck.get_robot('192.168.43.11', is_pipuck = True)
 

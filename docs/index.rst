@@ -1,5 +1,5 @@
 
-Welcome to UNIFR API Epuck's documentation!
+Welcome to the UNIFR API Epuck documentation
 ===========================================
 
 

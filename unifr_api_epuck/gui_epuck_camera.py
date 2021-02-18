@@ -87,8 +87,10 @@ class MonitorCamera(tk.Frame):
         self.after(self.refresh_rate_val.get(), self.update)
 
     def take_picture(self):
+        """
+        if necessary creates a new folder and saves the taken picture
+        """
         src_dir = self.folder_directory
-        # create a dir where we want to copy and rename
 
         try:
             dest_dir = os.mkdir(self.folder_directory+'/picture_taken_from_'+ self.epuck_id)

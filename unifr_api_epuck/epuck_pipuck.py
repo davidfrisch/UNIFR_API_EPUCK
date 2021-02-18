@@ -1,13 +1,15 @@
 # https://github.com/yorkrobotlab/pi-puck/blob/master/python-library/
-
-#from unifr_api_epuck.epuck import *
-#from unifr_api_epuck.ft903 import FT903
 from .epuck import Epuck
-from .epuck import *
+from .constants import *
 from .ft903 import FT903
+from .epuck_pipuck_camera_configuration import main as main_cam_configuration
 import sys
-from smbus2 import SMBus, i2c_msg
 import struct
+import subprocess
+from smbus2 import SMBus, i2c_msg
+from threading import Thread
+import cv2
+
 ############################
 ## CONSTANTS FOR PI-Puck  ##
 ############################
@@ -54,20 +56,20 @@ class PiPuckEpuck(Epuck):
         self.pipuck_i2c_bus = None
 
         # camera init specific for Real Robot
+        self.camera = None
         self.camera_width = CAMERA_WIDTH
         self.camera_height = CAMERA_HEIGHT
-        #self.rgb565 = [0 for _ in range(WIFI_IMAGE_PACKET_SIZE)]
-        #self.bgr888 = bytearray([0] * 115200)  # 160x120x3x2
+        self.counter_img = 0
         self.camera_updated = False
         self.my_filename_current_image = ''
 
         #robot propeties
         self.i2c_command = bytearray([0] * I2C_COMMAND_PACKET_SIZE)
         self.sensors_data = bytearray([0] * I2C_SENSORS_PACKET_SIZE)
-        self.prox_ir = [0 for x in range(8)]
-        self.prox_amb = [0 for x in range(8)]
-        self.mic = [0 for x in range(4)]
-        self.mot_steps = [0 for x in range(2)]
+        self.prox_ir = [0]*8
+        self.tof = None
+        self.mic = [0]*4
+        self.mot_steps = [0]*2
 
         
         ##imu 
@@ -75,10 +77,17 @@ class PiPuckEpuck(Epuck):
         self.accData = bytearray([0] * 6)
         self.gyroData = bytearray([0] * 6)
         self.temperatureData = 0
-        self.accOffset = [0 for x in range(3)]
-        self.gyroValue = [0 for x in range(3)]
-        gyroSum = [0 for x in range(3)]
-        self.gyroOffset = [0 for x in range(3)]
+        self.accOffset = [0] * 3
+        self.gyroValue = [0] * 3
+        self.gyroOffset = [0] * 3
+
+        #camera
+        self.stream_has_start = False
+        self.stream_thread = None
+
+        #microphone of PIPUCK
+        self.start_time_record = None
+        self.counter_sound = 0
 
        
         # start communication with pi-puck
@@ -92,13 +101,14 @@ class PiPuckEpuck(Epuck):
             sys.exit(1)
         
         # Pipuck propeties
-        ## capable of LEDs, ?micro and speaker ?
+        ## capable of LEDs, ¿ micro and speaker ?
         self.ft903 = FT903(self.pipuck_i2c_bus)
        
 
    
     def __init_command(self):
-        # Init the array containing the commands to be sent to the robot from pi-puck #TODO Check.
+        # Init the array containing the commands to be sent to the robot from pi-puck 
+        #TODO Check.
         self.i2c_command[0] = 0		    # Left speed
         self.i2c_command[1] = 0         #
         self.i2c_command[2] = 0		    # Right speed
@@ -216,8 +226,6 @@ class PiPuckEpuck(Epuck):
             self.sensors_data = list(read)
         except Exception as e:
             self.set_speed(0)
-            #TODO can be dangerous because infinity loop
-            self.go_on()
             print(e)
             print('Program stopped')
             sys.exit(1)
@@ -362,34 +370,11 @@ class PiPuckEpuck(Epuck):
 
         else:
             print('invalid led position: ' + led_position + '. Accepts 0 <= x <= 7. LED stays ON.')
-        pass
-
-
-    def enable_body_led(self):
-        """ Not implemented with Pipuck"""
-        pass
-
-    def disable_body_led(self):
-        """ Not implemented with Pipuck"""
-        pass
-
-    def enable_front_led(self):
-        """ Not implemented with Pipuck"""
-        pass
-
-    def disable_front_led(self):
-        """ Not implemented with Pipuck"""
-        pass
+        
 
     ##### END ####
     #    LED     #
     ##############
-
-    def init_sensors(self):
-        pass
-
-    def disable_sensors(self):
-        pass
 
     def get_prox(self):
         # 2 byte per sensor, odd position is LSB and even position is MSB
@@ -505,21 +490,47 @@ class PiPuckEpuck(Epuck):
         self.tof.close()
 
     def init_camera(self, save_image_folder=None, camera_rate=1):
-        pass
+        cam_init_thread = Thread(target=main_cam_configuration, args=())
+        cam_init_thread.start()
+        cam_init_thread.join()
+        self.camera = cv2.VideoCapture(0)
 
     def disable_camera(self):
-        pass
+        self.camera.release()
+        
 
     def get_camera(self):
-        pass
+        self.red, self.green, self.blue = [],[],[]
+        success, frame = self.camera.read()
+        if success:
+            for i in range(CAMERA_WIDTH):
+                for j in range(CAMERA_HEIGHT):
+                    #BGR pixel with OPENCV
+                    self.blue.append(frame[i][j][0])
+                    self.red.append(frame[i][j][1])
+                    self.green.append(frame[i][j][2])
+
+            return self.red, self.green, self.blue
+        return None,None,None
+
+    def get_camera_read(self):
+        """ 
+            get camera.read() of openCV
+        """
+        return self.camera.read()
 
     def take_picture(self):
-        pass
+        start = time.time()
+        ret, frame = self.camera.read()
+        self.counter_img += 1
+        cv2.imwrite(self.get_id()+"_image{0:04d}.jpg".format(self.counter_img), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+        
+        # Grabbing frequency @ 5 Hz.
+        self.time_diff_cam = time.time() - start
+        if self.time_diff_cam < 0.2:
+            time.sleep(0.2 - self.time_diff_cam);
 
-    def live_camera(self, live_time=None):
-        pass
 
-   
     # return front, right, back. left microphones
     #TODO To check array positions
     def get_microphones(self):
@@ -531,8 +542,22 @@ class PiPuckEpuck(Epuck):
 
         return self.mic
 
-    def play_sound(self, sound_number):
-        pass
+    def record_sound(self, duration):
+        #stop the robot for recording
+        left_speed, right_speed = self.get_speed()
+        self.set_speed(0)
+        self.go_on()
+
+        #start recording
+        rate = '16000'
+        self.counter_sound += 1
+        filename = "record{0:04d}".format(self.counter_sound)+"_from_"+self.get_id()+".wav"
+        subprocess.run('arecord -Dmic_mono -c1 -r'+rate+' -fS32_LE -twav -d'+str(duration) +' '+filename)
+
+        #retrieve speed
+        self.set_speed(left_speed, right_speed)
+        self.go_on()
+
 
     # TODO to be tested, seems funny for [4] = 0
     def play_mario(self):
@@ -541,18 +566,15 @@ class PiPuckEpuck(Epuck):
 
     def play_underworld(self):
         self.i2c_command[4] = 1
-        pass
+        
 
     def play_star_wars(self):
         self.i2c_command[4] = 2
-        pass
-
-    def stop_sound(self):
-        pass
+        
 
     def clean_up(self):
         self.set_speed(0)
-        if self.tof:
+        if self.tof != None:
             self.disable_tof()
 
         for _ in range(10):

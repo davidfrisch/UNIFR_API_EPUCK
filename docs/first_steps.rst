@@ -3,17 +3,21 @@ First Steps
 ============
 
 Welcome to the UNIFR API EPUCK's documentation. 
+
+unifr_epi_epuck is a simple wrapper api that let you control a real or simulated epuck robot. 
 Please find below the instructions to get started with the API.
 
 Submitted by: David Frischer
 
 Supervisor: Dr. Julien Nembrini
 
+github : https://github.com/davidfrisch/UNIFR_API_EPUCK
+
 Requirements
 --------------
 
 *  Python3.x on your computer.
-*  Webots or a real E-puck 
+*  Webots or a real E-puck
 
 
 How To Start
@@ -21,24 +25,24 @@ How To Start
 1. How to install the package from your terminal
     .. code-block:: shell
 
-        pip install unifr_api_epuck
+        $ pip install unifr_api_epuck
 
 
-2. How to implement a controller/python file
+2. How to implement a controller in python 
     * Import package
     
     .. code-block:: python
 
         from unifr_api_epuck import api_epuck as ae
     
-    * Create the the instance of the robot 
+    * Create the instance of the robot 
 
     .. code-block:: python
     
-        MY_IP = None #leave None if using Webots, put IP address if using real robot
+        MY_IP = None #leave None if you're using Webots. Put an IP address if you are using a real robot
         r = ae.get_robot(MY_IP)
 
-    * control the robot by calling its possilble actions 
+    * control the robot by calling its actions 
 
     .. code-block:: python
 
@@ -47,14 +51,14 @@ How To Start
 
         #infinite loop
         while r.go_on():
-            prox_values = r.get_prox() #get the proximity values
+            prox_values = r.get_prox() #get the proximity sensors values
             print(prox_values)
 
         r.clean_up() #make a fresh clean_up
 
 
 3. If you are:
-    * In Real Life (IRL) run your python file in your CLI
+    * In Real Life (IRL) run your python file with the following command
     
     .. code-block:: shell
 
@@ -63,7 +67,7 @@ How To Start
     * In Webots : ⏯  press play 
 
 4. Graphic User Interface
-    * A GUI is available in the pip package. To run it, please run the following command:
+    * A GUI is available in the package. To start it, please run the following command:
         
     .. code-block:: shell
 
@@ -74,7 +78,7 @@ Example Code
 --------------
 
 | Q: What does it do ?
-| A: The Robot goes forward at a speed of 2, print its proximitors values and stream from its camera.
+| A: The Robot goes forward at a speed of 2, print its proximity sensors values and stream from its camera.
 
 .. code-block:: python
 
@@ -136,7 +140,6 @@ Multiprocess
 
 Socket errors
     https://docs.python.org/3/library/exceptions.html#OSError
-
 
 Pi-Puck
     https://pi-puck.readthedocs.io/en/latest/

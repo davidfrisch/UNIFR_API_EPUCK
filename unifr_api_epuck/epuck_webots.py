@@ -1,11 +1,7 @@
 #from unifr_api_epuck.epuck import *
 from .epuck import Epuck
-from .epuck import *
+from .constants import *
 import time
-
-##########################
-## CONSTANTS FOR WEBOTS ##
-##########################
 
 class WebotsEpuck(Epuck):
 

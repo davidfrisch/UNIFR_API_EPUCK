@@ -1,24 +1,12 @@
 from .epuck import Epuck
-from .epuck import *
+from .constants import *
+from . import host_epuck_communication as hec
 import struct
 import socket
 import sys
 import time
 import logging
 import threading as Thread
-from . import host_epuck_communication as hec
-
-######################
-## CONSTANTS FOR Real Robot ##
-######################
-# For TCP communication
-COMMAND_PACKET_SIZE = 21
-HEADER_PACKET_SIZE = 1
-SENSORS_PACKET_SIZE = 104
-IMAGE_PACKET_SIZE = 160 * 120 * 2  # Max buffer size = widthxheightx2
-MAX_NUM_CONN_TRIALS = 5
-SENS_THRESHOLD = 250
-TCP_PORT = 1000  # This is fixed.
 
 
 class WifiEpuck(Epuck):
@@ -40,7 +28,7 @@ class WifiEpuck(Epuck):
         self.camera_width = CAMERA_WIDTH
         self.camera_height = CAMERA_HEIGHT
         self.rgb565 = [0 for _ in range(IMAGE_PACKET_SIZE)]
-        self.bgr888 = bytearray([0] * 115200)  # 160x120x3x2
+        self.bgr888 = bytearray([0] * CAMERA_HEIGHT*CAMERA_WIDTH*3*2)  # 160x120x3x2
         self.camera_updated = False
         self.my_filename_current_image = ''
 
@@ -477,6 +465,15 @@ class WifiEpuck(Epuck):
     def get_tof(self):
         sensor = self.sensor
         return struct.unpack("h", struct.pack("<BB", sensor[69], sensor[70]))[0]
+
+
+    def get_tv_remote(self):
+        sensor = self.sensor
+        toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
+        addr = struct.unpack("b", struct.pack("<B", sensor[87]))[0]
+        data = struct.unpack("b", struct.pack("<B", sensor[88]))[0]
+
+        return toggle, addr, data
 
 
 
