@@ -210,7 +210,6 @@ class WifiEpuck(Epuck):
         #bounded speed is based on Webots maximums
         new_speed = super().bounded_speed(speed)
         new_speed *=MAX_SPEED_IRL/MAX_SPEED_WEBOTS
-        print(new_speed)
         return new_speed
     
     def __set_speed_left(self, speed_left):
