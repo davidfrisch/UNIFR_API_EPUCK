@@ -12,6 +12,7 @@ Code
 
 .. automodule:: unifr_api_epuck.api_epuck
     :members:
+    :member-order: bysource
     
 
 Examples

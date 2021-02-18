@@ -21,3 +21,4 @@ Code
 .. automodule:: unifr_api_epuck.epuck_webots
     :members:
     :inherited-members:
+    :member-order: bysource
