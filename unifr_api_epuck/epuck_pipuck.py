@@ -8,7 +8,7 @@ import struct
 import subprocess
 from smbus2 import SMBus, i2c_msg
 from threading import Thread
-import cv2
+import time
 
 ############################
 ## CONSTANTS FOR PI-Puck  ##
@@ -16,7 +16,6 @@ import cv2
 
 ROBOT_I2C_CHANNEL = 4
 PIPUCK_I2C_CHANNEL = 3
-
 ROBOT_ADDR = 0x1F
 LED_COUNT_PIPUCK = 3
 GRAVITY_MPU9250 = 16384 # To be defined...1 g for 16 bits accelerometer
@@ -42,6 +41,7 @@ class PiPuckEpuck(Epuck):
 
     def __init__(self, ip_addr):
         #TOF sensor reading 
+        import cv2
         if not ip_addr:
             print('Attention, no IP address is defines for the Pi-Puck. \n'+
                     'Will not initiate communication with others if needed.')
