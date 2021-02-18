@@ -1,14 +1,15 @@
 # https://github.com/yorkrobotlab/pi-puck/blob/master/python-library/
 from .epuck import Epuck
+from .epuck_pipuck_camera_configuration import main as main_cam_configuration
 from .constants import *
 from .ft903 import FT903
-from .epuck_pipuck_camera_configuration import main as main_cam_configuration
+from smbus2 import SMBus, i2c_msg
+from threading import Thread
 import sys
 import struct
 import subprocess
-from smbus2 import SMBus, i2c_msg
-from threading import Thread
 import cv2
+import time
 
 ############################
 ## CONSTANTS FOR PI-Puck  ##
@@ -381,7 +382,19 @@ class PiPuckEpuck(Epuck):
         else:
             print('invalid led position: ' + led_position + '. Accepts 0 <= x <= 7. LED stays ON.')
         
-
+    def enable_body_led(self):
+        """
+        .. warning::
+            Not possible with the pi-puck
+        """
+        pass
+    
+    def enable_front_led(self):
+        """
+        .. warning::
+            Not possible with the pi-puck
+        """
+        pass
     ##### END ####
     #    LED     #
     ##############
@@ -473,13 +486,19 @@ class PiPuckEpuck(Epuck):
         #TODO
         pass
 
-    #TODO pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python
+    #TODO 
     def init_tof(self):
         """
         It is required to have the VL53L0X pacakage to be able to use the TOF sensor.
+
+        install it from your terminal :
+
+        .. code-block:: shell
+            $ pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python
+        
         """
         import VL53L0X as VL53L0X
-
+        super().init_tof()
         self.tof = VL53L0X.VL53L0X(i2c_bus=ROBOT_I2C_CHANNEL, i2c_address=TOF_VL53L0X_ADDRESS)
         self.tof.open()
 
@@ -530,6 +549,9 @@ class PiPuckEpuck(Epuck):
         return self.camera.read()
 
     def take_picture(self):
+        """
+        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_pipuck.PiPuckEpuck.init_camera>`
+        """
         start = time.time()
         ret, frame = self.camera.read()
         self.counter_img += 1
@@ -544,6 +566,14 @@ class PiPuckEpuck(Epuck):
     # return front, right, back. left microphones
     #TODO To check array positions
     def get_microphones(self):
+        super().get_microphones()
+        """
+        .. note:: 
+            Mic volume: between 0 and 4095
+
+        :returns: [front, right, back, left]
+        :rtype: array of int
+        """
         #retrieve microphones data
         for i in range(4):
             #To be tested

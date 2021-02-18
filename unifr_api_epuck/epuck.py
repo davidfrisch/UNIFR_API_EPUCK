@@ -69,12 +69,6 @@ class Epuck:
         pass
 
     def get_ip(self):
-        """
-
-        :returns:   On Webots : The host name of the computer
-
-                    On Real Robot : The ip address with underscores
-        """
         pass
 
     #############################
@@ -88,15 +82,7 @@ class Epuck:
 
         .. tip::
             Put it as a condition in a while loop.
-            Then, if you would like to finish this infinite loop, `break` inside.
-
-        In Webots:
-            Simulate next frame
-
-        Real Robot:
-            Send and receive commands between computer and robot.
-
-        :returns: True (Real Robot: if no problem occured)
+            Then, if you would like to finish the infinite while loop, break inside.
         """
 
     def sleep(self, duration):
@@ -181,7 +167,7 @@ class Epuck:
 
     def disable_led(self, led_position):
         """ 
-        Turn off led at led_position
+        Turns off led at led_position
 
         :param led_position: int - (value between 0 and 7)
         """
@@ -189,7 +175,7 @@ class Epuck:
 
     def toggle_all_led(self):
         """
-        Turn on all LED aroud the robot
+        Turns on all LED aroud the robot
         """
         for i in range(LED_COUNT_ROBOT):
             self.toggle_led(i)
@@ -204,9 +190,6 @@ class Epuck:
     def enable_body_led(self):
         """
         Turn on green body light of the robot
-
-        .. warning::
-            Not possible from the pi-puck
         """
         pass
 
@@ -219,9 +202,6 @@ class Epuck:
     def enable_front_led(self):
         """
         Turn on red front light of the robot
-
-        .. warning::
-            Not possible from the pi-puck
         """
         pass
 
@@ -266,7 +246,7 @@ class Epuck:
             6. prox left front diagonale 
             7. prox left front 
 
-        :returns: the proximities values 
+        :returns: the proximities sensors values 
         :rtype: int array - (length 8) 
         """
         pass
@@ -337,12 +317,6 @@ class Epuck:
     def init_ground(self):
         """
         Initiates the ground sensors of the robot.
-
-        .. note::
-            On Webots, you must add ➕ the exentension node name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
-        .. image:: ../res/addGroundSensors.png
-            :width: 400
-            :alt: Picture of the main GUI Epuck
         """
         pass
 
@@ -361,7 +335,7 @@ class Epuck:
             2. RIGHT
 
         :returns: int array of the ground values 
-        :rtype: int array - [LEFT,MIDDLE,RIGHT]
+        :rtype: int array - [LEFT, MIDDLE, RIGHT]
         """
         pass
 
@@ -435,8 +409,7 @@ class Epuck:
 
     def init_tof():
         """
-        .. attention::
-            Must be called if you're using the PiPuck. (It will not affect other Epucks variant.)
+        Initiates Time Of Flight sensor
         """
         pass
 
@@ -444,7 +417,7 @@ class Epuck:
         """
         Get the Time Of Flight value
 
-        .. caution:: The TOF sensor can physically have different orientation depending of the sodure on the robot.
+        .. warning:: The TOF sensor can physically have different orientation depending of the sodure on the robot.
         
         :returns: values in millimiters
         :rtype: int
@@ -453,7 +426,7 @@ class Epuck:
 
     def disable_tof(self):
         """
-        Stop computing the TOF sensor (only useful for epuck with pi-puck).
+        Stop computing the TOF sensor.
         """
         pass
 
@@ -462,7 +435,7 @@ class Epuck:
         """
         Enable camera of the robot
 
-        :param save_image_folder: insert directory folder to save the image taken by the camera of the robot.
+        :param save_image_folder: input directory folder to save the image taken by the camera of the robot.
         :param camera_rate: camera_rate
         """
         pass
@@ -478,23 +451,21 @@ class Epuck:
         Process raw image from robot
 
         .. tip:: 
-            when you combine the colors of a specific position of the three color arrays, it gives you the value of the pixel
+            when you combine the colors of a specific position of the three color arrays, it gives you the value of a pixel
+
         
         :return arrays: [red],[green],[blue]
         """
         pass
 
     def take_picture(self):
-        """
-        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck.Epuck.init_camera>`
-        """
         pass
 
     def live_camera(self, live_time=None):
         """
-        From the the GUI live stream the embedded camera of the robot
+        From the the GUI, live stream the embedded camera of the robot
 
-        The live_camera need to be refresh at each step.
+        The live_camera method need to be call in each step.
 
         :param live_time: int - lifetime of the stream. (default: until program ends)
         """
@@ -508,18 +479,12 @@ class Epuck:
 
         .. warning:: 
             Only works with real robots
-       
-        .. note:: 
-            Mic volume: between 0 and 4095
-
-        :returns: [front, right, back, left]
-        :rtype: array of int
         """
         pass
 
     def play_sound(self, sound_number):
         """
-        Plays correspond music of the sound_number
+        Plays the corresponded music of the sound_number
 
         .. warning:: 
             Only works with real robots
@@ -568,7 +533,7 @@ class Epuck:
     #################
     def init_host_communication(host_ip='localhost'):
         """
-        Initiate the communication between host and robots.
+        Initiates the communication between host and robots.
 
         .. note:: 
             It is strongly recommended to always host with the GUI. This will give much more stability for communication between the robots.
@@ -579,7 +544,7 @@ class Epuck:
     def init_client_communication(self, host_ip='localhost'):
         """
         .. warning:: 
-            init_host_communication should be called or the GUI host has to be created before connecting the clients.
+            init_host_communication should be called first or the GUI should host the communication before connecting the clients.
         """
        
         is_online = 1
@@ -593,7 +558,7 @@ class Epuck:
                         '. Not connected to host manager.')
                 if not host_ip:
                     print(
-                        'Please create a GUI host by executing on your terminal: `python3 -m unifr_api_epuck`')
+                        'Please create a GUI host by executing in your terminal: `python3 -m unifr_api_epuck`')
 
                 # exit method
                 return

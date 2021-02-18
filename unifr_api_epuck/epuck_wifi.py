@@ -41,10 +41,8 @@ class WifiEpuck(Epuck):
         """
             Initiate the TCP communication between the robot and host computer.
             prints "connected to x.x.x.x" once connection succeed
-            :raises socket.timeout:
-                (4) this exception is raised when a timeout occurs on a socket
-            :raises socket.OSError:
-                This exception is raised when a system function returns a system-related error Exception
+            :raises socket.timeout: This exception is raised when a timeout occurs on a socket
+            :raises socket.OSError: This exception is raised when a system function returns a system-related error Exception
         """
         trials = 0
         ip_address = self.ip_addr
@@ -120,13 +118,16 @@ class WifiEpuck(Epuck):
         return self.get_ip().replace('.', '_')
 
     def get_ip(self):
+        """
+        :returns: The IP address of the Epuck
+        """
         return self.ip_addr
 
     def init_sensors(self):
         self.command[1] = self.command[1] | (1 << 1)
         # start sensor calibration, with the intern calibration
         #self.command[2] = 1
-        # calibrate on board
+        # custom calibration
         self.command[2] = 0 
 
     def disable_sensors(self):
@@ -138,7 +139,9 @@ class WifiEpuck(Epuck):
     #####################################################
 
     def __send_to_robot(self):
-        """Send a new packet from the computer to the robot"""
+        """
+        Send a new packet from the computer to the robot
+        """
         byte_send = 0
 
         # loop until all fragments of the packet has been sent
@@ -153,7 +156,9 @@ class WifiEpuck(Epuck):
         self.command[2] = 0
 
     def __receive_part_from_robot(self, msg_len):
-        """Receive a new packet from the robot to the computer"""
+        """
+        Receive a new packet from the robot to the computer
+        """
 
         # receiving data in fragments
         chunks = []
@@ -173,7 +178,7 @@ class WifiEpuck(Epuck):
 
     def __receive_from_robot(self):
         """
-        Receive the packet from the robot
+        Receives the packet from the robot
         
         :returns: True if no problem occured
         """
@@ -196,6 +201,11 @@ class WifiEpuck(Epuck):
         return True
 
     def go_on(self):
+        """
+        * Sends and receives commands between computer and robot.
+
+        :returns: True (if no problem occures)
+        """
         super().go_on()
         
         # check return is a boolean to say if all went ok.
@@ -217,9 +227,9 @@ class WifiEpuck(Epuck):
     
     def __set_speed_left(self, speed_left):
         """
-        Set speed of the left motor of the robot
+        Set the speed of the left motor of the robot
         
-        :param speed_left: left wheel speed
+        :param speed_left: speed of left wheel 
         """
         speed_left = int(self.bounded_speed(speed_left))
 
@@ -232,8 +242,8 @@ class WifiEpuck(Epuck):
 
     def __set_speed_right(self, speed_right):
         """
-        .. note: Only works with real robots
         Set speed of the right motor of the robot
+
         :param speed_right: right wheel speed
         """
         # *100 offset with Webots
@@ -262,10 +272,8 @@ class WifiEpuck(Epuck):
 
     def get_motors_steps(self):
         """
-
         .. hint:: 
             1000 steps are 1 revolution (1 full turn of the wheel)
-
         """
         sensors = self.sensor
         left_steps = struct.unpack("<h", struct.pack(
@@ -394,7 +402,9 @@ class WifiEpuck(Epuck):
         return prox_values
 
     def init_ground(self):
-        "No need for Real Robots."
+        """
+        No need for Real Robots.
+        """
         pass
 
     def get_ground(self):
@@ -450,6 +460,14 @@ class WifiEpuck(Epuck):
 
     # return front, right, back. left microphones
     def get_microphones(self):
+        super().get_microphones()
+        """
+        .. note:: 
+            Mic volume: between 0 and 4095
+
+        :returns: [front, right, back, left]
+        :rtype: array of int
+        """
         sensor = self.sensor
         front = struct.unpack("<h", struct.pack(
             "<BB", sensor[77], sensor[78]))[0]
@@ -462,20 +480,20 @@ class WifiEpuck(Epuck):
 
         return [front, right, back, left]
 
-#https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
-# def of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
-
 
     def get_temperature(self):
         sensor = self.sensor
         return struct.unpack("b", struct.pack("<B", sensor[36]))[0]
 
+
+#https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
+# definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     def get_tof(self):
         sensor = self.sensor
         return struct.unpack("h", struct.pack("<BB", sensor[69], sensor[70]))[0]
 
-
     def get_tv_remote(self):
+        #TODO still not working
         sensor = self.sensor
         toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
         addr = struct.unpack("b", struct.pack("<B", sensor[87]))[0]
@@ -575,7 +593,7 @@ class WifiEpuck(Epuck):
         self.command[1] = self.command[1] | 1
 
     def disable_camera(self):
-        # Force last bit to 0
+        # Set last bit to 0
         self.command[1] = self.command[1] & 0xFE
 
     def get_camera(self):
@@ -595,6 +613,9 @@ class WifiEpuck(Epuck):
         return self.red, self.green, self.blue
 
     def take_picture(self):
+        """
+        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_wifi.WifiEpuck.init_camera>`
+        """
         if self.my_filename_current_image:
             # removing the last 4 character of my_filename_current_image
             # because we removing the file format to put it back to the end
@@ -668,4 +689,4 @@ class WifiEpuck(Epuck):
                 self.go_on()
 
             self.sock.close()
-        print('Robot cleaned')
+        #print('Robot cleaned')

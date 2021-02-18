@@ -9,7 +9,9 @@ def get_robot(ip_addr=None, is_pipuck = False):
     .. note::
         Leave the parameters empty if you will be using Webots
 
-    :params ip_addr: ip address of the EPUCK.
+    :params ip_addr: ip address of the EPUCK
+    :params is_pipuck: boolean
+
     :returns: instance of the EPUCK
     """
 
@@ -50,38 +52,8 @@ def __get_robot_pipuck(ip_addr):
     Return the instance of real Epuck with a Pi-puck 
     """
     from .epuck_pipuck import PiPuckEpuck
+
     print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)
 
-def __robot_setup(ip_addr=None, main_loop=None, is_pipuck=False):
-    """
-    make possible tu run multiple robot with one 
 
-    .. note:: 
-        Leave empty the main_loop if you will be using a jupyter notebook.
-
-    :params ip_addr: ip address of the EPUCK.
-    :params main_loop: Robot code instructions during execution.
-    """
-
-    if not main_loop and ip_addr:
-        rob = get_robot(ip_addr, main_loop=None, is_pipuck=is_pipuck)
-        return rob
-
-    if ip_addr:
-        #Wifi robot instance
-        rob = get_robot(ip_addr)
-        main_loop(rob)
-
-    elif main_loop:
-        if is_pipuck:
-            #PiPuck instance
-            rob = get_robot(is_pipuck=True)
-        else:
-            #Webots instance
-            rob = get_robot()
-
-        main_loop(rob)
-
-    else:
-        print('No instance of robot created.')

@@ -52,6 +52,9 @@ class WebotsEpuck(Epuck):
         
 
     def go_on(self):
+        """
+        * Goes to next frame
+        """
         super().go_on()
         self.robot.step(TIME_STEP)
 
@@ -71,12 +74,14 @@ class WebotsEpuck(Epuck):
 
     def get_id(self):
         """
-            :returns: The name of the robot                     
+        :returns: The host name of the computer
         """
         
         return self.robot.getName()
 
     def get_ip(self):
+        """
+        """
         return socket.gethostname()
 
     #################
@@ -259,6 +264,9 @@ class WebotsEpuck(Epuck):
 
     # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
     def take_picture(self):
+        """
+        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
+        """
         try:
             counter = '{:04d}'.format(self.counter_img)
             save_as = self.save_image_folder + '/image' + counter + '.jpg'
@@ -318,12 +326,11 @@ class WebotsEpuck(Epuck):
     #################
     # Communication is initiated during creation of instance of the robot
 
-   
-    # To uncomment if you want to use Webot specific communication
-    # send message to other epucks.
-    # It can only send strings
+
     def send_msg(self, msg):
         """
+            Put a message in queue of each other robots.
+
              .. warning ::
                 If you use Webots communication then you can only send strings.
         """
@@ -370,10 +377,10 @@ class WebotsEpuck(Epuck):
 
     def init_client_communication(self, host_ip='localhost'):
         """
-            If you called the init_host_communication(), then the epuck will connect to the Webots 
+            If you called the init_host_communication(), then the epuck will connect to the specific Webots 
             communication.
 
-            If you do not call the init_host_communication, then the simulated webots will try to find 
+            If you do not call the init_host_communication, then the robot will try to find 
             a host communication.
         """
         if self.emitter == None:
@@ -383,4 +390,4 @@ class WebotsEpuck(Epuck):
         for _ in range(50):
             self.set_speed(0, 0)
             self.go_on()
-        print('Robot cleaned')
+        #print('Robot cleaned')
