@@ -4,6 +4,7 @@ Table Of Contents
 ====================
 
 * :py:meth:`Motors<unifr_api_epuck.epuck_webots.WebotsEpuck.set_speed>`
+* :py:meth:`Sleep<unifr_api_epuck.epuck_webots.WebotsEpuck.sleep>`
 * :py:meth:`LED<unifr_api_epuck.epuck_webots.WebotsEpuck.toggle_led>`
 * :py:meth:`Proximity Sensors<unifr_api_epuck.epuck_webots.WebotsEpuck.init_sensors>`
 * :py:meth:`Ground Sensors<unifr_api_epuck.epuck_webots.WebotsEpuck.init_ground>`
