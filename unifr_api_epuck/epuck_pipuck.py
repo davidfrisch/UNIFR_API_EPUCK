@@ -289,6 +289,8 @@ class PiPuckEpuck(Epuck):
 
         return [left_speed, right_speed]
 
+    def bounded_speed(self, speed):
+        return super().bounded_speed(speed)
 
     def get_motors_steps(self):
         #retrieve steps of robot

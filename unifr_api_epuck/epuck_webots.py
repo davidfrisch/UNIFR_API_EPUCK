@@ -103,6 +103,9 @@ class WebotsEpuck(Epuck):
     def get_speed(self):
         return [self.left_motor.getVelocity(), self.right_motor.getVelocity()]
 
+    def bounded_speed(self, speed):
+        return super().bounded_speed(speed)
+
     def get_motors_steps(self):
         return [self.left_motor_counter, self.right_motor_counter]
 
@@ -325,7 +328,29 @@ class WebotsEpuck(Epuck):
     # COMMUNICATION #
     #################
     # Communication is initiated during creation of instance of the robot
+    
+    def init_host_communication(self, _ = None):
+        """
+            Call this method to use Webots specific communication
+        """
+        #if host_id == self.get_id():
+        #   Thread(target=hec.main, args=(host_ip,)).start()"""
+        self.emitter = self.robot.getDevice('emitter')
+        self.receiver = self.robot.getDevice('receiver')
+        self.emitter.setChannel(1)
+        self.receiver.setChannel(1)
+        self.receiver.enable(TIME_STEP)
 
+    def init_client_communication(self, host_ip='localhost'):
+        """
+            If you called the init_host_communication(), then the epuck will connect to the specific Webots 
+            communication.
+
+            If you do not call the init_host_communication, then the robot will try to find 
+            a host communication.
+        """
+        if self.emitter == None:
+            return super().init_client_communication(host_ip=host_ip)
 
     def send_msg(self, msg):
         """
@@ -362,29 +387,6 @@ class WebotsEpuck(Epuck):
                 return msg
 
         return None
-    
-    def init_host_communication(self, _ = None):
-        """
-            Call this method to use Webots specific communication
-        """
-        #if host_id == self.get_id():
-        #   Thread(target=hec.main, args=(host_ip,)).start()"""
-        self.emitter = self.robot.getDevice('emitter')
-        self.receiver = self.robot.getDevice('receiver')
-        self.emitter.setChannel(1)
-        self.receiver.setChannel(1)
-        self.receiver.enable(TIME_STEP)
-
-    def init_client_communication(self, host_ip='localhost'):
-        """
-            If you called the init_host_communication(), then the epuck will connect to the specific Webots 
-            communication.
-
-            If you do not call the init_host_communication, then the robot will try to find 
-            a host communication.
-        """
-        if self.emitter == None:
-            return super().init_client_communication(host_ip=host_ip)
 
     def clean_up(self):
         for _ in range(50):

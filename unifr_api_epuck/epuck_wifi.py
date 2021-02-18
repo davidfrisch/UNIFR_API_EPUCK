@@ -269,6 +269,9 @@ class WifiEpuck(Epuck):
         left_speed = self.command[6]/100
 
         return [left_speed, right_speed]
+    
+    def bounded_speed(self, speed):
+        return super().bounded_speed(speed)
 
     def get_motors_steps(self):
         """
@@ -675,6 +678,18 @@ class WifiEpuck(Epuck):
 
     def init_host_communication(self, host_ip='localhost'):
         Thread(target=hec.main, args=(host_ip,)).start()
+
+    def init_client_communication(self, host_ip):
+        return super().init_client_communication(host_ip=host_ip)
+
+    def send_msg(self, msg):
+        return super().send_msg(msg)
+
+    def receive_msg(self):
+        return super().receive_msg()
+
+    def has_receive_msg(self):
+        return super().has_receive_msg()
 
     def clean_up(self):
         if self.sock != 0:
