@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.constants import BOTTOM
 from PIL import Image, ImageTk
 import os, shutil
 
@@ -50,14 +51,17 @@ class MonitorCamera(tk.Frame):
             except:
                 load = None
 
-        tk.Button(self, text='Take Picture', command=self.take_picture).pack()
 
         # begin of text to display directory of where the image is load
+        footer_frame = tk.Frame(self)
         data_string = tk.StringVar()
         data_string.set('\''+folder_directory+'\'')
-        text_dir = tk.Entry(self, width=40, textvariable=data_string,
+        text_dir = tk.Entry(footer_frame, width=40, textvariable=data_string,
                             fg="black", bg="white", bd=0, state="readonly")
-        text_dir.pack(side='bottom')
+        
+        tk.Button(footer_frame, text='Take Picture', command=self.take_picture).pack()
+        text_dir.pack(pady=30)
+        footer_frame.pack(side=BOTTOM)
 
     def update(self):
         """

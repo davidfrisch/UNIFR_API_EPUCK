@@ -2,6 +2,7 @@
 from .epuck import Epuck
 from .constants import *
 import time
+import socket
 
 class WebotsEpuck(Epuck):
 
@@ -69,6 +70,10 @@ class WebotsEpuck(Epuck):
         return True
 
     def get_id(self):
+        """
+            :returns: The name of the robot                     
+        """
+        
         return self.robot.getName()
 
     def get_ip(self):

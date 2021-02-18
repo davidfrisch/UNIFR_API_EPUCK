@@ -1,5 +1,5 @@
 ##########################################
-##          CONSTANTS FOR Epucks        ##
+##          CONSTANTS FOR EPUCKS       ##
 #########################################
 
 # Equivalent constants for Webots and Real Robots.

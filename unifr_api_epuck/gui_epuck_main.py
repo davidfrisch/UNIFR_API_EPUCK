@@ -106,7 +106,7 @@ class MainWindow(tk.Frame):
 
         # unifr credential
         author_label = tk.Label(text='UNIFR - 2020 \n Author : David Frischer \n Supervisor : Julien Nembrini',
-                                anchor="e")
+                                anchor="e", pady=30)
         author_label.pack(side=tk.BOTTOM)
 
         self.pack(fill=BOTH)

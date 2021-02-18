@@ -114,6 +114,9 @@ class WifiEpuck(Epuck):
         print('Battery left :'+ str(self.get_battery_level()))
 
     def get_id(self):
+        """
+        :returns: The ip address (replace the dots with underscores e.g: x_x_x_x)
+        """
         return self.get_ip().replace('.', '_')
 
     def get_ip(self):
@@ -258,6 +261,12 @@ class WifiEpuck(Epuck):
         return [left_speed, right_speed]
 
     def get_motors_steps(self):
+        """
+
+        .. hint:: 
+            1000 steps are 1 revolution (1 full turn of the wheel)
+
+        """
         sensors = self.sensor
         left_steps = struct.unpack("<h", struct.pack(
             "<BB", sensors[79], sensors[80]))[0]

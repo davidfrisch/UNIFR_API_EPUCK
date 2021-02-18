@@ -13,7 +13,7 @@ SyncManager.register("shutdown")
 class Epuck:
     """
 
-    .. note:: variables available to call for real robot and Webots Epucks
+    .. note:: These are variables properties to call 
 
     :var ip_addr: str - 
         the private ip address of the robot
@@ -35,7 +35,7 @@ class Epuck:
 
     def __init__(self, ip_addr):
         """
-        Initiate the robot
+        Initiates the robot
 
         :param ip_addr: str - The IP address of the real Epuck
         """
@@ -66,11 +66,6 @@ class Epuck:
         self.counter_img = 0
 
     def get_id(self):
-        """
-        :returns:   On Webots : The id of the robot 
-
-                    On Real Robot : The ip address (replace the dots with underscores e.g: x_x_x_x)
-        """
         pass
 
     def get_ip(self):
@@ -108,9 +103,6 @@ class Epuck:
         """
         Pause the execution during `duration`seconds
 
-        .. warning::
-            This implementation is to be preferred to the standard Python time.sleep() which can lead to problems in the sequence of event handling.
-
         :param duration: duration in seconds
         """
 
@@ -123,7 +115,6 @@ class Epuck:
         Get battery level
         """
         return -1
-
 
     def set_speed(self, speed_left, speed_right=None):
         """
@@ -166,8 +157,6 @@ class Epuck:
         """ 
         Get the number of steps since the beggining of the process. 
 
-        .. warning:: Only works with real robots
-        .. hint:: 1000 steps are 1 revolution (1 full turn of the wheel)
         :returns: [left_wheel, right_wheel]
         :rtype: [int, int]
         """
@@ -184,9 +173,6 @@ class Epuck:
             * Only LED 1,3,5 and 7 are RGB
             * the three color must be specify to use rgb
 
-        .. note::
-            * Extension with the pi-puck adds LEDs 8, 9 and 10
-
         :param red: int - red intensity (value between 0 and 100)
         :param green: int - green intensity (value between 0 and 100)
         :param blue: int - blue intensity (value between 0 and 100)
@@ -196,9 +182,6 @@ class Epuck:
     def disable_led(self, led_position):
         """ 
         Turn off led at led_position
-
-        .. note::
-            * Extension with the pi-puck adds LEDs 8, 9 and 10
 
         :param led_position: int - (value between 0 and 7)
         """

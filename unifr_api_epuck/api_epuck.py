@@ -1,11 +1,10 @@
 from .epuck_webots import WebotsEpuck 
 from .epuck_wifi import WifiEpuck
-from .epuck_pipuck import PiPuckEpuck
 
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
-    Get EPUCK instance
+    Get the instance of an EPUCK
 
     .. note::
         Leave the parameters empty if you will be using Webots
@@ -26,7 +25,7 @@ def get_robot(ip_addr=None, is_pipuck = False):
 
 def __get_robot_wifi(ip_addr):
     """
-    Return an Real Robot Epuck instance
+    Return the instance of a real Epuck instance
     """
     print('initiating connection with ' + str(ip_addr))
 
@@ -35,7 +34,7 @@ def __get_robot_wifi(ip_addr):
 
 def __get_robot_webot():
     """
-    Return a simulation Epuck instance
+    Return the instance of a simulated Epuck 
     """
     try:
         return WebotsEpuck()
@@ -44,13 +43,14 @@ def __get_robot_webot():
         print(
             '\033[91m'+'You did not enter an IP address, Please launch the script from Webots.'+'\033[0m')
         print(
-            '\033[91m'+'If you use a Pi-Puck, please put True in first parameter'+'\033[0m')
+            '\033[91m'+'If you use a Pi-Puck, please put True in second parameter'+'\033[0m')
 
 def __get_robot_pipuck(ip_addr):
     """
-    Return a Real Robot Pi-puck instance
+    Return the instance of real Epuck with a Pi-puck 
     """
-    print('initiating connection with Pi-puck')
+    from .epuck_pipuck import PiPuckEpuck
+    print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)
 
 def __robot_setup(ip_addr=None, main_loop=None, is_pipuck=False):

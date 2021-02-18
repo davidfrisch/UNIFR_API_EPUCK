@@ -8,7 +8,7 @@ import struct
 import subprocess
 from smbus2 import SMBus, i2c_msg
 from threading import Thread
-import time
+import cv2
 
 ############################
 ## CONSTANTS FOR PI-Puck  ##
@@ -16,6 +16,7 @@ import time
 
 ROBOT_I2C_CHANNEL = 4
 PIPUCK_I2C_CHANNEL = 3
+
 ROBOT_ADDR = 0x1F
 LED_COUNT_PIPUCK = 3
 GRAVITY_MPU9250 = 16384 # To be defined...1 g for 16 bits accelerometer
@@ -41,7 +42,6 @@ class PiPuckEpuck(Epuck):
 
     def __init__(self, ip_addr):
         #TOF sensor reading 
-        import cv2
         if not ip_addr:
             print('Attention, no IP address is defines for the Pi-Puck. \n'+
                     'Will not initiate communication with others if needed.')
@@ -297,6 +297,10 @@ class PiPuckEpuck(Epuck):
         return self.mot_steps
 
     def toggle_led(self, led_position, red=None, green=None, blue=None):
+        """
+        .. note::
+            * Extension with the pi-puck adds LEDs 8, 9 and 10
+        """
         if led_position in range(LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
             if led_position % 2 == 0:
@@ -350,6 +354,12 @@ class PiPuckEpuck(Epuck):
             self.ft903.write_data_8(led_position, total_color)
 
     def disable_led(self, led_position):
+        """
+
+        .. note::
+            * Extension with the pi-puck adds LEDs 8, 9 and 10
+            
+        """
         if led_position in range(LED_COUNT_ROBOT):
 
             if led_position % 2 == 0:
