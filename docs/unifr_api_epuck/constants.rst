@@ -1,11 +1,13 @@
 Global Constants  
 -------------------
 
-The following constants are accessible by importing the constants file,
+The following constants are accessible by importing the constants python file.
 
 .. code-block:: python
 
    from unifr_api_epuck.constants import *
+
+Following constants are available :
 
 .. code-block:: python
 
