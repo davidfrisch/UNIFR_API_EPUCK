@@ -4,11 +4,10 @@ First Steps
 
 Welcome to the UNIFR API EPUCK's documentation. 
 
-unifr_epi_epuck is a simple wrapper api that let you control a real or simulated epuck robot. 
+unifr_epi_epuck is a simple wrapper API that let you control a real or simulated epuck robot. 
 Please find below the instructions to get started with the API.
 
 Submitted by: David Frischer
-
 Supervisor: Dr. Julien Nembrini
 
 github : https://github.com/davidfrisch/UNIFR_API_EPUCK
@@ -39,7 +38,8 @@ How To Start
 
     .. code-block:: python
     
-        MY_IP = None #leave None if you're using Webots. Put an IP address if you are using a real robot
+        #leave None if you're using Webots. Put an IP address if you are using a real robot
+        MY_IP = None 
         r = ae.get_robot(MY_IP)
 
     * control the robot by calling its actions 

@@ -1,9 +1,14 @@
 Global Constants  
 -------------------
 
+The following constants are accessible by importing the constants file,
+
 .. code-block:: python
 
-   # Constants for any EPUCK.
+   from unifr_api_epuck.constants import *
+
+.. code-block:: python
+
    TIME_STEP = 64
 
    MAX_SPEED_WEBOTS = 7.536   #In Webots

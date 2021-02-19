@@ -49,7 +49,18 @@ class WebotsEpuck(Epuck):
         self.emitter = None
         self.receiver = None
  
+    
+    def get_id(self):
+        """
+        :returns: The host name of the computer
+        """
         
+        return self.robot.getName()
+
+    def get_ip(self):
+        """
+        """
+        return socket.gethostname()
 
     def go_on(self):
         """
@@ -72,17 +83,8 @@ class WebotsEpuck(Epuck):
 
         return True
 
-    def get_id(self):
-        """
-        :returns: The host name of the computer
-        """
-        
-        return self.robot.getName()
-
-    def get_ip(self):
-        """
-        """
-        return socket.gethostname()
+    def sleep(self, duration):
+        return super().sleep(duration)
 
     #################
     #    MOTORS      #
@@ -158,6 +160,12 @@ class WebotsEpuck(Epuck):
 
         self.led[led_position].set(0)
 
+    def toggle_all_led(self):
+        return super().toggle_all_led()
+
+    def disable_all_led(self):
+        return super().disable_all_led()
+
     def enable_body_led(self):
         self.led[8].set(1)
 
@@ -194,7 +202,18 @@ class WebotsEpuck(Epuck):
 
         return prox_values
 
+    def calibrate_prox(self):
+        return super().calibrate_prox()
 
+    def get_calibrate_prox(self):
+        return super().get_calibrate_prox()
+
+    def init_tof():
+        pass
+
+    def disable_tof(self):
+        return super().disable_tof()
+        
     def init_ground(self):
         """
         Initiates the ground sensors of the robot.

@@ -485,52 +485,9 @@ class Epuck:
         """
         pass
 
-    def play_sound(self, sound_number):
-        """
-        Plays the corresponded music of the sound_number
+    
 
-        .. warning:: 
-            Only works with real robots
-
-        0. Play Main Mario Theme
-        1. Play Underworld Mario Theme
-        2. Play Star Wars Theme
-
-        :param sound_number: int - (between 0 and 2)
-        """
-        switcher = {
-            1: self.play_mario,
-            2: self.play_underworld,
-            3: self.play_star_wars
-        }
-
-        func = switcher.get(sound_number, self.stop_sound)
-        func()
-
-    def play_mario(self):
-        """
-        Plays mario music from the robot
-        """
-        pass
-
-    def play_underworld(self):
-        """
-        Plays underworld music from the robot
-        """
-        pass
-
-    def play_star_wars(self):
-        """
-        Plays Star Wars music from the robot
-        """
-        pass
-
-    def stop_sound(self):
-        """
-        Stop music from the robot
-        """
-        pass
-
+    
     #################
     # COMMUNICATION #
     #################

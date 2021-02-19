@@ -215,6 +215,9 @@ class WifiEpuck(Epuck):
 
         return check_return
 
+    def sleep(self, duration):
+        return super().sleep(duration)
+
     def get_battery_level(self):
         battery_level = struct.unpack("H", struct.pack("<BB", self.sensor[83], self.sensor[84]))[0]
         return battery_level
@@ -356,6 +359,12 @@ class WifiEpuck(Epuck):
             print(
                 'invalid led position: ' + str(led_position) + '. Accepts 0 <= x <= 7. LED stays ON.')
 
+    def toggle_all_led(self):
+        return super().toggle_all_led()
+
+    def disable_all_led(self):
+        return super().disable_all_led()
+
     def enable_body_led(self):
         # Shift 1 to the position of the current LED (binary representation),
         # then bitwise OR it with current byte LEDs
@@ -403,6 +412,12 @@ class WifiEpuck(Epuck):
         self.ps = prox_values
 
         return prox_values
+
+    def calibrate_prox(self):
+        return super().calibrate_prox()
+
+    def get_calibrate_prox(self):
+        return super().get_calibrate_prox()
 
     def init_ground(self):
         """
@@ -647,6 +662,30 @@ class WifiEpuck(Epuck):
     # Music will start again each time you send its corresponding number command #
     ##############
 
+    def play_sound(self, sound_number):
+        """
+        Plays the corresponded music of the sound_number
+
+        .. warning:: 
+            Only works with real robots
+
+        0. Play Main Mario Theme
+        1. Play Underworld Mario Theme
+        2. Play Star Wars Theme
+
+        :param sound_number: int - (between 0 and 2)
+        """
+        switcher = {
+            1: self.play_mario,
+            2: self.play_underworld,
+            3: self.play_star_wars
+        }
+
+        func = switcher.get(sound_number, self.stop_sound)
+        func()
+
+        self.command[20] = 0x00
+
     def play_mario(self):
         self.command[20] = 0x01
         self.go_on()
@@ -666,12 +705,6 @@ class WifiEpuck(Epuck):
         self.command[20] = 0x20
         self.go_on()
         self.command[20] = 0x00
-
-    def play_sound(self, sound_number):
-        super().play_sound(sound_number)
-
-        self.command[20] = 0x00
-
     ####  END ####
     #    SOUND   #
     ##############

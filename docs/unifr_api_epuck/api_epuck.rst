@@ -18,7 +18,8 @@ Code
 Examples
 ==========
 
-* Get an instance of a real Epuck with its ip address. e.g:IP is 192.168.43.125
+* Get an instance of a real Epuck with its ip address. 
+  e.g: IP is 192.168.43.125
 
 .. code-block:: python
 
