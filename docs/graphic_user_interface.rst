@@ -55,7 +55,10 @@ Monitor Host Communication
     :width: 400
     :alt: Picture of the GUI communication between the Epucks
 
-In this window, you will be able to monitor how many pending messages the E-pucks have.
+In this window, you will be able to :
+ 
+* Monitor how many pending messages the E-pucks have.
+* Send messages to robots.
 
 If a robot lose the communication with the host, then it will disapear from the list and all its pending messages will be remove.
 
@@ -68,8 +71,7 @@ Camera Epuck
     :alt: Picture of the GUI camera of the Epucks
 
 * You can move the slider to adjust the refresh rate of the stream.
-* You can send messages to robots.
 * You can take a picture of the steam and it will save it on the same directory specified before.
-
+* Copy/Paste the directory link 
 
 
