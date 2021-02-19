@@ -136,7 +136,7 @@ class MonitorCommunication(Frame):
 
         
     def send_msg_to(self, epuck, msg):
-        if self.alive:
+        if self.is_alive:
             try:
                 self.lock.acquire(timeout=1)
 
@@ -150,7 +150,7 @@ class MonitorCommunication(Frame):
                 self.lock.release()
 
             except Exception as e:
-                self.alive = False
+                self.is_alive = False
                 print('GUI lost communication with host communication')
                 print(e)
 
