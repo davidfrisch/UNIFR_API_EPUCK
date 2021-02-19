@@ -1,4 +1,4 @@
-EPUCK Wifi
+WifiEpuck
 ------------------------
 
 Table Of Contents

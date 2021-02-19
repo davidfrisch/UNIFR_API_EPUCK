@@ -1,4 +1,4 @@
-EPUCK Webots
+WebotsEpuck
 ------------------------
 Table Of Contents
 ====================

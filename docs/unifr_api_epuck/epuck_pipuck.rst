@@ -1,4 +1,4 @@
-EPUCK with PiPuck
+PiPuckEpuck
 ------------------------
 
 .. attention::
