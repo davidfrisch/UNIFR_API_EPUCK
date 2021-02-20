@@ -101,25 +101,25 @@ class Epuck:
 
     def get_battery_level(self):
         """
-        Get battery level
+        Gets battery level
         """
         return -1
 
     def set_speed(self, speed_left, speed_right=None):
         """
-        Sets the speed of the robot's motors. 
+        Sets the speed of the robot's motors
         
         :param speed_left: int
         :param speed_right: int, optional (default: is the same speed as speed_left)
 
         .. note:: 
-            The speeds must be between -7.536 and 7.536
+            The speed of each wheel must be between -7.536 and 7.536
         """
         pass
 
     def get_speed(self):
         """
-        Get speed of the motors
+        Gets speed of the motors
 
         :returns: [left_wheel, right_wheel]
         :rtype: [int, int]
@@ -128,7 +128,7 @@ class Epuck:
 
     def bounded_speed(self, speed):
         """
-        Limits the motor speeds of the robot in case the user puts an excessive value.
+        Limits the motor speed of the robot in case the user puts an excessive value
 
         :param speed: speed of a wheel of the e-puck
         """
@@ -142,7 +142,7 @@ class Epuck:
 
     def get_motors_steps(self):
         """ 
-        Get the number of steps since the beggining of the process. 
+        Gets the number of steps since the beginning of the process
 
         :returns: [left_wheel, right_wheel]
         :rtype: [int, int]
@@ -151,14 +151,14 @@ class Epuck:
 
     def toggle_led(self, led_position, red=None, green=None, blue=None):
         """ 
-        Turn on led at led_position
+        Turns ON led at led_position
 
         :param led_position: int
             value between 0 and 7 
 
         .. important:: 
-            * Only LED 1,3,5 and 7 are RGB
-            * the three colour must be specify to use rgb
+            * Only LEDs at position 1,3,5 and 7 are RGB
+            * the three colours must be specified to use RGB
 
         :param red: int - red intensity (value between 0 and 100)
         :param green: int - green intensity (value between 0 and 100)
@@ -168,7 +168,7 @@ class Epuck:
 
     def disable_led(self, led_position):
         """ 
-        Turns off led at led_position
+        Turns OFF led at led_position
 
         :param led_position: int - (value between 0 and 7)
         """
@@ -255,6 +255,7 @@ class Epuck:
     def calibrate_prox(self):
         """
         Cleans the default values of the infra-red sensors when the robot has no obstacles near it. (take off "noise")  
+
         When all LEDs are ON, it indicates that the sensors are calibrating.
         """
         # init array for calibration values
@@ -285,7 +286,7 @@ class Epuck:
 
     def get_calibrate_prox(self):
         """
-        Gets the calibrated proximity sensors values
+        Gets the calibrated proximity sensor values
 
         .. note:: IR proximity: between 0 (no objects detected) and 4095 (object near the sensor)
 
@@ -362,7 +363,7 @@ class Epuck:
 
     def get_accelerometer_axes(self):
         """
-        Get the accelerometer axis values
+        Gets the accelerometer axis values.
 
         :returns: [x,y,z]
         :rtype: array of int
@@ -373,7 +374,7 @@ class Epuck:
     # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     def get_roll(self):
         """
-        Get roll degree reading
+        Gets roll degree reading.
 
         .. note:: Orientation between 0.0 and 360.0 degrees
 
@@ -388,7 +389,7 @@ class Epuck:
     # definitions of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     def get_pitch(self):
         """
-        Get pitch angle reading
+        Gets pitch angle reading.
 
         .. note:: Inclination between 0.0 and 90.0 degrees (when tilted in any direction)
 
@@ -401,7 +402,7 @@ class Epuck:
 
     def get_temperature(self):
         """
-        Get the temperature from the robot
+        Gets the temperature from the robot
 
         :returns: temperature
         :rtype: int (degree Celsius)
@@ -416,7 +417,7 @@ class Epuck:
 
     def get_tof(self):
         """
-        Get the Time Of Flight value
+        Gets the Time Of Flight value
 
         .. warning:: 
             The TOF sensor can have different orientations on the robot which will affect measurement.
@@ -570,7 +571,7 @@ class Epuck:
 
     def send_msg(self, msg):
         """
-        Puts a message in queue to other robots.
+        Puts a message in queue to other robots
 
         :param msg: any 
         """
@@ -626,7 +627,7 @@ class Epuck:
 
     def receive_msg(self):
         """
-        Gets next message of the robot queue
+        Gets next message from the robot queue.
 
         :returns recv_mess: any 
         """

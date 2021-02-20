@@ -59,12 +59,13 @@ class WebotsEpuck(Epuck):
 
     def get_ip(self):
         """
+        Gets name of the host
         """
         return socket.gethostname()
 
     def go_on(self):
         """
-        * Goes to next frame
+        Goes to next frame
         """
         super().go_on()
         self.robot.step(TIME_STEP)
@@ -216,10 +217,10 @@ class WebotsEpuck(Epuck):
         
     def init_ground(self):
         """
-        Initiates the ground sensors of the robot.
+        Initiates the ground sensors of the robot
 
         .. note::
-            On Webots, you must add ➕ the exentension node name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
+            On Webots, you must add ➕ the exentension NODE name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
         
         .. image:: ../res/addGroundSensors.png
             :width: 400
@@ -287,7 +288,7 @@ class WebotsEpuck(Epuck):
     # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
     def take_picture(self):
         """
-        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
+        Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
         """
         try:
             counter = '{:04d}'.format(self.counter_img)
@@ -362,21 +363,21 @@ class WebotsEpuck(Epuck):
 
     def init_client_communication(self, host_ip='localhost'):
         """
-            If you called the init_host_communication(), then the epuck will connect to the specific Webots 
-            communication.
+        * If you called the init_host_communication(), then the e-puck will connect to the specific Webots 
+        communication.
 
-            If you do not call the init_host_communication, then the robot will try to find 
-            a host communication.
+        * If you do not call the init_host_communication(), then the robot will try to find 
+        a host communication.
         """
         if self.emitter == None:
             return super().init_client_communication(host_ip=host_ip)
 
     def send_msg(self, msg):
         """
-            Put a message in queue of each other robots.
+        Puts a message in queue to other robots.
 
-             .. warning ::
-                If you use Webots communication then you can only send strings.
+        .. warning ::
+            If you use Webots communication then you can only send strings.
         """
         if self.emitter == None:
             super().send_msg(msg)

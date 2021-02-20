@@ -5,7 +5,7 @@ Graphic User Interface
 Main e-puck GUI Window
 ----------------------------
 
-To start the main GUI from the unifr_api_epuck package, please run the following command in your terminal.
+To start the main GUI from the unifr_api_epuck package, please run the following command in your terminal:
 
 .. code-block:: shell
 
@@ -15,21 +15,21 @@ To start the main GUI from the unifr_api_epuck package, please run the following
     :width: 400
     :alt: Picture of the main GUI e-puck
     
-The main e-puck GUI is capable to start a server hosting for the communication between the robots and/or start streaming the camera of an epuck.
+The main e-puck GUI is able to start a server host for the communication between robots and/or start streaming the camera of an e-puck.
 
-The window is split in to two parts:
+The window is split into two parts:
 
 1. The first part is for creating or joining the communication.
 
     Two scenarios are possible :
 
-    * If no hosting exists: you can create one by inserting the computer IP address in the input field.
+    * If no host exists: you can create one by inserting the computer IP address in the input field.
 
-    * If a host already exists: insert the IP address of the host to join and monitor the situation.
+    * If a host already exists: insert the IP address of the host to join.
 
 2.  The second part is to stream the camera of an e-puck.
     
-    2.1 Insert the ip address of the robot to stream.
+    2.1 Insert the IP address of the robot to stream.
 
     2.2 Locate the folder where the pictures are saved from the robot.
 
@@ -44,7 +44,7 @@ The window is split in to two parts:
         First define the location from the GUI and then copy/paste the path into the init_camera(`path`) method in the controller code of the robot.
 
 
-Also note that the GUI will create a .json file to save your inputs such that you don't have to insert them each time your launching the GUI. 😉
+Also note that the GUI will create a .json file to save your inputs in order that you don't have to insert them each time your launching the GUI.
 
 
 
@@ -60,10 +60,10 @@ In this window, you will be able to :
 * Monitor how many pending messages the e-pucks have.
 * Send messages to robots.
 
-If a robot lose the communication with the host, then it will disapear from the list and all its pending messages will be remove.
+If a robot loses the communication with the host, then it will disappear from the list and all its pending messages will be removed.
 
 
-Camera e-puck
+e-puck Camera
 --------------
 
 .. image:: res/gui_img_cam.png
@@ -72,6 +72,6 @@ Camera e-puck
 
 * You can move the slider to adjust the refresh rate of the stream.
 * You can take a picture of the steam and it will save it on the same directory specified before.
-* Copy/Paste the directory link 
+* Copy/Paste the directory link.
 
 
