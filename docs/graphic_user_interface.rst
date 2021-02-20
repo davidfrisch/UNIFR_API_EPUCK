@@ -2,7 +2,7 @@ Graphic User Interface
 ============================
 
 
-Main E-PUCK GUI Window
+Main e-puck GUI Window
 ----------------------------
 
 To start the main GUI from the unifr_api_epuck package, please run the following command in your terminal.
@@ -13,9 +13,9 @@ To start the main GUI from the unifr_api_epuck package, please run the following
 
 .. image:: res/gui_img_main.png
     :width: 400
-    :alt: Picture of the main GUI Epuck
+    :alt: Picture of the main GUI e-puck
     
-The Main E-PUCK GUI is capable to start a server hosting for the communication between the robots and/or start streaming the camera of an epuck.
+The main e-puck GUI is capable to start a server hosting for the communication between the robots and/or start streaming the camera of an epuck.
 
 The window is split in to two parts:
 
@@ -27,7 +27,7 @@ The window is split in to two parts:
 
     * If a host already exists: insert the IP address of the host to join and monitor the situation.
 
-2.  The second part is to stream the camera of an E-puck.
+2.  The second part is to stream the camera of an e-puck.
     
     2.1 Insert the ip address of the robot to stream.
 
@@ -35,9 +35,9 @@ The window is split in to two parts:
 
     .. note:: 
 
-        * To use this feature, the E-puck must be run by the same computer that streams the camera.
+        * To use this feature, the e-puck must be run by the same computer that streams the camera.
 
-        * This should be the same path as rob.init_camera(`path`) of the Epuck 
+        * This should be the same path as rob.init_camera(`path`) of the e-puck 
 
     .. tip::
 
@@ -53,22 +53,22 @@ Monitor Host Communication
 
 .. image:: res/gui_img_comm.png
     :width: 400
-    :alt: Picture of the GUI communication between the Epucks
+    :alt: Picture of the GUI communication between the e-pucks
 
 In this window, you will be able to :
  
-* Monitor how many pending messages the E-pucks have.
+* Monitor how many pending messages the e-pucks have.
 * Send messages to robots.
 
 If a robot lose the communication with the host, then it will disapear from the list and all its pending messages will be remove.
 
 
-Camera Epuck
+Camera e-puck
 --------------
 
 .. image:: res/gui_img_cam.png
     :width: 400
-    :alt: Picture of the GUI camera of the Epucks
+    :alt: Picture of the GUI camera of the e-puck.
 
 * You can move the slider to adjust the refresh rate of the stream.
 * You can take a picture of the steam and it will save it on the same directory specified before.

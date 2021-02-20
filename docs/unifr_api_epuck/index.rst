@@ -1,5 +1,5 @@
 
-Epuck Documentation
+E-puck Documentation
 ===========================================
 
 
