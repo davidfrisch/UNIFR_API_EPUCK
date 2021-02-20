@@ -1,7 +1,7 @@
 Global Constants  
 -------------------
 
-The following constants are accessible by importing the constants python file.
+The following constants are available by importing constants.py. 
 
 .. code-block:: python
 

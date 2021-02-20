@@ -87,7 +87,7 @@ class Epuck:
 
     def sleep(self, duration):
         """
-        Pause the execution during `duration`seconds
+        Pause the execution during *duration* seconds
         
         .. warning ::
             This implementation is to be preferred to the standard Python time.sleep() which can lead to problems in the sequence of event handling.
@@ -107,15 +107,13 @@ class Epuck:
 
     def set_speed(self, speed_left, speed_right=None):
         """
-        Set speed of the robot motors. 
+        Sets the speed of the robot's motors. 
         
         :param speed_left: int
-            left motor speed 
-        :param speed_right: int, optional
-            right motor speed, (default is same speed as speed_left)
+        :param speed_right: int, optional (default: is the same speed as speed_left)
 
         .. note:: 
-            Speed: must be between -7.536 and 7.536
+            The speeds must be between -7.536 and 7.536
         """
         pass
 
@@ -130,9 +128,9 @@ class Epuck:
 
     def bounded_speed(self, speed):
         """
-        Bounds the motor speeds of the robot in case if the user put an excessive value.
+        Limits the motor speeds of the robot in case the user puts an excessive value.
 
-        :param speed: speed of a wheel of the Epuck
+        :param speed: speed of a wheel of the e-puck
         """
        
         if speed > MAX_SPEED_WEBOTS:
@@ -160,7 +158,7 @@ class Epuck:
 
         .. important:: 
             * Only LED 1,3,5 and 7 are RGB
-            * the three color must be specify to use rgb
+            * the three colour must be specify to use rgb
 
         :param red: int - red intensity (value between 0 and 100)
         :param green: int - green intensity (value between 0 and 100)
@@ -178,39 +176,39 @@ class Epuck:
 
     def toggle_all_led(self):
         """
-        Turns on all LED aroud the robot
+        Turns ON all LED lights
         """
         for i in range(LED_COUNT_ROBOT):
             self.toggle_led(i)
 
     def disable_all_led(self):
         """
-        Turn off all LED aroud the robot
+        Turns OFF all LED lights
         """
         for i in range(LED_COUNT_ROBOT):
             self.disable_led(i)
 
     def enable_body_led(self):
         """
-        Turn on green body light of the robot
+        Turns ON green body light
         """
         pass
 
     def disable_body_led(self):
         """
-        Turn off green body light of the robot
+        Turns OFF green body light
         """
         pass
 
     def enable_front_led(self):
         """
-        Turn on red front light of the robot
+        Turns ON red front light
         """
         pass
 
     def disable_front_led(self):
         """
-        Turn off red front light of the robot
+        Turns OFF red front light
         """
         pass
 
@@ -220,19 +218,19 @@ class Epuck:
 
     def init_sensors(self):
         """
-        Start sensors of the robot
+        Starts the robot's sensors 
         """
         pass
 
     def disable_sensors(self):
         """
-        Disable sensors of the robot
+        Disables the robot's sensors 
         """
         pass
 
     def get_prox(self):
         """
-        Get proximity sensors values of the robot
+        Gets the robot's proximity sensor values
 
         .. note::
             IR proximity: between 0 (no objects detected) and 4095 (object near the sensor)
@@ -241,23 +239,23 @@ class Epuck:
             **Array position**
 
             0. prox right front 
-            1. prox right front diagonale
+            1. prox right front diagonal
             2. prox right side 
             3. prox right back 
             4. prox left back 
             5. prox left side 
-            6. prox left front diagonale 
+            6. prox left front diagonal 
             7. prox left front 
 
-        :returns: the proximities sensors values 
+        :returns: the proximity sensor values 
         :rtype: int array - (length 8) 
         """
         pass
 
     def calibrate_prox(self):
         """
-        Clean the default values of the infra-red proximitors when robot has no obstacles near it. (take off "noise")  
-        Robot is calibrating when all its LEDs are ON.
+        Cleans the default values of the infra-red sensors when the robot has no obstacles near it. (take off "noise")  
+        When all LEDs are ON, it indicates that the sensors are calibrating.
         """
         # init array for calibration values
         self.ps_err = [0 for _ in range(PROX_SENSORS_COUNT)]
@@ -287,7 +285,7 @@ class Epuck:
 
     def get_calibrate_prox(self):
         """
-        Get the array prox values without the noise of the proximitors
+        Gets the calibrated proximity sensors values
 
         .. note:: IR proximity: between 0 (no objects detected) and 4095 (object near the sensor)
 
@@ -295,16 +293,16 @@ class Epuck:
             **Array proximites positions**
 
             0. prox right front 
-            1. prox right front diagonale
+            1. prox right front diagonal
             2. prox right side 
             3. prox right back 
             4. prox left back 
             5. prox left side 
-            6. prox left front diagonale 
+            6. prox left front diagonal 
             7. prox left front 
 
-        :returns:  The corrected proximities values 
-        :rtype: int array - (length 8)
+        :returns: proximity values 
+        :rtype: [int] - (length 8)
         """
         prox_vals = self.get_prox()
         prox_corr = [0]*PROX_SENSORS_COUNT
@@ -319,13 +317,13 @@ class Epuck:
 
     def init_ground(self):
         """
-        Initiates the ground sensors of the robot.
+        Initiates the ground sensors of the robot
         """
         pass
 
     def get_ground(self):
         """
-        Get the values of the ground sensors
+        Gets the values from the ground sensors
 
         .. note:: 
             Between 0 (no surface at all or not reflective surface e.g. black) and 1023 (very reflective surface e.g. white)
@@ -337,23 +335,23 @@ class Epuck:
             1. MIDDLE
             2. RIGHT
 
-        :returns: int array of the ground values 
-        :rtype: int array - [LEFT, MIDDLE, RIGHT]
+        :returns: ground values 
+        :rtype: [int] - [LEFT, MIDDLE, RIGHT]
         """
         pass
 
     def get_gyro_axes(self):
         """
-        Get gyroscope values (axis x, y and z)
+        Gets gyroscope values (axis x, y and z)
 
-        :return int: [x, y, z]
+        :return: [x, y, z]
         :rtype: [int, int, int]
         """
         pass
 
     def get_acceleration(self):
         """
-        Get the accelerometer value
+        Gets the accelerometer value
 
         .. note:: acceleration magnitude, between 0.0 and about 2600.0 (~3.46 g)
 
@@ -375,7 +373,7 @@ class Epuck:
     # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     def get_roll(self):
         """
-        Get roll degree
+        Get roll degree reading
 
         .. note:: Orientation between 0.0 and 360.0 degrees
 
@@ -390,7 +388,7 @@ class Epuck:
     # definitions of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     def get_pitch(self):
         """
-        Get pitch degree
+        Get pitch angle reading
 
         .. note:: Inclination between 0.0 and 90.0 degrees (when tilted in any direction)
 
@@ -403,10 +401,10 @@ class Epuck:
 
     def get_temperature(self):
         """
-        Returns temperature of robot in degree Celsius
+        Get the temperature from the robot
 
         :returns: temperature
-        :rtype: int (degree Celcius)
+        :rtype: int (degree Celsius)
         """
         pass
 
@@ -420,41 +418,42 @@ class Epuck:
         """
         Get the Time Of Flight value
 
-        .. warning:: The TOF sensor can physically have different orientation depending of the sodure on the robot.
+        .. warning:: 
+            The TOF sensor can have different orientations on the robot which will affect measurement.
         
-        :returns: values in millimiters
+        :returns: values in millimetres
         :rtype: int
         """
         pass
 
     def disable_tof(self):
         """
-        Stop computing the TOF sensor.
+        Stops the TOF sensor
         """
         pass
 
 
     def init_camera(self, save_image_folder=None, camera_rate=1):
         """
-        Enable camera of the robot
+        Enables the robot's camera 
 
-        :param save_image_folder: input directory folder to save the image taken by the camera of the robot.
+        :param save_image_folder: input directory folder to save the images taken by the robot
         :param camera_rate: camera_rate
         """
         pass
 
     def disable_camera(self):
         """
-        Disable camera of the robot
+        Disables the robot's camera
         """
         pass
 
     def get_camera(self):
         """
-        Process raw image from robot
+        Processes raw images from robot
 
         .. tip:: 
-            when you combine the colors of a specific position of the three color arrays, it gives you the value of a pixel
+            when you combine the same position of three colour arrays, you get the value of a pixel
 
         
         :return arrays: [red],[green],[blue]
@@ -464,13 +463,13 @@ class Epuck:
     def take_picture(self):
         pass
 
-    def live_camera(self, live_time=None):
+    def live_camera(self, duration=None):
         """
-        From the the GUI, live stream the embedded camera of the robot
+        Lets you stream from the GUI
 
-        The live_camera method need to be call in each step.
+        The live_camera method need to be called at each step.
 
-        :param live_time: int - lifetime of the stream. (default: until program ends)
+        :param duration: int - duration of the stream. (default: until program ends)
         """
         pass
 
@@ -478,8 +477,6 @@ class Epuck:
     # return front, right, back. left microphones
     def get_microphones(self):
         """
-         Get microphones intensity 
-
         .. warning:: 
             Only works with real robots
         """
@@ -503,8 +500,7 @@ class Epuck:
 
     def init_client_communication(self, host_ip='localhost'):
         """
-        .. warning:: 
-            init_host_communication should be called first or the GUI should host the communication before connecting the clients.
+        .. warning:: init_host_communication should be called first or the GUI should host the communication before connecting the clients.
         """
        
         is_online = 1
@@ -553,7 +549,7 @@ class Epuck:
 
     def __stay_alive(self):
         """
-        Keep the host aware that the epuck is alive
+        Keeps the host aware that the epuck is alive
         """
         if self.manager:
             try:
@@ -574,7 +570,7 @@ class Epuck:
 
     def send_msg(self, msg):
         """
-        Put a message in queue of each other robots.
+        Puts a message in queue to other robots.
 
         :param msg: any 
         """
@@ -630,7 +626,7 @@ class Epuck:
 
     def receive_msg(self):
         """
-        Get next message of the robot queue
+        Gets next message of the robot queue
 
         :returns recv_mess: any 
         """

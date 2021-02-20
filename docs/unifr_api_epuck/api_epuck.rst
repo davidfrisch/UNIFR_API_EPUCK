@@ -4,7 +4,7 @@ api_epuck
 
 About
 ========
-The api_epuck file lets you get an intance of an Epuck robot
+The api_epuck file lets you get an instance of an e-puck robot.
 
 
 Code
@@ -18,8 +18,7 @@ Code
 Examples
 ==========
 
-* Get an instance of a real Epuck with its ip address. 
-  e.g: IP is 192.168.43.125
+* To get an instance of a real Epuck with its ip address:
 
 .. code-block:: python
 
@@ -28,7 +27,7 @@ Examples
     my_robot = api_epuck.get_robot('192.168.43.125')
 
 
-* Get an instance of a simulated Epuck in Webots
+* To get an instance of a simulated e-puck in Webots:
 
 .. code-block:: python
 
@@ -39,7 +38,7 @@ Examples
 
 
 
-* Get an instance of epuck from the PiPuck with the ip address of the PiPuck (soon available)
+* Get an instance of epuck from the pi-puck with the ip address of the PiPuck (soon available)
 
 .. code-block:: python
 

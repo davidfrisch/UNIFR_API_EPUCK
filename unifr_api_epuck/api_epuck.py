@@ -4,15 +4,15 @@ from .epuck_wifi import WifiEpuck
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
-    Get the instance of an EPUCK
+    Get the instance of an e-puck
 
     .. note::
         Leave the parameters empty if you will be using Webots
 
-    :params ip_addr: ip address of the EPUCK
+    :params ip_addr: ip address of the e-puck
     :params is_pipuck: boolean
 
-    :returns: instance of the EPUCK
+    :returns: instance of the e-puck
     """
 
     if is_pipuck:
@@ -27,7 +27,7 @@ def get_robot(ip_addr=None, is_pipuck = False):
 
 def __get_robot_wifi(ip_addr):
     """
-    Return the instance of a real Epuck instance
+    Return the instance of a real e-puck instance
     """
     print('initiating connection with ' + str(ip_addr))
 
@@ -36,7 +36,7 @@ def __get_robot_wifi(ip_addr):
 
 def __get_robot_webot():
     """
-    Return the instance of a simulated Epuck 
+    Return the instance of a simulated e-puck 
     """
     try:
         return WebotsEpuck()
@@ -49,7 +49,7 @@ def __get_robot_webot():
 
 def __get_robot_pipuck(ip_addr):
     """
-    Return the instance of real Epuck with a Pi-puck 
+    Return the instance of real e-puck with a Pi-puck 
     """
     from .epuck_pipuck import PiPuckEpuck
 

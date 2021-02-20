@@ -4,10 +4,11 @@ First Steps
 
 Welcome to the UNIFR API e-puck's documentation. 
 
-unifr_epi_epuck is a simple wrapper API that let you control a real or simulated epuck robot. 
-Please find below the instructions to get started with the API.
+unifr_epi_epuck is a simple API wrapper that lets you control a real or simulated e-puck robot. 
+Please find below the instructions to get started with the API using Python3.
 
-Submitted by: David Frischer
+Submitted by: David Roman Frischer
+
 Supervisor: Dr. Julien Nembrini
 
 github : https://github.com/davidfrisch/UNIFR_API_EPUCK
@@ -16,49 +17,50 @@ Requirements
 --------------
 
 *  Python3.x on your computer.
-*  Webots or a real E-puck
+*  Webots or a real e-puck.
 
 
 How To Start
 -------------
-1. How to install the package from your terminal
+1. How to install the package from your terminal.
     .. code-block:: shell
 
         $ pip install unifr_api_epuck
 
 
-2. How to implement a controller in python 
-    * Import package
+2. How to implement using Python.
+    * To import the package:
     
     .. code-block:: python
 
         from unifr_api_epuck import api_epuck as ae
     
-    * Create the instance of the robot 
+    * To create an instance of the robot:
 
     .. code-block:: python
     
-        #leave None if you're using Webots. Put an IP address if you are using a real robot
+        #leave None if you're using Webots. 
+        #Put an IP address if you're using a real robot.
         MY_IP = None 
         r = ae.get_robot(MY_IP)
 
-    * control the robot by calling its actions 
+    * To control the robot by calling its actions:
 
     .. code-block:: python
 
-        r.init_sensors() #init the sensors
-        r.set_speed(-2, 2) #make it turn around himself
+        r.init_sensors() #initiates the sensors
+        r.set_speed(-2, 2) #makes it turn around itself
 
         #infinite loop
         while r.go_on():
-            prox_values = r.get_prox() #get the proximity sensors values
+            prox_values = r.get_prox() #gets the values of the proximity sensors
             print(prox_values)
 
-        r.clean_up() #make a fresh clean_up
+        r.clean_up() #makes a reset
 
 
-3. If you are:
-    * In Real Life (IRL) run your python file with the following command
+3. To run the file, if you are:
+    * In Real Life (IRL) run your Python file with the following command:
     
     .. code-block:: shell
 
@@ -78,7 +80,7 @@ Example Code
 --------------
 
 | Q: What does it do ?
-| A: The Robot goes forward at a speed of 2, print its proximity sensors values and stream from its camera.
+| A: The robot goes forward at a speed of 2, prints its proximitiy sensor values and streams images from its camera.
 
 .. code-block:: python
 
@@ -87,19 +89,17 @@ Example Code
 
     def main_loop(ip_addr):
         rob = ae.get_robot(ip_addr)
-        rob.set_speed(2)        #speed of the wheels
+        rob.set_speed(2)        #sets the speed of the wheels
 
-        rob.init_sensors()        #init the sensors for the proxies
-        rob.init_camera('./')     #save image in current directory
+        rob.init_sensors()        #initiates the proximity sensor
+        rob.init_camera('./')     #initiates the camera. It will save the image in './'
 
         #infinite loop
         while rob.go_on():
             rob.live_camera()     #live stream (you can watch the stream from the GUI !)
-            print(rob.get_prox()) #print the proximities values on the console
+            print(rob.get_prox()) #prints the proximity sensor values on the terminal
 
-            #insert some more code here to control rob (your robot)
-
-
+            #inserts some more code here to control your robot
 
         rob.clean_up()
 

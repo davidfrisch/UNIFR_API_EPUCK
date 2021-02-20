@@ -17,7 +17,7 @@ class WifiEpuck(Epuck):
         """
         A class used to represent a robot Real Robot.
 
-        :param ip_addr: str - The IP address of the Epuck
+        :param ip_addr: str - The IP address of the e-puck
         """
         # communication Robot <-> Computer
         self.sock = 0
@@ -83,7 +83,7 @@ class WifiEpuck(Epuck):
 
     def __init_command(self):
         """
-        Initial command packet that is send to the Epuck once the first connection succeeded.
+        Initial command packet that is send to the e-puck once the first connection succeeded.
         """
         # Init the array containing the commands to be sent to the robot.
         self.command[0] = 0x80  # Packet id for settings actuators
@@ -119,7 +119,7 @@ class WifiEpuck(Epuck):
 
     def get_ip(self):
         """
-        :returns: The IP address of the Epuck
+        :returns: The IP address of the e-puck
         """
         return self.ip_addr
 
@@ -148,7 +148,7 @@ class WifiEpuck(Epuck):
         while byte_send < COMMAND_PACKET_SIZE:
             sent = self.sock.send(self.command[byte_send:])
             if sent == 0:
-                raise RuntimeError("Send to Epuck error")
+                raise RuntimeError("Send to e-puck error")
 
             byte_send = byte_send + sent
 
@@ -204,7 +204,7 @@ class WifiEpuck(Epuck):
         """
         * Sends and receives commands between computer and robot.
 
-        :returns: True (if no problem occures)
+        :returns: True (if no problem occurs)
         """
         super().go_on()
         
@@ -384,6 +384,11 @@ class WifiEpuck(Epuck):
     ##### END ####
     #    LED     #
     ##############
+    def init_sensors(self):
+        return super().init_sensors()
+
+    def disable_sensors(self):
+        return super().disable_sensors()
 
     def get_prox(self):
         prox_values = [0 for _ in range(PROX_SENSORS_COUNT)]
@@ -421,7 +426,7 @@ class WifiEpuck(Epuck):
 
     def init_ground(self):
         """
-        No need for Real Robots.
+        No need for real robots.
         """
         pass
 
@@ -449,6 +454,9 @@ class WifiEpuck(Epuck):
     #  temperature       #
     #  Time Of Fight     #
     ######################
+
+    def get_gyro_axes(self):
+        return super().get_gyro_axes()
 
     def get_accelerometer_axes(self):
         sensor = self.sensor
@@ -478,8 +486,9 @@ class WifiEpuck(Epuck):
 
     # return front, right, back. left microphones
     def get_microphones(self):
-        super().get_microphones()
         """
+           Gets microphones' intensity 
+
         .. note:: 
             Mic volume: between 0 and 4095
 
@@ -632,7 +641,7 @@ class WifiEpuck(Epuck):
 
     def take_picture(self):
         """
-        Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_wifi.WifiEpuck.init_camera>`
+        Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_wifi.WifiEpuck.init_camera>`
         """
         if self.my_filename_current_image:
             # removing the last 4 character of my_filename_current_image
@@ -642,7 +651,7 @@ class WifiEpuck(Epuck):
                 self.my_filename_current_image[:-4] + counter + '.bmp')
             self.counter_img += 1
 
-    def live_camera(self, live_time=None):
+    def live_camera(self, duration=None):
         if not self.has_start_stream:
             # time setting
             self.start_time = time.time()
@@ -651,7 +660,7 @@ class WifiEpuck(Epuck):
         # refresh time
         self.current_time = time.time()
 
-        if live_time is None or (self.current_time - self.start_time) < live_time:
+        if duration is None or (self.current_time - self.start_time) < duration:
             # refresh robot communication
             self.get_camera()
         else:
@@ -669,9 +678,9 @@ class WifiEpuck(Epuck):
         .. warning:: 
             Only works with real robots
 
-        0. Play Main Mario Theme
-        1. Play Underworld Mario Theme
-        2. Play Star Wars Theme
+        0. Plays main Mario's theme
+        1. Plays underworld Mario's theme
+        2. Plays Star Wars theme
 
         :param sound_number: int - (between 0 and 2)
         """
