@@ -401,12 +401,6 @@ class Epuck:
 
 
     def get_temperature(self):
-        """
-        Gets the temperature from the robot
-
-        :returns: temperature
-        :rtype: int (degree Celsius)
-        """
         pass
 
     def init_tof():

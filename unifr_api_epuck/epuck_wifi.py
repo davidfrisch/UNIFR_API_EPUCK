@@ -123,17 +123,6 @@ class WifiEpuck(Epuck):
         """
         return self.ip_addr
 
-    def init_sensors(self):
-        self.command[1] = self.command[1] | (1 << 1)
-        # start sensor calibration, with the intern calibration
-        #self.command[2] = 1
-        # custom calibration
-        self.command[2] = 0 
-
-    def disable_sensors(self):
-        # put the second bit to last at 0
-        self.command[1] = self.command[1] & 0xFD
-
     #####################################################
     ## COMMUNICATION METHODS between robot and master  ##
     #####################################################
@@ -219,15 +208,13 @@ class WifiEpuck(Epuck):
         return super().sleep(duration)
 
     def get_battery_level(self):
+        """
+        Gets robot's battery level.
+        """
         battery_level = struct.unpack("H", struct.pack("<BB", self.sensor[83], self.sensor[84]))[0]
         return battery_level
 
-    def bounded_speed(self, speed):
-        #bounded speed is based on Webots maximums
-        new_speed = super().bounded_speed(speed)
-        new_speed *=MAX_SPEED_IRL/MAX_SPEED_WEBOTS
-        return new_speed
-    
+   
     def __set_speed_left(self, speed_left):
         """
         Set the speed of the left motor of the robot
@@ -273,13 +260,17 @@ class WifiEpuck(Epuck):
 
         return [left_speed, right_speed]
     
+    
     def bounded_speed(self, speed):
-        return super().bounded_speed(speed)
+        #bounded speed is based on Webots maximums
+        new_speed = super().bounded_speed(speed)
+        new_speed *=MAX_SPEED_IRL/MAX_SPEED_WEBOTS
+        return new_speed
 
     def get_motors_steps(self):
         """
         .. hint:: 
-            1000 steps are 1 revolution (1 full turn of the wheel)
+            1000 steps equals 1 revolution (1 full turn of the wheel)
         """
         sensors = self.sensor
         left_steps = struct.unpack("<h", struct.pack(
@@ -384,11 +375,21 @@ class WifiEpuck(Epuck):
     ##### END ####
     #    LED     #
     ##############
+    #################
+    #   SENSORS     #
+    #################
+
     def init_sensors(self):
-        return super().init_sensors()
+        self.command[1] = self.command[1] | (1 << 1)
+        # start sensor calibration, with the intern calibration
+        #self.command[2] = 1
+        # custom calibration
+        self.command[2] = 0 
 
     def disable_sensors(self):
-        return super().disable_sensors()
+        # put the second bit to last at 0
+        self.command[1] = self.command[1] & 0xFD
+
 
     def get_prox(self):
         prox_values = [0 for _ in range(PROX_SENSORS_COUNT)]
@@ -424,6 +425,16 @@ class WifiEpuck(Epuck):
     def get_calibrate_prox(self):
         return super().get_calibrate_prox()
 
+    def init_tof():
+        pass
+
+    def get_tof(self):
+        sensor = self.sensor
+        return struct.unpack("h", struct.pack("<BB", sensor[69], sensor[70]))[0]
+
+    def disable_tof(self):
+        return super().disable_tof()
+
     def init_ground(self):
         """
         No need for real robots.
@@ -456,7 +467,14 @@ class WifiEpuck(Epuck):
     ######################
 
     def get_gyro_axes(self):
-        return super().get_gyro_axes()
+        sensor = self.sensor
+        gyro_x = struct.unpack("<h", struct.pack(
+            "<BB", sensor[18], sensor[19]))[0]
+        gyro_y = struct.unpack("<h", struct.pack(
+            "<BB", sensor[20], sensor[21]))[0]
+        gyro_z = struct.unpack("<h", struct.pack(
+            "<BB", sensor[22], sensor[23]))[0]
+        return [gyro_x, gyro_y, gyro_z]
 
     def get_accelerometer_axes(self):
         sensor = self.sensor
@@ -473,15 +491,11 @@ class WifiEpuck(Epuck):
         return struct.unpack("f", struct.pack("<BBBB", sensor[6], sensor[7], sensor[8], sensor[9]))[0]
 
 
-    def get_gyro_axes(self):
-        sensor = self.sensor
-        gyro_x = struct.unpack("<h", struct.pack(
-            "<BB", sensor[18], sensor[19]))[0]
-        gyro_y = struct.unpack("<h", struct.pack(
-            "<BB", sensor[20], sensor[21]))[0]
-        gyro_z = struct.unpack("<h", struct.pack(
-            "<BB", sensor[22], sensor[23]))[0]
-        return [gyro_x, gyro_y, gyro_z]
+    def get_roll(self):
+        return super().get_roll()
+
+    def get_pitch(self):
+        return super().get_pitch()
 
 
     # return front, right, back. left microphones
@@ -509,16 +523,19 @@ class WifiEpuck(Epuck):
 
 
     def get_temperature(self):
+        """
+        Gets the temperature from the robot
+
+        :returns: temperature
+        :rtype: int (degree Celsius)
+        """
         sensor = self.sensor
         return struct.unpack("b", struct.pack("<B", sensor[36]))[0]
 
 
 #https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
 # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
-    def get_tof(self):
-        sensor = self.sensor
-        return struct.unpack("h", struct.pack("<BB", sensor[69], sensor[70]))[0]
-
+    
     def get_tv_remote(self):
         #TODO still not working
         sensor = self.sensor
@@ -667,7 +684,7 @@ class WifiEpuck(Epuck):
             self.disable_camera()
 
     #### start ####
-    #    SOUND  #
+    #    MUSIC  #
     # Music will start again each time you send its corresponding number command #
     ##############
 

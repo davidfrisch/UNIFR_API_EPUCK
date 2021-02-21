@@ -1,5 +1,5 @@
 
-Welcome to the UNIFR API Epuck documentation
+Welcome to the UNIFR API e-puck documentation
 ===========================================
 
 

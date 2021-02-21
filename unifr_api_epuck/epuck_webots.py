@@ -3,6 +3,7 @@ from .epuck import Epuck
 from .constants import *
 import time
 import socket
+from math import sqrt
 
 class WebotsEpuck(Epuck):
 
@@ -86,6 +87,13 @@ class WebotsEpuck(Epuck):
 
     def sleep(self, duration):
         return super().sleep(duration)
+
+    def get_battery_level(self):
+        """
+        .. warning::
+            Only works with real robots
+        """
+        return super().get_battery_level()
 
     #################
     #    MOTORS      #
@@ -179,10 +187,14 @@ class WebotsEpuck(Epuck):
     def disable_front_led(self):
         self.led[9].set(0)
 
+    ##### END ####
+    #    LED     #
+    ##############
     #################
     #   SENSORS     #
     #################
     # Need to init sensors before using them
+
     def init_sensors(self):
         psNames = [
             'ps0', 'ps1', 'ps2', 'ps3',
@@ -191,6 +203,9 @@ class WebotsEpuck(Epuck):
         for i in range(8):
             self.ps.append(self.robot.getDevice(psNames[i]))
             self.ps[i].enable(TIME_STEP)
+
+    def disable_sensors(self):
+        return super().disable_sensors()
 
     def get_prox(self):
 
@@ -212,6 +227,9 @@ class WebotsEpuck(Epuck):
     def init_tof():
         pass
 
+    def get_tof(self):
+        return self.tof.getValue()
+
     def disable_tof(self):
         return super().disable_tof()
         
@@ -223,8 +241,8 @@ class WebotsEpuck(Epuck):
             On Webots, you must add ➕ the exentension NODE name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
         
         .. image:: ../res/addGroundSensors.png
-            :width: 400
-            :alt: Picture of the main GUI Epuck
+            :width: 500
+            :alt: Picture of the main GUI e-puck
         """
         gsNames = [
             'gs0', 'gs1', 'gs2'
@@ -247,6 +265,22 @@ class WebotsEpuck(Epuck):
 
         return ground_values
 
+    ###   BEGIN ##########
+    #  Gyroscope         #
+    # acceleration       #
+    # acceleration axes  #
+    #  microphone        #
+    #  orientation       #
+    #  inclination       #
+    #  temperature       #
+    #  Time Of Fight     #
+    ######################
+
+
+    def get_gyro_axes(self):
+        # round values to integers for homogeniety with real robot
+        round_values = [round(i) for i in self.gyro.getValues()]
+        return round_values
 
     def get_accelerometer_axes(self):
         # round values to integers for homogeniety with real robot
@@ -257,22 +291,45 @@ class WebotsEpuck(Epuck):
         [x,y,z] = self.get_accelerometer_axes
         return sqrt(x**2 + y**2 + z**2)
 
-    def get_gyro_axes(self):
-        # round values to integers for homogeniety with real robot
-        round_values = [round(i) for i in self.gyro.getValues()]
-        return round_values
+    def get_roll(self):
+        return super().get_roll()
+
+    def get_pitch(self):
+        return super().get_pitch()
+
+    def get_microphones(self):
+        """
+        .. warning::
+            Only works with real robots
+        """
+        return super().get_microphones()
+
+    def get_temperature(self):
+        """
+        .. warning::
+            Only works with real robots
+        """
+        return super().get_temperature()
 
     def get_temp(self):
         print('no temperature on Webots')
 
-    def get_tof(self):
-        return self.tof.getValue()
+    #####   END    ######
+    #  Gyroscope        #
+    # acceleration      #
+    # acceleration axes #
+    #  microphone       #
+    #  pitch            #
+    #  roll             #
+    #  temperature      #
+    #  Time Of Fight    #
+    ####################
 
  
 
-    #################
-    #     VIDEO     #
-    #################
+    #### begin ####
+    #    CAMERA  #
+    ##############
     # Need to init_camera before calling other methods
 
     def init_camera(self, save_image_folder=None, camera_rate=1):
@@ -285,18 +342,6 @@ class WebotsEpuck(Epuck):
     def disable_camera(self):
         self.camera.disable()
 
-    # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
-    def take_picture(self):
-        """
-        Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
-        """
-        try:
-            counter = '{:04d}'.format(self.counter_img)
-            save_as = self.save_image_folder + '/image' + counter + '.jpg'
-            self.camera.saveImage(save_as, 100)  # 100 for best quality
-            self.counter_img += 1
-        except Exception as e:
-            print(e)
 
     def get_camera(self):
         self.red, self.blue, self.green = [], [], []
@@ -314,6 +359,19 @@ class WebotsEpuck(Epuck):
                     cameraData, CAMERA_WIDTH, n, m)]
 
         return self.red, self.green, self.blue
+
+    # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
+    def take_picture(self):
+        """
+        Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
+        """
+        try:
+            counter = '{:04d}'.format(self.counter_img)
+            save_as = self.save_image_folder + '/image' + counter + '.jpg'
+            self.camera.saveImage(save_as, 100)  # 100 for best quality
+            self.counter_img += 1
+        except Exception as e:
+            print(e)
 
     def live_camera(self, live_time=None):
         """
