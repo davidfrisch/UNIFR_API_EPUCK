@@ -118,6 +118,15 @@ class WebotsEpuck(Epuck):
         return super().bounded_speed(speed)
 
     def get_motors_steps(self):
+        """
+        Gets number of steps of the wheels.
+
+        .. note::
+            A step is one time_step.
+
+        :returns: [left_wheel, right_wheel]
+        :rtype: [int,int]
+        """
         return [self.left_motor_counter, self.right_motor_counter]
 
     #################

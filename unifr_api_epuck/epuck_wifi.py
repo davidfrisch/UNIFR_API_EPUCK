@@ -269,8 +269,10 @@ class WifiEpuck(Epuck):
 
     def get_motors_steps(self):
         """
-        .. hint:: 
-            1000 steps equals 1 revolution (1 full turn of the wheel)
+        Gets number of steps of the wheels
+
+        :returns: [left_wheel, right_wheel]
+        :rtype: [int,int]
         """
         sensors = self.sensor
         left_steps = struct.unpack("<h", struct.pack(
@@ -751,6 +753,9 @@ class WifiEpuck(Epuck):
         return super().has_receive_msg()
 
     def clean_up(self):
+        """
+        Disables all and closes socket.
+        """
         if self.sock != 0:
             self.disable_camera()
             self.disable_all_led()
