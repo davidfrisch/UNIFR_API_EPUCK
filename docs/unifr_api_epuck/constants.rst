@@ -5,7 +5,7 @@ The following constants are available by importing constants.py.
 
 .. code-block:: python
 
-   from unifr_api_epuck.constants import *
+   from unifr_api_epuck.epuck.constants import *
 
 Following constants are available :
 
