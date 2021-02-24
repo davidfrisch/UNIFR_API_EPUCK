@@ -5,7 +5,7 @@
 # Equivalent constants for Webots and Real Robots.
 TIME_STEP = 64
 
-MAX_SPEED_WEBOTS = 7.536
+MAX_SPEED = 7.536
 MAX_SPEED_IRL = 800
 
 NBR_CALIB = 50

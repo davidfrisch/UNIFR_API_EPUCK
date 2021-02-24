@@ -6,7 +6,7 @@ import socket
 import os
 import time
 import sys
-from .host_epuck_communication import start_manager_gui, get_available_epucks, DEATH, WARNING_COMM_LIFE_TIME
+from ..epuck.host_epuck_communication import start_manager_gui, get_available_epucks, DEATH, WARNING_COMM_LIFE_TIME
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")

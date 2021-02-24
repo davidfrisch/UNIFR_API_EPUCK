@@ -1,6 +1,5 @@
-from .epuck_webots import WebotsEpuck 
-from .epuck_wifi import WifiEpuck
-
+from .epuck.epuck_webots import WebotsEpuck 
+from .epuck.epuck_wifi import WifiEpuck
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
@@ -51,7 +50,7 @@ def __get_robot_pipuck(ip_addr):
     """
     Return the instance of real e-puck with a Pi-puck 
     """
-    from .epuck_pipuck import PiPuckEpuck
+    from .epuck.epuck_pipuck import PiPuckEpuck
 
     print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)

@@ -13,8 +13,7 @@ Following constants are available :
 
    TIME_STEP = 64
 
-   MAX_SPEED_WEBOTS = 7.536   #In Webots
-   MAX_SPEED_IRL = 800        #In Real Life
+   MAX_SPEED = 7.536
 
    NBR_CALIB = 50
 

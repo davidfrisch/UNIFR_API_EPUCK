@@ -1,12 +1,12 @@
 from .epuck import Epuck
 from .constants import *
-from . import host_epuck_communication as hec
+from .host_epuck_communication import start_manager as hec_main
 import struct
 import socket
 import sys
 import time
 import logging
-import threading as Thread
+from threading import Thread# as Thread
 
 
 class WifiEpuck(Epuck):
@@ -264,7 +264,7 @@ class WifiEpuck(Epuck):
     def bounded_speed(self, speed):
         #bounded speed is based on Webots maximums
         new_speed = super().bounded_speed(speed)
-        new_speed *=MAX_SPEED_IRL/MAX_SPEED_WEBOTS
+        new_speed *=MAX_SPEED_IRL/MAX_SPEED
         return new_speed
 
     def get_motors_steps(self):
@@ -285,7 +285,7 @@ class WifiEpuck(Epuck):
     #    LED     #
     ##############
 
-    def toggle_led(self, led_position, red=None, green=None, blue=None):
+    def enable_led(self, led_position, red=None, green=None, blue=None):
         if led_position in range(LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
             if led_position % 2 == 0:
@@ -352,8 +352,8 @@ class WifiEpuck(Epuck):
             print(
                 'invalid led position: ' + str(led_position) + '. Accepts 0 <= x <= 7. LED stays ON.')
 
-    def toggle_all_led(self):
-        return super().toggle_all_led()
+    def enable_all_led(self):
+        return super().enable_all_led()
 
     def disable_all_led(self):
         return super().disable_all_led()
@@ -736,10 +736,6 @@ class WifiEpuck(Epuck):
     ####  END ####
     #    SOUND   #
     ##############
-
-    def init_host_communication(self, host_ip='localhost'):
-        Thread(target=hec.main, args=(host_ip,)).start()
-
     def init_client_communication(self, host_ip):
         return super().init_client_communication(host_ip=host_ip)
 

@@ -299,10 +299,11 @@ class PiPuckEpuck(Epuck):
         
         return self.mot_steps
 
-    def toggle_led(self, led_position, red=None, green=None, blue=None):
+    def enable_led(self, led_position, red=None, green=None, blue=None):
         """
         .. note::
-            * Extension with the pi-puck adds LEDs 8, 9 and 10
+            * Extension with the pi-puck adds LEDs 8, 9 and 10 with 
+            * There is only one RGB intensity for the pi-puck. It is either 0 (OFF) or 1 (or any other value higher than 0) (ON) 
         """
         if led_position in range(LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
@@ -424,7 +425,7 @@ class PiPuckEpuck(Epuck):
         return ground_value
 
     def calibrate_gyro(self):
-        self.toggle_all_led()
+        self.enable_all_led()
         samplesCount = 0
         gyroSum = [0 for _ in range(3)]
         # reset and send configuration first?
@@ -452,7 +453,7 @@ class PiPuckEpuck(Epuck):
         return gyroValue
 
     def calibrate_accelerometer(self):
-        self.toggle_all_led()
+        self.enable_all_led()
         accSum = [0 for _ in range(3)]
         samplesCount = 0
         # reset and send configuration first?

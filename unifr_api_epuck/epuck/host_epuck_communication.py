@@ -94,7 +94,6 @@ def start_life_manager(host_ip):
         for epuck, life_pts in old_dict.items():
             
             has_start = True
-            print(life_pts)
 
             if life_pts > DEATH:
                 new_life_pts = life_pts - DAMAGE_PTS
@@ -168,7 +167,9 @@ class EpuckCommunicationManager(SyncManager):
         return self.lock
 
     
-def main_hec(host_ip='localhost'):
+def main(host_ip='localhost'):
     manager = EpuckCommunicationManager(False, host_ip)
     manager.start()
 
+if __name__ == "__main__":   
+    start_manager('localhost') 

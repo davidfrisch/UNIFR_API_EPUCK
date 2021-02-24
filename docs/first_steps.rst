@@ -1,11 +1,11 @@
-============
+=============
 First Steps
-============
+=============
 
 Welcome to the UNIFR API e-puck's documentation. 
 
 unifr_epi_epuck is a simple API wrapper that lets you control a real or simulated e-puck robot. 
-Please find below the instructions to get started with the API using Python3.
+Please find below the instructions to get started with the API for Python3.
 
 Submitted by: David Roman Frischer
 
@@ -21,28 +21,75 @@ Requirements
 
 
 How To Start
--------------
+---------------
+
+With Real Robots
+====================
+
+1. How to install the package from your terminal.
+
+    .. code-block:: shell
+
+        $ pip install unifr_api_epuck
+
+
+2. How to implement
+    * To import the package:
+    
+    .. code-block:: python
+
+        from unifr_api_epuck import wrapper
+    
+    * To create an instance of the robot:
+
+    .. code-block:: python
+    
+        #Put the IP address of your robot.
+        MY_IP = '192.168.43.125' 
+        r = wrapper.get_robot(MY_IP)
+
+    * To control the robot by calling its actions:
+
+    .. code-block:: python
+
+        r.init_sensors() #initiates the sensors
+        r.set_speed(-2, 2) #makes it turn around itself
+
+        #infinite loop
+        while r.go_on():
+            prox_values = r.get_prox() #gets the values of the proximity sensors
+            print(prox_values)
+
+        r.clean_up() #makes a reset
+
+3. To run the file
+        
+        .. code-block:: shell
+
+            $ python3 my_controller_file.py 
+
+
+With Webots
+==============
+
 1. How to install the package from your terminal.
     .. code-block:: shell
 
         $ pip install unifr_api_epuck
 
 
-2. How to implement using Python.
-    * To import the package:
+2. How to implement your Python controller
+    * To import the wrapper from the package:
     
     .. code-block:: python
 
-        from unifr_api_epuck import api_epuck as ae
+        from unifr_api_epuck import wrapper
     
     * To create an instance of the robot:
 
     .. code-block:: python
     
-        #leave None if you're using Webots. 
-        #Put an IP address if you're using a real robot.
-        MY_IP = None 
-        r = ae.get_robot(MY_IP)
+        r = wrapper.get_robot()
 
     * To control the robot by calling its actions:
 
@@ -59,64 +106,44 @@ How To Start
         r.clean_up() #makes a reset
 
 
-3. To run the file, if you are:
-    * In Real Life (IRL) run your Python file with the following command:
+3. To run the file:
     
-    .. code-block:: shell
+    * ⏯  press play on Webots
 
-        $ python3 my_controller_file.py 
 
-    * In Webots : ⏯  press play 
+Simple Example Code
+--------------------
 
-4. Graphic User Interface
+| Q: What does it do ?
+| A: The robot goes forward at a speed of 2 and prints its proximitiy sensor values.
+
+.. code-block:: python
+
+    from unifr_api_epuck import wrapper
+    
+    ip_addr = '192.168.43.125'
+    r = wrapper.get_robot(ip_addr)
+    
+    r.set_speed(2)        #sets the speed of the wheels
+    r.init_sensors()      #initiates the proximity sensor
+
+    #infinite loop
+    while r.go_on():
+        print(r.get_prox()) #prints the proximity sensor values on the terminal
+
+        #inserts some more code here to control your robot
+
+    r.clean_up()
+
+
+
+Graphic User Interface 
+--------------------------
     * A GUI is available in the package. To start it, please run the following command:
         
     .. code-block:: shell
 
-        $ python3 -m unifr_api_epuck
-
-
-Example Code
---------------
-
-| Q: What does it do ?
-| A: The robot goes forward at a speed of 2, prints its proximitiy sensor values and streams images from its camera.
-
-.. code-block:: python
-
-    from unifr_api_epuck_test import api_epuck as ae
-    import sys
-
-    def main_loop(ip_addr):
-        rob = ae.get_robot(ip_addr)
-        rob.set_speed(2)        #sets the speed of the wheels
-
-        rob.init_sensors()        #initiates the proximity sensor
-        rob.init_camera('./')     #initiates the camera. It will save the image in './'
-
-        #infinite loop
-        while rob.go_on():
-            rob.live_camera()     #live stream (you can watch the stream from the GUI !)
-            print(rob.get_prox()) #prints the proximity sensor values on the terminal
-
-            #inserts some more code here to control your robot
-
-        rob.clean_up()
-
-    if __name__ == "__main__":
-
-        ip_addr = None
-
-        """
-        if arguments in the command line --> IRL
-        leave empty if using Webots
-        """
-
-        if len(sys.argv) == 2:
-            ip_addr = sys.argv[1]
-
-
-        main_loop(ip_addr)
+        $ python3 -m unifr_api_epuck -g
 
 
 
@@ -148,4 +175,14 @@ Pi-Puck
     
     https://github.com/gctronic/Pi-puck
         
-    
+
+.. image:: res/unifr_logo.png
+    :width: 100
+    :alt: UNIFR logo
+
+
+
+.. image:: res/humanist_logo.jpg
+    :width: 100
+    :alt: Human-IST logo
+

@@ -71,18 +71,6 @@ class WebotsEpuck(Epuck):
         super().go_on()
         self.robot.step(TIME_STEP)
 
-        # count step of the robot on Webots
-        # TODO odometry
-        if self.left_motor.getVelocity() > 0:
-            self.left_motor_counter += 1
-        elif self.left_motor.getVelocity() < 0:
-            self.left_motor_counter -= 1
-
-        if self.right_motor.getVelocity() > 0:
-            self.right_motor_counter += 1
-        elif self.right_motor.getVelocity() < 0:
-            self.right_motor_counter -= 1
-
         return True
 
     def sleep(self, duration):
@@ -117,25 +105,13 @@ class WebotsEpuck(Epuck):
     def bounded_speed(self, speed):
         return super().bounded_speed(speed)
 
-    def get_motors_steps(self):
-        """
-        Gets number of steps of the wheels.
-
-        .. note::
-            A step is one time_step.
-
-        :returns: [left_wheel, right_wheel]
-        :rtype: [int,int]
-        """
-        return [self.left_motor_counter, self.right_motor_counter]
 
     #################
     #       LED      #
     #################
 
     # LEDS are initiated when creation of the instance of the robot
-    def toggle_led(self, led_position, red=None, green=None, blue=None):
-
+    def enable_led(self, led_position, red=None, green=None, blue=None):
         if led_position in range(LED_COUNT_ROBOT):
 
             if led_position % 2 == 0:
@@ -178,8 +154,8 @@ class WebotsEpuck(Epuck):
 
         self.led[led_position].set(0)
 
-    def toggle_all_led(self):
-        return super().toggle_all_led()
+    def enable_all_led(self):
+        return super().enable_all_led()
 
     def disable_all_led(self):
         return super().disable_all_led()
@@ -247,11 +223,19 @@ class WebotsEpuck(Epuck):
         Initiates the ground sensors of the robot
 
         .. note::
-            On Webots, you must add ➕ the exentension NODE name 'E-puckGroundSensors (Transform)' to the robot otherwise it will not work.
+            On Webots, initally the robot does not embed the ground sensors. You must add the NODE 'E-puckGroundSensors (Transform)' to the robot to embed it.
+        
+        .. image:: ../res/add_node_webots_p1.png
+            :width: 300
+            :alt: add the Node
+
+        .. image:: ../res/add_node_webots_p2.png
+            :width: 300
+            :alt: add the Node
         
         .. image:: ../res/addGroundSensors.png
             :width: 500
-            :alt: Picture of the main GUI e-puck
+            :alt: select the ground sensor
         """
         gsNames = [
             'gs0', 'gs1', 'gs2'
@@ -415,8 +399,7 @@ class WebotsEpuck(Epuck):
     # COMMUNICATION #
     #################
     # Communication is initiated during creation of instance of the robot
-    
-    def init_host_communication(self, _ = None):
+    def init_host_communication(self):
         """
             Call this method to use Webots specific communication
         """
@@ -430,11 +413,13 @@ class WebotsEpuck(Epuck):
 
     def init_client_communication(self, host_ip='localhost'):
         """
-        * If you called the init_host_communication(), then the e-puck will connect to the specific Webots 
-        communication.
 
-        * If you do not call the init_host_communication(), then the robot will try to find 
-        a host communication.
+        *   If you called the init_host_communication(), then the e-puck will connect to the specific Webots 
+            communication.
+
+        *   If you do not call the init_host_communication(), then the robot will try to find 
+            a host communication.
+
         """
         if self.emitter == None:
             return super().init_client_communication(host_ip=host_ip)

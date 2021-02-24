@@ -1,13 +1,13 @@
 
 E-puck Documentation
-===========================================
+=============================
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   api_epuck.rst
+   wrapper.rst
    constants.rst
    epuck_wifi.rst
    epuck_webots.rst

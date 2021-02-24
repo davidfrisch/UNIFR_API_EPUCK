@@ -9,7 +9,7 @@ To start the main GUI from the unifr_api_epuck package, please run the following
 
 .. code-block:: shell
 
-    $ python3 -m unifr_api_epuck
+    $ python3 -m unifr_api_epuck -g
 
 .. image:: res/gui_img_main.png
     :width: 400
@@ -45,7 +45,6 @@ The window is split into two parts:
 
 
 Also note that the GUI will create a .json file to save your inputs in order that you don't have to insert them each time your launching the GUI.
-
 
 
 Monitor Host Communication

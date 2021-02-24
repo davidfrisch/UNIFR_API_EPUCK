@@ -113,7 +113,9 @@ class Epuck:
         :param speed_right: int, optional (default: is the same speed as speed_left)
 
         .. note:: 
-            The speed of each wheel must be between -7.536 and 7.536
+            The speed of each wheel is already bounded between -7.536 and 7.536 
+
+    
         """
         pass
 
@@ -133,23 +135,15 @@ class Epuck:
         :param speed: speed of a wheel of the e-puck
         """
        
-        if speed > MAX_SPEED_WEBOTS:
-            return MAX_SPEED_WEBOTS
-        elif speed < -MAX_SPEED_WEBOTS:
-            return -MAX_SPEED_WEBOTS
+        if speed > MAX_SPEED:
+            return MAX_SPEED
+        elif speed < -MAX_SPEED:
+            return -MAX_SPEED
 
         return speed
 
-    def get_motors_steps(self):
-        """ 
-        Gets the number of steps since the beginning of the process
 
-        :returns: [left_wheel, right_wheel]
-        :rtype: [int, int]
-        """
-        pass
-
-    def toggle_led(self, led_position, red=None, green=None, blue=None):
+    def enable_led(self, led_position, red=None, green=None, blue=None):
         """ 
         Turns ON led at led_position
 
@@ -160,9 +154,9 @@ class Epuck:
             * Only LEDs at position 1,3,5 and 7 are RGB
             * the three colours must be specified to use RGB
 
-        :param red: int - red intensity (value between 0 and 100)
-        :param green: int - green intensity (value between 0 and 100)
-        :param blue: int - blue intensity (value between 0 and 100)
+        :param red: int - red intensity value is between 0 (low) and 100 (high)
+        :param green: int - green intensity value is between 0 (low) and 100 (high)
+        :param blue: int - blue intensity value is between 0 (low) and 100 (high)
         """
         pass
 
@@ -174,12 +168,12 @@ class Epuck:
         """
         pass
 
-    def toggle_all_led(self):
+    def enable_all_led(self):
         """
         Turns ON all LED lights
         """
         for i in range(LED_COUNT_ROBOT):
-            self.toggle_led(i)
+            self.enable_led(i)
 
     def disable_all_led(self):
         """
@@ -230,7 +224,7 @@ class Epuck:
 
     def get_prox(self):
         """
-        Gets the robot's proximity sensor values
+        Gets the robot's proximity sensor raw values
 
         .. note::
             IR proximity: between 0 (no objects detected) and 4095 (object near the sensor)
@@ -254,17 +248,18 @@ class Epuck:
 
     def calibrate_prox(self):
         """
-        Cleans the default values of the infra-red sensors when the robot has no obstacles near it. (take off "noise")  
+        Adjust the sensors to make them as error free as possible
 
-        When all LEDs are ON, it indicates that the sensors are calibrating.
+        .. note::
+            When all LEDs are ON, it indicates that the sensors are calibrating.
         """
         # init array for calibration values
         self.ps_err = [0 for _ in range(PROX_SENSORS_COUNT)]
 
         print(self.get_id() + ' start calibrating IR proximity')
 
-        # toggle light as witness
-        self.toggle_all_led()
+        # enable light as witness
+        self.enable_all_led()
 
         # get multiple readings for each sensor
         for i in range(NBR_CALIB + OFFSET_CALIB):
@@ -352,7 +347,9 @@ class Epuck:
 
     def get_acceleration(self):
         """
-        Gets the accelerometer value
+        Gets the magnitude of the acceleration vector, whose direction angles are provided by 
+        the :py:meth:`get_pitch()<.get_pitch>` 
+        and :py:meth:`get_roll()<.get_roll>`  functions 
 
         .. note:: acceleration magnitude, between 0.0 and about 2600.0 (~3.46 g)
 
@@ -363,7 +360,7 @@ class Epuck:
 
     def get_accelerometer_axes(self):
         """
-        Gets the accelerometer axis values.
+        Gets the accelerometer axis raw values.
 
         :returns: [x,y,z]
         :rtype: array of int
@@ -449,6 +446,13 @@ class Epuck:
 
         .. tip:: 
             when you combine the same position of three colour arrays, you get the value of a pixel
+            
+            #get pixel at position 10 of the image
+
+            red, green, blue = robot.get_camera() \n
+            pixel = [red[10], green[10], blue[10]] 
+
+            
 
         
         :return arrays: [red],[green],[blue]
@@ -483,16 +487,6 @@ class Epuck:
     #################
     # COMMUNICATION #
     #################
-    def init_host_communication(host_ip='localhost'):
-        """
-        Initiates the communication between host and robots.
-
-        .. note:: 
-            It is strongly recommended to always host with the GUI. This will give much more stability for communication between the robots.
-
-        """
-        pass
-
     def init_client_communication(self, host_ip='localhost'):
         """
         .. warning:: init_host_communication should be called first or the GUI should host the communication before connecting the clients.

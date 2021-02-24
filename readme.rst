@@ -1,6 +1,6 @@
-============
+=============
 README
-============
+=============
 
 Welcome to the UNIFR API e-puck's documentation. 
 
@@ -21,14 +21,18 @@ Requirements
 
 
 How To Start
--------------
+---------------
+
+With Real Robots
+====================
+
 1. How to install the package from your terminal.
-    .. code-block:: shell
+.. code-block:: shell
 
-        $ pip install unifr_api_epuck
+    $ pip install unifr_api_epuck
 
 
-2. How to implement using Python.
+2. How to implement
     * To import the package:
     
     .. code-block:: python
@@ -39,9 +43,8 @@ How To Start
 
     .. code-block:: python
     
-        #leave None if you're using Webots. 
-        #Put an IP address if you're using a real robot.
-        MY_IP = None 
+        #Put the IP address of your robot.
+        MY_IP = '192.168.43.125' 
         r = ae.get_robot(MY_IP)
 
     * To control the robot by calling its actions:
@@ -58,22 +61,53 @@ How To Start
 
         r.clean_up() #makes a reset
 
-
-3. To run the file, if you are:
+3. To run the file
     * In Real Life (IRL) run your Python file with the following command:
-    
-    .. code-block:: shell
-
-        $ python3 my_controller_file.py 
-
-    * In Webots : ⏯  press play 
-
-4. Graphic User Interface
-    * A GUI is available in the package. To start it, please run the following command:
         
+        .. code-block:: shell
+
+            $ python3 my_controller_file.py 
+
+With Webots
+==============
+
+1. How to install the package from your terminal.
     .. code-block:: shell
 
-        $ python3 -m unifr_api_epuck
+        $ pip install unifr_api_epuck
+
+
+2. How to implement your Python controller
+    * To import the wrapper from the package:
+    
+    .. code-block:: python
+
+        from unifr_api_epuck import wrapper
+    
+    * To create an instance of the robot:
+
+    .. code-block:: python
+    
+        r = wrapper.get_robot()
+
+    * To control the robot by calling its actions:
+
+    .. code-block:: python
+
+        r.init_sensors() #initiates the sensors
+        r.set_speed(-2, 2) #makes it turn around itself
+
+        #infinite loop
+        while r.go_on():
+            prox_values = r.get_prox() #gets the values of the proximity sensors
+            print(prox_values)
+
+        r.clean_up() #makes a reset
+
+
+3. To run the file:
+    
+    * ⏯  press play 
 
 
 Example Code
@@ -84,39 +118,32 @@ Example Code
 
 .. code-block:: python
 
-    from unifr_api_epuck_test import api_epuck as ae
-    import sys
+    from unifr_api_epuck import wrapper
+    
+    r = wrapper.get_robot(ip_addr)
+    r.set_speed(2)        #sets the speed of the wheels
 
-    def main_loop(ip_addr):
-        rob = ae.get_robot(ip_addr)
-        rob.set_speed(2)        #sets the speed of the wheels
+    r.init_sensors()        #initiates the proximity sensor
+    r.init_camera('./')     #initiates the camera. It will save the image in './'
 
-        rob.init_sensors()        #initiates the proximity sensor
-        rob.init_camera('./')     #initiates the camera. It will save the image in './'
+    #infinite loop
+    while r.go_on():
+        r.live_camera()     #live stream (you can watch the stream from the GUI !)
+        print(r.get_prox()) #prints the proximity sensor values on the terminal
 
-        #infinite loop
-        while rob.go_on():
-            rob.live_camera()     #live stream (you can watch the stream from the GUI !)
-            print(rob.get_prox()) #prints the proximity sensor values on the terminal
+        #inserts some more code here to control your robot
 
-            #inserts some more code here to control your robot
-
-        rob.clean_up()
-
-    if __name__ == "__main__":
-
-        ip_addr = None
-
-        """
-        if arguments in the command line --> IRL
-        leave empty if using Webots
-        """
-
-        if len(sys.argv) == 2:
-            ip_addr = sys.argv[1]
+    r.clean_up()
 
 
-        main_loop(ip_addr)
+
+Graphic User Interface
+--------------------------
+    * A GUI is available in the package. To start it, please run the following command:
+        
+    .. code-block:: shell
+
+        $ python3 -m unifr_api_epuck -g
 
 
 
