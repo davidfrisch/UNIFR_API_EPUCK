@@ -489,7 +489,7 @@ class Epuck:
     #################
     def init_client_communication(self, host_ip='localhost'):
         """
-        .. warning:: init_host_communication should be called first or the GUI should host the communication before connecting the clients.
+        .. warning:: The host should be created first before calling this method. (ref. Examples/Communication)
         """
        
         is_online = 1
