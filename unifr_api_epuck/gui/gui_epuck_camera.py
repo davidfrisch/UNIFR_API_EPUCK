@@ -45,7 +45,7 @@ class MonitorCamera(tk.Frame):
         except:
             #check if it is simulation
             try:
-                self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.jpg'
+                self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.png'
                 load = Image.open(self.image_directory)
                 load = load.resize((320, 240), Image.ADAPTIVE)
             except:

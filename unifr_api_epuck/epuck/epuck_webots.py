@@ -4,6 +4,7 @@ from .constants import *
 import time
 import socket
 from math import sqrt
+import numpy as np
 
 class WebotsEpuck(Epuck):
 
@@ -339,20 +340,21 @@ class WebotsEpuck(Epuck):
 
 
     def get_camera(self):
-        red, blue, green = [], [], []
-        cameraData = self.camera.getImage()
+        red,green,blue = [],[],[]
+        
+        cameraData = self.camera.getImageArray()
 
         # get the rgb of each pixel
         for n in range(self.__camera_width):
+            red.append([])
+            green.append([])
+            blue.append([])
+            
             for m in range(self.__camera_height):
-                # get the color component of the pixel (n,m)
-                red += [self.camera.imageGetRed(
-                    cameraData, self.__camera_width, n, m)]
-                green += [self.camera.imageGetGreen(
-                    cameraData, self.__camera_width, n, m)]
-                blue += [self.camera.imageGetBlue(
-                    cameraData, self.__camera_width, n, m)]
-
+                red[n].append(cameraData[n][m][0])
+                green[n].append(cameraData[n][m][1])
+                blue[n].append(cameraData[n][m][2])
+        
         return [red, green, blue]
 
     # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
@@ -362,8 +364,8 @@ class WebotsEpuck(Epuck):
         """
         try:
             counter = '{:04d}'.format(self.counter_img)
-            save_as = self.save_image_folder + '/image' + counter + '.jpg'
-            self.camera.saveImage(save_as, 100)  # 100 for best quality
+            save_as = self.save_image_folder + '/image' + counter + '.png'
+            self.camera.saveImage(save_as)  # 100 for best quality
             self.counter_img += 1
         except Exception as e:
             print(e)
@@ -383,7 +385,7 @@ class WebotsEpuck(Epuck):
 
         if live_time is None or (self.current_time - self.start_time) < live_time:
             try:
-                save_as = self.save_image_folder + '/'+ self.get_id() +'_image_video.jpg'
+                save_as = self.save_image_folder + '/'+ self.get_id() +'_image_video.png'
                 self.camera.saveImage(save_as, 100)  # 100 for best quality
                 self.counter_img += 1
             except Exception as e:
@@ -401,7 +403,7 @@ class WebotsEpuck(Epuck):
     # COMMUNICATION #
     #################
     # Communication is initiated during creation of instance of the robot
-    def init_host_communication(self):
+    def init_webots_communication(self):
         """
             Call this method to use Webots specific communication
         """
@@ -416,10 +418,10 @@ class WebotsEpuck(Epuck):
     def init_client_communication(self, host_ip='localhost'):
         """
 
-        *   If you called the init_host_communication(), then the e-puck will connect to the specific Webots 
+        *   If you called the init_webots_communication(), then the e-puck will connect to the specific Webots 
             communication.
 
-        *   If you do not call the init_host_communication(), then the robot will try to find 
+        *   If you do not call the init_webots_communication(), then the robot will try to find 
             a host communication.
 
         """

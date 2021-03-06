@@ -48,10 +48,11 @@ class MonitorCommunication(Frame):
         Secondly Monitor connects to host
         """
         is_online = 1
-
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
             is_online = sock.connect_ex((host_ip, 50000))
+            
         except Exception as e:
             Label(text=e, fg='red').pack()
             print(e)
@@ -86,11 +87,14 @@ class MonitorCommunication(Frame):
             # get shared proxy instance of host manager
             self.lock = self.manager.lock()
             self.syncdict = self.manager.syncdict()
+            sock.settimeout(None)
 
         except Exception as e:
             Label(text=e, fg='red').pack()
             print(e)
             sys.exit(1)
+
+       
 
         
         #add input text to send message

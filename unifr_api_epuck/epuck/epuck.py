@@ -57,9 +57,8 @@ class Epuck:
         self.gs = []
 
         # pixel RGB in a picture of the EPUCK
-        self.red = []
-        self.green = []
-        self.blue = []
+        self.__camera_width = None
+        self.__camera_height = None
 
         # var for camera
         self.has_start_stream = False
@@ -454,6 +453,12 @@ class Epuck:
         :return arrays: [[red],[green],[blue]]
         """
         pass
+
+    def get_camera_width(self):
+        return self.__camera_width
+
+    def get_camera_height(self):
+        return self.__camera_height
 
     def take_picture(self):
         pass

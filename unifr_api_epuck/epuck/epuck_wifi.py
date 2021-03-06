@@ -670,7 +670,7 @@ class WifiEpuck(Epuck):
         """
         if self.my_filename_current_image:
             # removing the last 4 character of my_filename_current_image
-            # because we removing the file format to put it back to the end
+            # because we add the counter in picture name
             counter = '{:04d}'.format(self.counter_img)
             self.__save_bmp_image(
                 self.my_filename_current_image[:-4] + counter + '.bmp')

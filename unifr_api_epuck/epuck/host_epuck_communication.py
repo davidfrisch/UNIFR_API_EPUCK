@@ -39,11 +39,12 @@ def get_available_epucks(connected_dict):
 
 def start_life_manager(host_ip):
     is_online = 1
-
-    time_fail = time.time() + 10
+    time_fail = time.time() + 3
     while not (is_online == 0):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
         is_online = sock.connect_ex((host_ip, 50000))
+
         if time_fail < time.time():
             print('No communication for life_points manager. Not connected to host manager.')
 
