@@ -33,6 +33,8 @@ class WebotsEpuck(Epuck):
 
         # init camera
         self.camera = self.robot.getDevice('camera')
+        self.__camera_width = self.camera.getWidth()
+        self.__camera_height = self.camera.getHeight()
 
         # other components
         self.accelerometer = self.robot.getDevice('accelerometer')
@@ -337,21 +339,21 @@ class WebotsEpuck(Epuck):
 
 
     def get_camera(self):
-        self.red, self.blue, self.green = [], [], []
+        red, blue, green = [], [], []
         cameraData = self.camera.getImage()
 
         # get the rgb of each pixel
-        for n in range(CAMERA_WIDTH):
-            for m in range(CAMERA_HEIGHT):
+        for n in range(self.__camera_width):
+            for m in range(self.__camera_height):
                 # get the color component of the pixel (n,m)
-                self.red += [self.camera.imageGetRed(
-                    cameraData, CAMERA_WIDTH, n, m)]
-                self.green += [self.camera.imageGetGreen(
-                    cameraData, CAMERA_WIDTH, n, m)]
-                self.blue += [self.camera.imageGetBlue(
-                    cameraData, CAMERA_WIDTH, n, m)]
+                red += [self.camera.imageGetRed(
+                    cameraData, self.__camera_width, n, m)]
+                green += [self.camera.imageGetGreen(
+                    cameraData, self.__camera_width, n, m)]
+                blue += [self.camera.imageGetBlue(
+                    cameraData, self.__camera_width, n, m)]
 
-        return self.red, self.green, self.blue
+        return [red, green, blue]
 
     # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
     def take_picture(self):

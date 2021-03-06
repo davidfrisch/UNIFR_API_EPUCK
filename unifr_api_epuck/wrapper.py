@@ -50,7 +50,7 @@ def __get_robot_pipuck(ip_addr):
     """
     Return the instance of real e-puck with a Pi-puck 
     """
-    from .epuck.epuck_pipuck import PiPuckEpuck
+    from .epuck.pi_puck.epuck_pipuck import PiPuckEpuck
 
     print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)

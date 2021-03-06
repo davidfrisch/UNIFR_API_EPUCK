@@ -1,12 +1,11 @@
 from .epuck import Epuck
 from .constants import *
-from .host_epuck_communication import start_manager as hec_main
 import struct
 import socket
 import sys
 import time
 import logging
-from threading import Thread# as Thread
+import numpy as np
 
 
 class WifiEpuck(Epuck):
@@ -25,10 +24,10 @@ class WifiEpuck(Epuck):
         self.command = bytearray([0] * COMMAND_PACKET_SIZE)
 
         # camera init specific for Real Robot
-        self.camera_width = CAMERA_WIDTH
-        self.camera_height = CAMERA_HEIGHT
+        self.__camera_width = 160
+        self.__camera_height = 120
         self.rgb565 = [0 for _ in range(IMAGE_PACKET_SIZE)]
-        self.bgr888 = bytearray([0] * CAMERA_HEIGHT*CAMERA_WIDTH*3*2)  # 160x120x3x2
+        self.bgr888 = bytearray([0] * self.__camera_width*self.__camera_height*3*2)  # 160x120x3x2
         self.camera_updated = False
         self.my_filename_current_image = ''
 
@@ -539,13 +538,17 @@ class WifiEpuck(Epuck):
 # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     
     def get_tv_remote(self):
-        #TODO still not working
+        """
+        Get data from tv remote received by the robot.
+
+        returns: toggle, address, data
+        """
         sensor = self.sensor
         toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
         addr = struct.unpack("b", struct.pack("<B", sensor[87]))[0]
         data = struct.unpack("b", struct.pack("<B", sensor[88]))[0]
 
-        return toggle, addr, data
+        return [toggle, addr, data]
 
 
 
@@ -566,23 +569,22 @@ class WifiEpuck(Epuck):
 
     def __rgb565_to_bgr888(self):
         counter = 0
-
-        for j in range(CAMERA_HEIGHT):
-            for i in range(CAMERA_WIDTH):
-                index = 3 * (i + j * CAMERA_WIDTH)
-                red_rgb555 = self.rgb565[counter] & 0xF8
-                green_rgb555 = ((self.rgb565[counter] & 0x07) << 5) & 0xFF
+        for j in range(self.__camera_height):
+            for i in range(self.__camera_width):
+                index = 3 * (i + j * self.__camera_width)
+                red = self.rgb565[counter]&0xF8
+                green = ((self.rgb565[counter]&0x07) << 5) & 0xFF
                 counter += 1
-                green_rgb555 += ((self.rgb565[counter] & 0xE0) >> 3)
-                blue_rgb555 = ((self.rgb565[counter] & 0x1F) << 3) & 0xFF
+                green += ((self.rgb565[counter]&0xE0) >> 3)
+                blue = ((self.rgb565[counter]&0x1F) << 3) & 0xFF
                 counter += 1
-                self.bgr888[index] = blue_rgb555
-                self.bgr888[index + 1] = green_rgb555
-                self.bgr888[index + 2] = red_rgb555
+                self.bgr888[index] = blue
+                self.bgr888[index + 1] = green
+                self.bgr888[index + 2] = red
 
     def __save_bmp_image(self, filename):
-        width = self.camera_width
-        height = self.camera_height
+        width = self.__camera_width
+        height = self.__camera_height
         image = self.bgr888
         filesize = 54 + 3 * width * height
         # print("filesize = " + str(filesize))
@@ -628,7 +630,7 @@ class WifiEpuck(Epuck):
                 file.write(image[(width * (height - i - 1) * 3):(width * (height - i - 1) * 3) + (3 * width)])
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
-    def init_camera(self, save_image_folder=None, camera_rate=1):
+    def init_camera(self, save_image_folder=None):
         if not save_image_folder:
             save_image_folder = './'
 
@@ -646,17 +648,21 @@ class WifiEpuck(Epuck):
         if self.camera_updated:
             if self.my_filename_current_image:
                 self.__rgb565_to_bgr888()
-                self.__save_bmp_image(self.my_filename_current_image)
 
             self.camera_updated = False
 
-        self.red, self.green, self.blue = [], [], []
-        for i in range(self.camera_height * self.camera_width):
-            self.red.append(self.bgr888[3 * i + 2])
-            self.green.append(self.bgr888[3 * i + 1])
-            self.blue.append(self.bgr888[3 * i])
+        #take r,g,b
+        red = self.bgr888[2::3][:self.__camera_width*self.__camera_height]
+        green = self.bgr888[1::3][:self.__camera_width*self.__camera_height]
+        blue = self.bgr888[0::3][:self.__camera_width*self.__camera_height]
 
-        return self.red, self.green, self.blue
+        #rezie 1dim to array of 2dim  
+        red = np.array(red).reshape(self.__camera_height, self.__camera_width)
+        green = np.array(green).reshape(self.__camera_height, self.__camera_width)
+        blue = np.array(blue).reshape(self.__camera_height, self.__camera_width)
+
+
+        return [red, green, blue]
 
     def take_picture(self):
         """
@@ -682,6 +688,7 @@ class WifiEpuck(Epuck):
         if duration is None or (self.current_time - self.start_time) < duration:
             # refresh robot communication
             self.get_camera()
+            self.__save_bmp_image(self.my_filename_current_image)
         else:
             self.disable_camera()
 

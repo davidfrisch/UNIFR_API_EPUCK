@@ -3,6 +3,7 @@ import socket
 import time
 from .constants import *
 from math import sqrt, atan2, pi
+import numpy as np
 
 
 SyncManager.register("syncdict")
@@ -253,30 +254,25 @@ class Epuck:
         .. note::
             When all LEDs are ON, it indicates that the sensors are calibrating.
         """
-        # init array for calibration values
-        self.ps_err = [0 for _ in range(PROX_SENSORS_COUNT)]
-
         print(self.get_id() + ' start calibrating IR proximity')
 
         # enable light as witness
         self.enable_all_led()
 
+        sums_per_sensor = np.array([0]*PROX_SENSORS_COUNT)
         # get multiple readings for each sensor
         for i in range(NBR_CALIB + OFFSET_CALIB):
             self.go_on()
             if i > OFFSET_CALIB:
                 tmp = self.get_prox()
-                for j in range(PROX_SENSORS_COUNT):
-                    self.ps_err[j] += tmp[j]
-
+                sums_per_sensor = sums_per_sensor+tmp
+               
         # calculate the average for each sensor
-        for i in range(PROX_SENSORS_COUNT):
-            self.ps_err[i] /= NBR_CALIB
+        self.ps_err = sums_per_sensor/NBR_CALIB
 
+        
         print(self.get_id() + ' finish calibrating IR proximity')
-
         self.disable_all_led()
-
         self.go_on()
 
     def get_calibrate_prox(self):
@@ -449,13 +445,13 @@ class Epuck:
             
             #get pixel at position 10 of the image
 
-            red, green, blue = robot.get_camera() \n
+            [red, green, blue] = robot.get_camera() \n
             pixel = [red[10], green[10], blue[10]] 
 
             
 
         
-        :return arrays: [red],[green],[blue]
+        :return arrays: [[red],[green],[blue]]
         """
         pass
 

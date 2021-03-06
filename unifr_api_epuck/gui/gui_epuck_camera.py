@@ -24,10 +24,10 @@ class MonitorCamera(tk.Frame):
         # begin of frame for refresh rate parameter
         refresh_frame = tk.Frame(self)
         self.refresh_rate_val = tk.IntVar()
-        self.refresh_rate_val.set(500)
+        self.refresh_rate_val.set(200)
         tk.Label(refresh_frame, text='Refresh (ms):').pack(side='left')
         self.refresh_rate_scale = tk.Scale(
-            refresh_frame, variable=self.refresh_rate_val, from_=10, to=1000, orient=tk.HORIZONTAL)
+            refresh_frame, variable=self.refresh_rate_val, from_=10, to=500, orient=tk.HORIZONTAL)
         self.refresh_rate_scale.pack()
         refresh_frame.pack()
 
@@ -68,9 +68,18 @@ class MonitorCamera(tk.Frame):
             Refresh the window every self.refresh_val time
         """
         # check if image exists
+      
         try:
             load = Image.open(self.image_directory)
-            load = load.resize((320, 240), Image.ADAPTIVE)
+            
+            #resize image considering window size
+            width = self.master.winfo_width()
+            height = self.master.winfo_height()
+
+            if width < height:
+                load = load.resize((width-10, height-200), Image.ADAPTIVE)
+            else:
+                load = load.resize((height-200, height-200), Image.ADAPTIVE)
         except:
             load = None
 
@@ -85,6 +94,7 @@ class MonitorCamera(tk.Frame):
             if self.image is not None:  # if an image was already loaded
                 self.canvas.delete(self.image)  # remove the previous image
 
+            #add new image
             self.image = self.canvas.create_image(
                 (w/2, h/2), image=self.render)
 

@@ -1,7 +1,7 @@
 # https://github.com/yorkrobotlab/pi-puck/blob/master/python-library/
-from .epuck import Epuck
+from ..epuck import Epuck
+from ..constants import *
 from .epuck_pipuck_camera_configuration import main as main_cam_configuration
-from .constants import *
 from .ft903 import FT903
 from smbus2 import SMBus, i2c_msg
 from threading import Thread
@@ -9,6 +9,7 @@ import sys
 import struct
 import subprocess
 import cv2
+import math
 import time
 
 ############################
@@ -44,7 +45,7 @@ class PiPuckEpuck(Epuck):
     def __init__(self, ip_addr):
         #TOF sensor reading 
         if not ip_addr:
-            print('Attention, no IP address is defines for the Pi-Puck. \n'+
+            print('Attention, no IP address is define for the Pi-Puck. \n'+
                     'Will not initiate communication with others if needed.')
         super().__init__(ip_addr)
         """
@@ -53,13 +54,14 @@ class PiPuckEpuck(Epuck):
         """
         # communication Robot <-> Rasberry Pi
         # communication Pipuck <--> Rasberry Pi
+        self.clock_speed = 1/5 #sec
         self.robot_i2c_bus = None
         self.pipuck_i2c_bus = None
 
         # camera init specific for Real Robot
         self.camera = None
-        self.camera_width = CAMERA_WIDTH
-        self.camera_height = CAMERA_HEIGHT
+        self.__camera_width = 640
+        self.__camera_height = 480
         self.counter_img = 0
         self.camera_updated = False
         self.my_filename_current_image = ''
@@ -96,7 +98,7 @@ class PiPuckEpuck(Epuck):
             self.robot_i2c_bus = SMBus(ROBOT_I2C_CHANNEL)
             self.pipuck_i2c_bus = SMBus(PIPUCK_I2C_CHANNEL)
             self.__init_command()
-            self.start_time = time.time()
+            self.start_time_i2c = time.time()
         except Exception as e:
             print('Cannot connect with pi-puck. \nReason: '+ str(e))
             sys.exit(1)
@@ -105,7 +107,9 @@ class PiPuckEpuck(Epuck):
         ## capable of LEDs, ¿ micro and speaker ?
         self.ft903 = FT903(self.pipuck_i2c_bus)
        
-
+    def set_clock_speed(self, clock_speed):
+        "Set new clock speed in Hz"
+        self.clock_speed = 1/clock_speed
    
     def __init_command(self):
         # Init the array containing the commands to be sent to the robot from pi-puck 
@@ -140,7 +144,11 @@ class PiPuckEpuck(Epuck):
             self.imu_addr = MPU9250_ADDRESS_AD1_0
 
     def get_id(self):
+        if not self.get_ip():
+            return 'pipuck_undefined'
         return 'raspberry_'+ self.get_ip().replace('.','_')
+
+
         
 
     def get_ip(self):
@@ -209,36 +217,44 @@ class PiPuckEpuck(Epuck):
 
       
         #update sensors data and send to robot
-        try:
-            #send to robot
-            write = i2c_msg.write(ROBOT_ADDR, self.i2c_command)
+        trials = 0
+        max_trials = 3
+        while trials < max_trials:
+            try:
+                #send to robot
+                write = i2c_msg.write(ROBOT_ADDR, self.i2c_command)
 
-              #update accelartor data
-            if self.accData:
-                self.accData = self.read_reg_mpu9250(ACCEL_XOUT_H, 6)
+                #update accelartor data
+                if self.accData:
+                    self.accData = self.read_reg_mpu9250(ACCEL_XOUT_H, 6)
 
-            #update gyro data
-            if self.gyroData:
-                self.gyroData = self.read_reg_mpu9250(GYRO_XOUT_H, 6)
+                #update gyro data
+                if self.gyroData:
+                    self.gyroData = self.read_reg_mpu9250(GYRO_XOUT_H, 6)
+                
+                #receive from robot
+                read = i2c_msg.read(ROBOT_ADDR, I2C_SENSORS_PACKET_SIZE)
+                self.robot_i2c_bus.i2c_rdwr(write, read)
+                self.sensors_data = list(read)
+                break
+
+            except Exception as e:
+                trials += 1
+                self.set_speed(0)
+                print(e)
             
-            #receive from robot
-            read = i2c_msg.read(ROBOT_ADDR, I2C_SENSORS_PACKET_SIZE)
-            self.robot_i2c_bus.i2c_rdwr(write, read)
-            self.sensors_data = list(read)
-        except Exception as e:
-            self.set_speed(0)
-            print(e)
-            print('Program stopped')
-            sys.exit(1)
+            if trials > max_trials:
+                print('Program stopped')
+                sys.exit(1)
 
        
         # Communication frequency @ 20 Hz.
-        self.time_diff = time.time() - self.start_time
+        self.time_diff = time.time() - self.start_time_i2c
         
-        if self.time_diff < 0.050 : 
-            time.sleep(0.050 - self.time_diff)
+        if self.time_diff < self.clock_speed : 
+            time.sleep(self.clock_speed - self.time_diff)
 
-        self.start_time = time.time()
+        self.start_time_i2c = time.time()
 
         #check sum to be check once arrived from the robot
         checksum = 0
@@ -284,8 +300,11 @@ class PiPuckEpuck(Epuck):
 
     def get_speed(self):
         #TODO maybe use registers data instead of local data
-        right_speed = (self.wifi_command[0] + self.wifi_command[1]*256)/100  # offset of 100 with Webots
-        left_speed = (self.wifi_command[2] + self.wifi_command[3]*256)/100
+        right_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[0], self.i2c_command[1]))[0]
+        left_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[2], self.i2c_command[3]))[0]
+
+        right_speed *= MAX_SPEED/MAX_SPEED_IRL  #convert to webots speed 
+        left_speed *=  MAX_SPEED/MAX_SPEED_IRL
 
         return [left_speed, right_speed]
 
@@ -295,7 +314,7 @@ class PiPuckEpuck(Epuck):
     def get_motors_steps(self):
         #retrieve steps of robot
         for i in range(2):
-            self.mot_steps[i] = self.sensors_data[41+i*2+1]*256 + self.sensors_data[41+i*2]
+            self.mot_steps[i] =struct.unpack("<h", struct.pack("<BB", self.sensors_data[41+i*2], self.sensors_data[41+i*2+1]))[0]
         
         return self.mot_steps
 
@@ -407,8 +426,7 @@ class PiPuckEpuck(Epuck):
         # Equivalent way to compute as the wifi Epuck
         #retrieve prox data
         for i in range(PROX_SENSORS_COUNT):
-                 #prox i    = MSB * 256                    + LSB
-            self.prox_ir[i] = self.sensors_data[i*2+1]*256 + self.sensors_data[i*2]
+                self.prox_ir[i] = struct.unpack("<h", struct.pack("<BB", self.sensors_data[i*2], self.sensors_data[i*2+1]))[0]
 
         return self.prox_ir
 
@@ -418,9 +436,9 @@ class PiPuckEpuck(Epuck):
         ground_data= self.read_register(I2C_GROUND_SENSOR_ADDRESS, 0, 6)
         ground_value = [0] * GROUND_SENSORS_COUNT
 
-        ground_value[0] = (ground_data[1] + (ground_data[0]<<8))
-        ground_value[1] = (ground_data[3] + (ground_data[2]<<8))
-        ground_value[2] = (ground_data[5] + (ground_data[4]<<8))
+        ground_value[GS_LEFT] = struct.unpack("<h", struct.pack("<BB", ground_data[1], ground_data[0]))[0]
+        ground_value[GS_CENTER] = struct.unpack("<h", struct.pack("<BB", ground_data[3], ground_data[2]))[0]
+        ground_value[GS_RIGHT] = struct.unpack("<h", struct.pack("<BB", ground_data[5], ground_data[4]))[0]
 
         return ground_value
 
@@ -437,7 +455,7 @@ class PiPuckEpuck(Epuck):
                 gyroSum[2] += struct.unpack("<h", struct.pack("<BB", self.gyroData[5], self.gyroData[4]))[0]
                 samplesCount += 1
                 #print("gyro sums: x={0:>+6d}, y={1:>+6d}, z={2:>+6d} (samples={3:>3d})".format(gyroSum[0], gyroSum[1], gyroSum[2], samplesCount))
-            time.sleep(0.050)
+            time.sleep(self.clock_speed)
         self.gyroOffset[0] = int(gyroSum[0]/samplesCount)
         self.gyroOffset[1] = int(gyroSum[1]/samplesCount)
         self.gyroOffset[2] = int(gyroSum[2]/samplesCount)
@@ -465,7 +483,7 @@ class PiPuckEpuck(Epuck):
                 accSum[2] += struct.unpack("<h", struct.pack("<BB", self.accData[5], self.accData[4]))[0] - GRAVITY_MPU9250 #!!!
                 samplesCount += 1
                 #print("acc sums: x={0:>+6d}, y={1:>+6d}, z={2:>+6d} (samples={3:>3d})\n".format(accSum[0], accSum[1], accSum[2], samplesCount))
-            time.sleep(0.050)
+            time.sleep(self.clock_speed)
         self.accOffset[0] = int(accSum[0]/samplesCount)
         self.accOffset[1] = int(accSum[1]/samplesCount)
         self.accOffset[2] = int(accSum[2]/samplesCount)
@@ -474,7 +492,8 @@ class PiPuckEpuck(Epuck):
 
     
     def get_accelerometer(self):
-        pass
+        x,y,z = self.get_accelerometer_axes()
+        return math.sqrt(x**2 + y**2 + z**2)
 
     def get_accelerometer_axes(self):
         self.accData = self.read_reg_mpu9250(ACCEL_XOUT_H, 6)
@@ -486,10 +505,14 @@ class PiPuckEpuck(Epuck):
         return accValue
 
     def get_temperature(self):
-        #TODO
-        pass
+        raw_data_temp = self.read_reg_mpu9250(TEMP_OUT_H, 2)
+        if raw_data_temp:
+            raw_temp = struct.unpack("<h", struct.pack("<BB", raw_data_temp[1], raw_data_temp[0]))[0]
+            self.temperatureData = ((raw_temp - 5765.9349) / 333.87 ) + 21
+            return self.temperatureData
+            
+        return None
 
-    #TODO 
     def init_tof(self):
         """
         It is required to have the VL53L0X pacakage to be able to use the TOF sensor.
@@ -501,7 +524,6 @@ class PiPuckEpuck(Epuck):
         
         """
         import VL53L0X as VL53L0X
-        super().init_tof()
         self.tof = VL53L0X.VL53L0X(i2c_bus=ROBOT_I2C_CHANNEL, i2c_address=TOF_VL53L0X_ADDRESS)
         self.tof.open()
 
@@ -522,34 +544,53 @@ class PiPuckEpuck(Epuck):
         self.tof.close()
 
     def init_camera(self, save_image_folder=None, camera_rate=1):
-        cam_init_thread = Thread(target=main_cam_configuration, args=())
-        cam_init_thread.start()
-        cam_init_thread.join()
-        self.camera = cv2.VideoCapture(0)
+        
+        trial = 0
+        while trial < 2:
+            try:
+                self.camera = cv2.VideoCapture(0)
+                break
+            except:
+                cam_init_thread = Thread(target=main_cam_configuration, args=())
+                cam_init_thread.join()
+                cam_init_thread.start()
+                trial += 1
+
 
     def disable_camera(self):
         self.camera.release()
-        
-
+    
+  
     def get_camera(self):
-        self.red, self.green, self.blue = [],[],[]
-        success, frame = self.camera.read()
-        if success:
-            for i in range(CAMERA_WIDTH):
-                for j in range(CAMERA_HEIGHT):
-                    #BGR pixel with OPENCV
-                    self.blue.append(frame[i][j][0])
-                    self.red.append(frame[i][j][1])
-                    self.green.append(frame[i][j][2])
+        start = time.time()
+        ret, frame = self.get_camera_read()
+        
+        #print('read in '+ str(time.time() - start))
+        # Grabbing frequency @ 5 Hz.
+        self.time_diff_cam = time.time() - start
+        if self.time_diff_cam < 0.2:
+            self.sleep(0.2 - self.time_diff_cam)
 
-            return self.red, self.green, self.blue
+        if ret:
+            b,g,r = cv2.split(frame)
+            return [r,g,b]
+
         return None,None,None
 
     def get_camera_read(self):
         """ 
             get camera.read() of openCV
         """
-        return self.camera.read()
+        start = time.time()
+        success, frame = self.camera.read()
+        self.time_diff_cam = time.time() - start
+        if self.time_diff_cam < 0.2:
+            self.sleep(0.2 - self.time_diff_cam)
+
+        if success:
+            return success, frame
+
+        return
 
     def take_picture(self):
         """
@@ -563,7 +604,7 @@ class PiPuckEpuck(Epuck):
         # Grabbing frequency @ 5 Hz.
         self.time_diff_cam = time.time() - start
         if self.time_diff_cam < 0.2:
-            time.sleep(0.2 - self.time_diff_cam);
+            time.sleep(0.2 - self.time_diff_cam)
 
 
     # return front, right, back. left microphones
@@ -580,8 +621,7 @@ class PiPuckEpuck(Epuck):
         #retrieve microphones data
         for i in range(4):
             #To be tested
-            #self.mic[i] = struct.unpack("<h", struct.pack("<BB", sensor[i], sensor[i+1]))[0]
-            self.mic[i] = self.sensors_data[32+i*2+1]*256+self.ensors_data[32+i*2]
+            self.mic[i] = struct.unpack("<h", struct.pack("<BB", self.sensors_data[32+i*2+1], self.sensors_data[32+i*2]))[0]
 
         return self.mic
 
