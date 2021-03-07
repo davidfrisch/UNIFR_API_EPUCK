@@ -12,6 +12,7 @@ Submitted by: David Roman Frischer
 Supervisor: Dr. Julien Nembrini
 
 github : https://github.com/davidfrisch/UNIFR_API_EPUCK
+documentation : https://unifr-api-epuck.readthedocs.io/en/latest/index.html
 
 Requirements
 --------------
