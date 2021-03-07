@@ -4,7 +4,6 @@ from .constants import *
 import time
 import socket
 from math import sqrt
-import numpy as np
 
 class WebotsEpuck(Epuck):
 

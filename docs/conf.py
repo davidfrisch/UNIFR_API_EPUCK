@@ -37,7 +37,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosectionlabel'
 add_module_names = False
 
 autodoc_member_order = 'bysource'
-autodoc_mock_imports = ['PIL','socket','time','sys','smbus2','numpy']
+autodoc_mock_imports = ['PIL','socket','time','sys','smbus2']
 
 
 # Add any paths that contain templates here, relative to this directory.
