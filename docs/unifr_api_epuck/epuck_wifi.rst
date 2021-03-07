@@ -16,6 +16,7 @@ Table Of Contents
 * :py:meth:`Accelerometer<unifr_api_epuck.epuck.epuck_wifi.WifiEpuck.get_accelerometer_axes>`
 * :py:meth:`Microphones<unifr_api_epuck.epuck.epuck_wifi.WifiEpuck.get_microphones>`
 * :py:meth:`Play Sound<unifr_api_epuck.epuck.epuck_wifi.WifiEpuck.play_sound>`
+* :py:meth:`Get TV remote<unifr_api_epuck.epuck.epuck_wifi.WifiEpuck.get_tv_remote>`
 
 
 Code

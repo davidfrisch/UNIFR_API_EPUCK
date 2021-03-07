@@ -14,7 +14,6 @@ Table Of Contents
 * :py:meth:`Gyroscope<unifr_api_epuck.epuck.epuck_webots.WebotsEpuck.get_gyro_axes>`
 * :py:meth:`Accelerometer<unifr_api_epuck.epuck.epuck_webots.WebotsEpuck.get_accelerometer_axes>`
 
-
 Code
 =====
 
