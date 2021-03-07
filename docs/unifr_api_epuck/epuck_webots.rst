@@ -18,7 +18,7 @@ Table Of Contents
 Code
 =====
 
-.. automodule:: .epuck.epuck_webots
+.. automodule:: unifr_api_epuck.epuck.epuck_webots
     :members:
     :inherited-members:
     :member-order: bysource

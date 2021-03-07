@@ -538,6 +538,11 @@ class WifiEpuck(Epuck):
 # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     
     def get_tv_remote(self):
+        """
+        Get data from tv remote received by the robot.
+
+        :returns: toggle, address, data
+        """
         sensor = self.sensor
         toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
         addr = struct.unpack("b", struct.pack("<B", sensor[87]))[0]

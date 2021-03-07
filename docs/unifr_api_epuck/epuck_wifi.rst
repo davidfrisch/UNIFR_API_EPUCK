@@ -22,7 +22,7 @@ Table Of Contents
 Code
 =====
 
-.. automodule:: .epuck.epuck_wifi
+.. automodule:: unifr_api_epuck.epuck.epuck_wifi
     :members:
     :inherited-members:
     :member-order: bysource
