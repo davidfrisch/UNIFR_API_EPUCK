@@ -8,7 +8,7 @@ Goals
 
 * Here, you will learn how to use the camera of the e-puck
 * You will learn these functions : **get_camera()**, **take_picture()**, **live_camera()**
-* You will learn how to display images with the provided GUI
+* You will briefly learn how to display images with the provided GUI
 
 Get Red, Green, Blue Arrays
 -----------------------------
@@ -45,9 +45,9 @@ See the code below:
 Take a Picture
 -----------------
 
-Use the function **take_picture()** to save the current image in your chosen directory when initiating the camera.
+Use the function **take_picture()** to save the current image.
 
-Each picture will automatically have a unique name file on a single run.
+Each picture will automatically have an unique name file on a single run.
 
 
 .. warning::   

@@ -8,12 +8,12 @@ Goals
 
 * Here, you will learn how to use the communication for the e-pucks
 * You will learn these functions : **init_client_communication()**, **init_webots_communication()** 
-* Optionally, use the webots communication (only with simulated e-pucks)
+* Optionally, use the Webots communication 
 
 Short Exaplanation 
 -----------------------
 
-The communication make it possible to interchange data between the e-pucks and you.
+The communication lets you interchange data between the e-pucks and you.
 
 .. image:: ../res/LAN_communication.png
     :width: 400
@@ -24,7 +24,7 @@ As reference of the the above picture:
   
     * Computers 1 and 3 connect to the open port of computer 2 to put and retrieve data in the dictionnary of the host manager.
 
-Each e-puck that is connected to host manager has each of them a stack of 30 messages to avoid overflow.
+Each e-puck that is connected to host manager can receive up to 30 messages to avoid overflow.
 
 
 Example 
@@ -35,14 +35,9 @@ First you need to create a host manager on a computer with the help of the GUI, 
 .. note::
     More information to launch the GUI in the Graphic User Interface section
 
-
-Once is created, the host manager tells you that to the host manager. 
-
 .. image:: ../res/gui_img_comm2.png
     :width: 400
     :alt: Picture of communication
-
-Robots will start to appear in the list when they are connected to the list. 
 
 Secondly, you need to launch the robots and call **init_client_communication()** to connect to the host manager. 
 
@@ -68,7 +63,7 @@ You must always keep checking if the robot has received messages with **has_rece
 It is possible to use the emitter and receiver of webots.
 
 To use it:
-    * You must only use simulated robots and it can only send string between them.
+    * You must only use simulated robots and it can only send strings between them.
     * The GUI should **not** be used.
     * Replace init_client_communication() with **init_webots_communication()**
 
