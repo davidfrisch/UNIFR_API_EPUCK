@@ -541,7 +541,7 @@ class WifiEpuck(Epuck):
         """
         Get data from tv remote received by the robot.
 
-        returns: toggle, address, data
+        :returns: toggle, address, data
         """
         sensor = self.sensor
         toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
