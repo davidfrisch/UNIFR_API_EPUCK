@@ -23,6 +23,4 @@ Code
 =====
 
 .. automodule:: unifr_api_epuck.epuck.epuck_wifi
-    :members:
-    :inherited-members:
     :member-order: bysource
