@@ -364,7 +364,7 @@ class WebotsEpuck(Epuck):
         """
         try:
             counter = '{:04d}'.format(self.counter_img)
-            save_as = self.save_image_folder + '/image' + counter + '.png'
+            save_as = self.save_image_folder + '/image' + counter +  "_" + str(time.time()) +  '.png'
             self.camera.saveImage(save_as)  # 100 for best quality
             self.counter_img += 1
         except Exception as e:

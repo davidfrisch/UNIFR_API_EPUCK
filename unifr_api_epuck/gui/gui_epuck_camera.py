@@ -59,8 +59,12 @@ class MonitorCamera(tk.Frame):
         text_dir = tk.Entry(footer_frame, width=40, textvariable=data_string,
                             fg="black", bg="white", bd=0, state="readonly")
         
+        confirm_picture = tk.Label(footer_frame,text= 'Message saved !', fg='white')
+        confirm_picture.pack()
         tk.Button(footer_frame, text='Take Picture', command=self.take_picture).pack()
         text_dir.pack(pady=30)
+        self.confirm_message_label = [confirm_picture, 0]
+
         footer_frame.pack(side=BOTTOM)
 
     def update(self):
@@ -68,6 +72,12 @@ class MonitorCamera(tk.Frame):
             Refresh the window every self.refresh_val time
         """
         # check if image exists
+
+        if self.confirm_message_label[1] > 0:
+            self.confirm_message_label[1] = self.confirm_message_label[1] +1
+            if self.confirm_message_label[1] > 15:
+                self.confirm_message_label[1] = 0
+                self.confirm_message_label[0].config(bg="white")
       
         try:
             load = Image.open(self.image_directory)
@@ -124,6 +134,8 @@ class MonitorCamera(tk.Frame):
         os.rename(dst_file, new_dst_file_name)#rename
         os.chdir(dest_dir)
 
+        self.confirm_message_label[0].config(bg="green")
+        self.confirm_message_label[1] = 1
         self.counter_img+=1
 
 def open_new_window_camera(master, folder_directory, epuck_ip):

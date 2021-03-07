@@ -673,7 +673,7 @@ class WifiEpuck(Epuck):
             # because we add the counter in picture name
             counter = '{:04d}'.format(self.counter_img)
             self.__save_bmp_image(
-                self.my_filename_current_image[:-4] + counter + '.bmp')
+                self.my_filename_current_image[:-4] + counter + "_" + str(time.time()) + '.bmp')
             self.counter_img += 1
 
     def live_camera(self, duration=None):
@@ -743,7 +743,7 @@ class WifiEpuck(Epuck):
     ####  END ####
     #    SOUND   #
     ##############
-    def init_client_communication(self, host_ip):
+    def init_client_communication(self, host_ip='localhost'):
         return super().init_client_communication(host_ip=host_ip)
 
     def send_msg(self, msg):

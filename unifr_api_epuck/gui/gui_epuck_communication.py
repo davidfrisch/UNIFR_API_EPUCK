@@ -54,66 +54,76 @@ class MonitorCommunication(Frame):
             is_online = sock.connect_ex((host_ip, 50000))
             
         except Exception as e:
+            self.is_alive = False
             Label(text=e, fg='red').pack()
             print(e)
 
-        if not is_online == 0:
+
+        if self.is_alive:
+            if not is_online == 0:
+                try:
+                    print('    starting server', end=" "),
+                    self.host = Thread(
+                        target=start_manager_gui, args=(host_ip,))
+                    self.host.start()
+                    animation = "|/-\\"
+                    for i in range(25):
+                        time.sleep(0.1)
+                        sys.stdout.write("\r" + animation[i % len(animation)])
+                        sys.stdout.flush()
+
+                except Exception as e:
+                    Label(text=e, fg='red').pack()
+                    print(e)
+
+            # connecting to host manager
             try:
-                print('    starting server', end=" "),
-                self.host = Thread(
-                    target=start_manager_gui, args=(host_ip,))
-                self.host.start()
-                animation = "|/-\\"
-                for i in range(25):
-                    time.sleep(0.1)
-                    sys.stdout.write("\r" + animation[i % len(animation)])
-                    sys.stdout.flush()
-                    # do something
+
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(5)
+                is_online = sock.connect_ex((host_ip, 50000))
+
+                if is_online == 0:
+                    # connect to host ip
+                    self.manager = SyncManager((host_ip, 50000), authkey=b"abc")
+                    self.manager.connect()
+                    print('Monitor CONNECTED to host IP!')
+                    self.label_online.destroy()
+                    self.label_online = Label(self, text="ONLINE", fg='green', pady=20)
+                    self.label_online.pack()
+
+                    # get shared proxy instance of host manager
+                    self.lock = self.manager.lock()
+                    self.syncdict = self.manager.syncdict()
+                else:
+                    self.is_alive = False
 
             except Exception as e:
+                self.is_alive = False
                 Label(text=e, fg='red').pack()
-                print(e)
 
-        # connecting to host manager
-        try:
-            # connect to host ip
-            self.manager = SyncManager((host_ip, 50000), authkey=b"abc")
-            self.manager.connect()
-            print('Monitor CONNECTED to host IP!')
-            self.label_online.destroy()
-            self.label_online = Label(self, text="ONLINE", fg='green', pady=20)
-            self.label_online.pack()
 
-            # get shared proxy instance of host manager
-            self.lock = self.manager.lock()
-            self.syncdict = self.manager.syncdict()
             sock.settimeout(None)
-
-        except Exception as e:
-            Label(text=e, fg='red').pack()
-            print(e)
-            sys.exit(1)
-
-       
 
         
         #add input text to send message
         self.message_frame = Frame(self)
 
         #list of available Epucks to send messages
-        self.lock.acquire(timeout=1)
-        tmp_dict = self.syncdict.copy()
+        if self.is_alive:
+            self.lock.acquire(timeout=1)
+            tmp_dict = self.syncdict.copy()
         
-        self.available_epucks = get_available_epucks(tmp_dict['connected'])
-        self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_combo_list_epucks, state="readonly" )
-        self.cmb_available_epucks.pack(side=LEFT)
-        
-        self.syncdict.update(tmp_dict)
-        self.lock.release()
+            self.available_epucks = get_available_epucks(tmp_dict['connected'])
+            self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_combo_list_epucks, state="readonly" )
+            self.cmb_available_epucks.pack(side=LEFT)
+            
+            self.syncdict.update(tmp_dict)
+            self.lock.release()
 
-        #input data
-        self.message = Entry(self.message_frame)
-        self.message.pack(side=LEFT)
+            #input message from user
+            self.message = Entry(self.message_frame)
+            self.message.pack(side=LEFT)
 
         #send button
         #Button(self.message_frame, text='Send', padx=5, command=self.send_msg).pack(side=LEFT)

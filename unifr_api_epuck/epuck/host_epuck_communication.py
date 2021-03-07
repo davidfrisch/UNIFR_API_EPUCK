@@ -1,4 +1,4 @@
-import socket, time
+import socket, time, sys
 from multiprocessing.managers import SyncManager
 from multiprocessing import Lock
 
@@ -26,7 +26,10 @@ def start_manager_gui(ip_addr):
     :param ip_addr: ip_address of where to create host communication.
     """
     manager = EpuckCommunicationManager(True, ip_addr)
-    manager.start()
+    success = manager.start()
+    if not success:
+        sys.exit(1)
+
 
 def get_available_epucks(connected_dict):
     list_epucks = []
@@ -40,20 +43,24 @@ def get_available_epucks(connected_dict):
 def start_life_manager(host_ip):
     is_online = 1
     time_fail = time.time() + 3
-    while not (is_online == 0):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.settimeout(3)
-        is_online = sock.connect_ex((host_ip, 50000))
 
-        if time_fail < time.time():
-            print('No communication for life_points manager. Not connected to host manager.')
+    try:
+        while not (is_online == 0):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            is_online = sock.connect_ex((host_ip, 50000))
 
-            if not host_ip:
-                print(
-                    'Please create a GUI host by executing on your terminal: `python3 -m unifr_api_epuck`')
+            if time_fail < time.time():
+                print('No communication for life_points manager. Not connected to host manager.')
 
-            # exit method
-            return
+                if not host_ip:
+                    print(
+                        'Please create a GUI host by executing on your terminal: `python3 -m unifr_api_epuck`')
+
+                # exit method
+                return
+    except:
+        return
 
     # connecting to host manage
     is_connect = False
@@ -79,12 +86,14 @@ def start_life_manager(host_ip):
 
         except Exception as e:
             print(e)
-            pass
+            
 
     has_start = False
     alive = True
+    start_time = time.time()
     
     while alive:
+
         lock.acquire()
         tmp_dict = syncdict.copy()
 
@@ -92,6 +101,11 @@ def start_life_manager(host_ip):
             alive = False
 
         old_dict = tmp_dict['connected']
+
+        if len(old_dict) == 0 and alive:
+            if time.time() > start_time + 5*60:
+                alive = False
+
         for epuck, life_pts in old_dict.items():
             
             has_start = True
@@ -131,14 +145,13 @@ class EpuckCommunicationManager(SyncManager):
 
     def start(self):
         "start the host communication"
-        #check if port ised
        
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        is_online = sock.connect_ex((self.ip_addr, 50000))
-        
-        #print('host communication ip address is: '+ self.ip_addr )
-        
         try:    
+            #check if port ised
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            is_online = sock.connect_ex((self.ip_addr, 50000))
+        
             if is_online == 0:
                 print('already online')
                 
@@ -151,15 +164,19 @@ class EpuckCommunicationManager(SyncManager):
                 self.manager.start()
             
                 start_life_manager(self.ip_addr)
+
+            sock.settimeout(None)
            
-                
+           
 
         except OSError:
             print('Server already online')
             
+            
         except Exception as e:
-            print(e)
+            return False
 
+        return True  
 
     def get_dict(self):
         return self.syncdict
@@ -171,6 +188,7 @@ class EpuckCommunicationManager(SyncManager):
 def main(host_ip='localhost'):
     manager = EpuckCommunicationManager(False, host_ip)
     manager.start()
+
 
 if __name__ == "__main__":   
     start_manager('localhost') 

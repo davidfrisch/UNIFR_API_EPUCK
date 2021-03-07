@@ -599,7 +599,7 @@ class PiPuckEpuck(Epuck):
         start = time.time()
         ret, frame = self.camera.read()
         self.counter_img += 1
-        cv2.imwrite(self.get_id()+"_image{0:04d}.jpg".format(self.counter_img), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+        cv2.imwrite(self.get_id()+"_image{0:04d}_" + str(time.time()) + ".jpg".format(self.counter_img), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
         
         # Grabbing frequency @ 5 Hz.
         self.time_diff_cam = time.time() - start
