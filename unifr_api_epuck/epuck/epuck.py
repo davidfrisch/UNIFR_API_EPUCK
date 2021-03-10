@@ -1,7 +1,6 @@
 from multiprocessing.managers import SyncManager
 import socket
 import time
-from .constants import *
 from math import sqrt, atan2, pi
 import numpy as np
 
@@ -18,16 +17,10 @@ class Epuck:
 
     :var ip_addr: str - 
         the private ip address of the robot
-    :var ps: array of int - 
-        for storing the values of the infra-red sensors 
     :var ps_err: array of int - 
         denoise the infra-red values
-    :var ls: array of int - 
-        for storing the values of the light sensors
     :var ls_err: array of int - 
         denoise the light values
-    :var gs: array of int - 
-        for storing the ground sensors values
     :var red: array of red values of the camera from the robot
     :var green: array of green values of the camera from the robot
     :var blue: array of blue value in the camera from the robot
@@ -40,21 +33,45 @@ class Epuck:
 
         :param ip_addr: str - The IP address of the real Epuck
         """
+        
+        # Equivalent constants for Webots and Real Robots.
+        self.MAX_SPEED = 7.536
+        self.MAX_SPEED_IRL = 800
+        self.LED_COUNT_ROBOT = 8
+
+        self.NBR_CALIB = 50
+        self.OFFSET_CALIB = 5
+
         self.host = None
         self.manager = None
 
         # var for identification
         self.ip_addr = ip_addr
+        self.id = ip_addr.replace('.', '_')
+
 
         # proximity sensors init
-        self.ps = []
+        self.PROX_SENSORS_COUNT = 8
+        self.PROX_RIGHT_FRONT = 0
+        self.PROX_RIGHT_FRONT_DIAG = 1
+        self.PROX_RIGHT_SIDE = 2
+        self.PROX_RIGHT_BACK = 3
+        self.PROX_LEFT_BACK = 4
+        self.PROX_LEFT_SIDE = 5
+        self.PROX_LEFT_FRONT_DIAG = 6
+        self.PROX_LEFT_FRONT = 7
+
         self.ps_err = []
         # light sensors init
-        self.ls = []
         self.ls_err = []
 
-        # ground sensors init
-        self.gs = []
+
+        self.GROUND_SENSORS_COUNT = 3
+        self.GS_LEFT = 0
+        self.GS_CENTER = 1
+        self.GS_RIGHT = 2
+
+        self.MAX_MESSAGE = 30
 
         # pixel RGB in a picture of the EPUCK
         self.__camera_width = None
@@ -67,6 +84,12 @@ class Epuck:
 
     def get_id(self):
         pass
+
+    def set_id(self, new_id):
+        """
+        Set new ID for the e-puck
+        """
+        self.id = new_id
 
     def get_ip(self):
         pass
@@ -135,10 +158,10 @@ class Epuck:
         :param speed: speed of a wheel of the e-puck
         """
        
-        if speed > MAX_SPEED:
-            return MAX_SPEED
-        elif speed < -MAX_SPEED:
-            return -MAX_SPEED
+        if speed > self.MAX_SPEED:
+            return self.MAX_SPEED
+        elif speed < -self.MAX_SPEED:
+            return -self.MAX_SPEED
 
         return speed
 
@@ -172,14 +195,14 @@ class Epuck:
         """
         Turns ON all LED lights
         """
-        for i in range(LED_COUNT_ROBOT):
+        for i in range(self.LED_COUNT_ROBOT):
             self.enable_led(i)
 
     def disable_all_led(self):
         """
         Turns OFF all LED lights
         """
-        for i in range(LED_COUNT_ROBOT):
+        for i in range(self.LED_COUNT_ROBOT):
             self.disable_led(i)
 
     def enable_body_led(self):
@@ -258,16 +281,16 @@ class Epuck:
         # enable light as witness
         self.enable_all_led()
 
-        sums_per_sensor = np.array([0]*PROX_SENSORS_COUNT)
+        sums_per_sensor = np.array([0]*self.PROX_SENSORS_COUNT)
         # get multiple readings for each sensor
-        for i in range(NBR_CALIB + OFFSET_CALIB):
+        for i in range(self.NBR_CALIB + self.OFFSET_CALIB):
             self.go_on()
-            if i > OFFSET_CALIB:
+            if i > self.OFFSET_CALIB:
                 tmp = self.get_prox()
                 sums_per_sensor = sums_per_sensor+tmp
                
         # calculate the average for each sensor
-        self.ps_err = sums_per_sensor/NBR_CALIB
+        self.ps_err = sums_per_sensor/self.NBR_CALIB
 
         
         print(self.get_id() + ' finish calibrating IR proximity')
@@ -296,9 +319,9 @@ class Epuck:
         :rtype: [int] - (length 8)
         """
         prox_vals = self.get_prox()
-        prox_corr = [0]*PROX_SENSORS_COUNT
+        prox_corr = [0]*self.PROX_SENSORS_COUNT
 
-        for i in range(PROX_SENSORS_COUNT):
+        for i in range(self.PROX_SENSORS_COUNT):
             if prox_vals[i] - self.ps_err[i] < 0:
                 prox_corr[i] = 0
             else:
@@ -437,17 +460,10 @@ class Epuck:
 
     def get_camera(self):
         """
-        Processes raw images from robot
+        Gets raw images from robot
 
-        .. tip:: 
-            when you combine the same position of three colour arrays, you get the value of a pixel
-            
-            #get pixel at position 10 of the image
-
-            [red, green, blue] = robot.get_camera() \n
-            pixel = [red[10], green[10], blue[10]] 
-
-            
+        .. note::
+            More information in Examples/camera
 
         
         :return arrays: [[red],[green],[blue]]
@@ -574,7 +590,7 @@ class Epuck:
 
                     if epuck != self.get_id() and epuck != 'connected':
 
-                        if len(epuck_mailbox) < MAX_MESSAGE:
+                        if len(epuck_mailbox) < self.MAX_MESSAGE:
                             epuck_mailbox.append(msg)
 
                         # update the dictionnary

@@ -1,6 +1,5 @@
 # https://github.com/yorkrobotlab/pi-puck/blob/master/python-library/
 from ..epuck import Epuck
-from ..constants import *
 from .epuck_pipuck_camera_configuration import main as main_cam_configuration
 from .ft903 import FT903
 from smbus2 import SMBus, i2c_msg
@@ -303,8 +302,8 @@ class PiPuckEpuck(Epuck):
         right_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[0], self.i2c_command[1]))[0]
         left_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[2], self.i2c_command[3]))[0]
 
-        right_speed *= MAX_SPEED/MAX_SPEED_IRL  #convert to webots speed 
-        left_speed *=  MAX_SPEED/MAX_SPEED_IRL
+        right_speed *= self.MAX_SPEED/self.MAX_SPEED_IRL  #convert to webots speed 
+        left_speed *=  self.MAX_SPEED/self.MAX_SPEED_IRL
 
         return [left_speed, right_speed]
 
@@ -324,7 +323,7 @@ class PiPuckEpuck(Epuck):
             * Extension with the pi-puck adds LEDs 8, 9 and 10 with 
             * There is only one RGB intensity for the pi-puck. It is either 0 (OFF) or 1 (or any other value higher than 0) (ON) 
         """
-        if led_position in range(LED_COUNT_ROBOT):
+        if led_position in range(self.LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
             if led_position % 2 == 0:
 
@@ -383,7 +382,7 @@ class PiPuckEpuck(Epuck):
             * Extension with the pi-puck adds LEDs 8, 9 and 10
             
         """
-        if led_position in range(LED_COUNT_ROBOT):
+        if led_position in range(self.LED_COUNT_ROBOT):
 
             if led_position % 2 == 0:
                 led_position //= 2
@@ -425,7 +424,7 @@ class PiPuckEpuck(Epuck):
         # 2 byte per sensor, odd position is LSB and even position is MSB
         # Equivalent way to compute as the wifi Epuck
         #retrieve prox data
-        for i in range(PROX_SENSORS_COUNT):
+        for i in range(self.PROX_SENSORS_COUNT):
                 self.prox_ir[i] = struct.unpack("<h", struct.pack("<BB", self.sensors_data[i*2], self.sensors_data[i*2+1]))[0]
 
         return self.prox_ir
@@ -434,11 +433,11 @@ class PiPuckEpuck(Epuck):
    
     def get_ground(self):
         ground_data= self.read_register(I2C_GROUND_SENSOR_ADDRESS, 0, 6)
-        ground_value = [0] * GROUND_SENSORS_COUNT
+        ground_value = [0] * self.GROUND_SENSORS_COUNT
 
-        ground_value[GS_LEFT] = struct.unpack("<h", struct.pack("<BB", ground_data[1], ground_data[0]))[0]
-        ground_value[GS_CENTER] = struct.unpack("<h", struct.pack("<BB", ground_data[3], ground_data[2]))[0]
-        ground_value[GS_RIGHT] = struct.unpack("<h", struct.pack("<BB", ground_data[5], ground_data[4]))[0]
+        ground_value[self.GS_LEFT] = struct.unpack("<h", struct.pack("<BB", ground_data[1], ground_data[0]))[0]
+        ground_value[self.GS_CENTER] = struct.unpack("<h", struct.pack("<BB", ground_data[3], ground_data[2]))[0]
+        ground_value[self.GS_RIGHT] = struct.unpack("<h", struct.pack("<BB", ground_data[5], ground_data[4]))[0]
 
         return ground_value
 

@@ -1,25 +1,31 @@
 #from unifr_api_epuck.epuck import *
 from .epuck import Epuck
-from .constants import *
 import time
 import socket
 from math import sqrt
+import numpy as np
 
 class WebotsEpuck(Epuck):
 
     def __init__(self):
         from controller import Robot
         super().__init__('localhost')
-        self.robot = Robot()
+
+        self.TIME_STEP = 64
+
+
+        self.__robot = Robot()
         # init the motors
-        self.left_motor = self.robot.getDevice('left wheel motor')
-        self.right_motor = self.robot.getDevice('right wheel motor')
+        self.left_motor = self.__robot.getDevice('left wheel motor')
+        self.right_motor = self.__robot.getDevice('right wheel motor')
 
         self.left_motor_counter = 0
         self.right_motor_counter = 0
 
         # init the leds
-        self.led = []
+        self.__led = []
+
+        self.__id = self.__robot.getName()
 
         # led 8 is body and 9 is front red LED
         ledNames = [
@@ -28,23 +34,23 @@ class WebotsEpuck(Epuck):
             'led8', 'led9'
         ]
         for i in range(len(ledNames)):
-            self.led.append(self.robot.getDevice(ledNames[i]))
-            self.led[i].set(0)
+            self.__led.append(self.__robot.getDevice(ledNames[i]))
+            self.__led[i].set(0)
 
         # init camera
-        self.camera = self.robot.getDevice('camera')
+        self.camera = self.__robot.getDevice('camera')
         self.__camera_width = self.camera.getWidth()
         self.__camera_height = self.camera.getHeight()
 
         # other components
-        self.accelerometer = self.robot.getDevice('accelerometer')
-        self.accelerometer.enable(TIME_STEP)
+        self.accelerometer = self.__robot.getDevice('accelerometer')
+        self.accelerometer.enable(self.TIME_STEP)
 
-        self.gyro = self.robot.getDevice('gyro')
-        self.gyro.enable(TIME_STEP)
+        self.gyro = self.__robot.getDevice('gyro')
+        self.gyro.enable(self.TIME_STEP)
 
-        self.tof = self.robot.getDevice('tof')
-        self.tof.enable(TIME_STEP)
+        self.tof = self.__robot.getDevice('tof')
+        self.tof.enable(self.TIME_STEP)
 
         
         # To uncomment if you want to use Webot specific communication
@@ -57,8 +63,10 @@ class WebotsEpuck(Epuck):
         """
         :returns: The host name of the computer
         """
-        
-        return self.robot.getName()
+        return self.__id
+
+    def set_id(self, new_id):
+        return super().set_id(new_id)
 
     def get_ip(self):
         """
@@ -71,7 +79,7 @@ class WebotsEpuck(Epuck):
         Goes to next frame
         """
         super().go_on()
-        self.robot.step(TIME_STEP)
+        self.__robot.step(self.TIME_STEP)
 
         return True
 
@@ -114,14 +122,14 @@ class WebotsEpuck(Epuck):
 
     # LEDS are initiated when creation of the instance of the robot
     def enable_led(self, led_position, red=None, green=None, blue=None):
-        if led_position in range(LED_COUNT_ROBOT):
+        if led_position in range(self.LED_COUNT_ROBOT):
 
             if led_position % 2 == 0:
 
                 if red or green or blue:
                     print('LED ' + led_position + ' is not RGB')
 
-                self.led[led_position].set(1)
+                self.__led[led_position].set(1)
 
             else:
 
@@ -134,7 +142,7 @@ class WebotsEpuck(Epuck):
 
                     if all(in_rgb_range_values):
                         rgb = red*256**2 + green*256 + blue
-                        self.led[led_position].set(rgb)
+                        self.__led[led_position].set(rgb)
                     else:
                         for i in range(3):
                             color = {0: 'red', 1: 'green', 2: 'blue'}
@@ -143,18 +151,18 @@ class WebotsEpuck(Epuck):
                                     'color '+ color[i] + ' is not between 0 and 100')
 
                 else:
-                    self.led[led_position].set(0xFF0000)
+                    self.__led[led_position].set(0xFF0000)
 
         else:
             print(
                 'invalid led position: ' + led_position + '. Accepts 0 <= x <= 7. LEDs unchanged.')
 
     def disable_led(self, led_position):
-        if led_position not in range(LED_COUNT_ROBOT):
+        if led_position not in range(self.LED_COUNT_ROBOT):
             print(
                 'invalid led position: '+ led_position + '. Accepts 0 <= x <= 7. LED stays ON.')
 
-        self.led[led_position].set(0)
+        self.__led[led_position].set(0)
 
     def enable_all_led(self):
         return super().enable_all_led()
@@ -163,16 +171,16 @@ class WebotsEpuck(Epuck):
         return super().disable_all_led()
 
     def enable_body_led(self):
-        self.led[8].set(1)
+        self.__led[8].set(1)
 
     def disable_body_led(self):
-        self.led[8].set(0)
+        self.__led[8].set(0)
 
     def enable_front_led(self):
-        self.led[9].set(1)
+        self.__led[9].set(1)
 
     def disable_front_led(self):
-        self.led[9].set(0)
+        self.__led[9].set(0)
 
     ##### END ####
     #    LED     #
@@ -187,9 +195,10 @@ class WebotsEpuck(Epuck):
             'ps0', 'ps1', 'ps2', 'ps3',
             'ps4', 'ps5', 'ps6', 'ps7'
         ]
-        for i in range(8):
-            self.ps.append(self.robot.getDevice(psNames[i]))
-            self.ps[i].enable(TIME_STEP)
+        self.__ps = []
+        for i in range(self.PROX_SENSORS_COUNT):
+            self.__ps.append(self.__robot.getDevice(psNames[i]))
+            self.__ps[i].enable(self.TIME_STEP)
 
     def disable_sensors(self):
         return super().disable_sensors()
@@ -197,8 +206,8 @@ class WebotsEpuck(Epuck):
     def get_prox(self):
 
         try:
-            prox_values = [self.ps[i].getValue()
-                           for i in range(PROX_SENSORS_COUNT)]
+            prox_values = [self.__ps[i].getValue()
+                           for i in range(self.PROX_SENSORS_COUNT)]
         except:
             print('Did you forget to my_robot.init_sensors() ?')
             return
@@ -243,16 +252,17 @@ class WebotsEpuck(Epuck):
             'gs0', 'gs1', 'gs2'
         ]
         try:
-            for i in range(GROUND_SENSORS_COUNT):
-                self.gs.append(self.robot.getDevice(gsNames[i]))
-                self.gs[i].enable(TIME_STEP)
+            self.__gs = []
+            for i in range(self.GROUND_SENSORS_COUNT):
+                self.__gs.append(self.__robot.getDevice(gsNames[i]))
+                self.__gs[i].enable(self.TIME_STEP)
         except Exception as e:
             print('Did you add the ground sensor extension ? \n'+str(e))
 
     def get_ground(self):
         try:
-            ground_values = [self.gs[i].getValue()
-                             for i in range(GROUND_SENSORS_COUNT)]
+            ground_values = [self.__gs[i].getValue()
+                             for i in range(self.GROUND_SENSORS_COUNT)]
 
         except:
             print('Robot must add ground sensors to simulation and/or must init_ground()')
@@ -332,7 +342,7 @@ class WebotsEpuck(Epuck):
             save_image_folder = './'
 
         self.save_image_folder = save_image_folder
-        self.camera.enable(TIME_STEP*camera_rate)
+        self.camera.enable(self.TIME_STEP*camera_rate)
 
     def disable_camera(self):
         self.camera.disable()
@@ -408,11 +418,11 @@ class WebotsEpuck(Epuck):
         """
         #if host_id == self.get_id():
         #   Thread(target=hec.main, args=(host_ip,)).start()"""
-        self.emitter = self.robot.getDevice('emitter')
-        self.receiver = self.robot.getDevice('receiver')
+        self.emitter = self.__robot.getDevice('emitter')
+        self.receiver = self.__robot.getDevice('receiver')
         self.emitter.setChannel(1)
         self.receiver.setChannel(1)
-        self.receiver.enable(TIME_STEP)
+        self.receiver.enable(self.TIME_STEP)
 
     def init_client_communication(self, host_ip='localhost'):
         """

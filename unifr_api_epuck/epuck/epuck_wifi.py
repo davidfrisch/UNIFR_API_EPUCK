@@ -1,5 +1,4 @@
 from .epuck import Epuck
-from .constants import *
 import struct
 import socket
 import sys
@@ -18,17 +17,30 @@ class WifiEpuck(Epuck):
 
         :param ip_addr: str - The IP address of the e-puck
         """
+
+        ######################
+        ## CONSTANTS FOR Real Robot ##
+        ######################
+        # For TCP communication
+        self.COMMAND_PACKET_SIZE = 21
+        self.HEADER_PACKET_SIZE = 1
+        self.SENSORS_PACKET_SIZE = 104
+        self.IMAGE_PACKET_SIZE = 160 * 120 * 2  # Max buffer size = widthxheightx2
+        self.MAX_NUM_CONN_TRIALS = 5
+        self.TCP_PORT = 1000  # This is fixed.
+
+
         # communication Robot <-> Computer
-        self.sock = 0
-        self.header = bytearray([0] * 1)
-        self.command = bytearray([0] * COMMAND_PACKET_SIZE)
+        self.__sock = 0
+        self.__command = bytearray([0] * self.COMMAND_PACKET_SIZE)
+
 
         # camera init specific for Real Robot
         self.__camera_width = 160
         self.__camera_height = 120
-        self.rgb565 = [0 for _ in range(IMAGE_PACKET_SIZE)]
-        self.bgr888 = bytearray([0] * self.__camera_width*self.__camera_height*3*2)  # 160x120x3x2
-        self.camera_updated = False
+        self.__rgb565 = [0 for _ in range(self.IMAGE_PACKET_SIZE)]
+        self.__bgr888 = bytearray([0] * self.__camera_width*self.__camera_height*3*2)  # 160x120x3x2
+        self.__camera_updated = False
         self.my_filename_current_image = ''
 
 
@@ -46,34 +58,34 @@ class WifiEpuck(Epuck):
         trials = 0
         ip_address = self.ip_addr
         print("Try to connect to " + ip_address +
-              ":" + str(TCP_PORT) + " (TCP)")
-        while trials < MAX_NUM_CONN_TRIALS:
-            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.sock.settimeout(10)  # non-blocking socket
+              ":" + str(self.TCP_PORT) + " (TCP)")
+        while trials < self.MAX_NUM_CONN_TRIALS:
+            self.__sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.__sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.__sock.settimeout(10)  # non-blocking socket
             try:
-                self.sock.connect((ip_address, TCP_PORT))
+                self.__sock.connect((ip_address, self.TCP_PORT))
             except socket.timeout as err:
-                self.sock.close()
+                self.__sock.close()
                 logging.error("Error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
             except socket.OSError as err:
-                self.sock.close()
+                self.__sock.close()
                 logging.error("Error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
             except Exception as err:
-                self.sock.close()
+                self.__sock.close()
                 logging.error("Error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
             break
 
-        if trials == MAX_NUM_CONN_TRIALS:
+        if trials == self.MAX_NUM_CONN_TRIALS:
             print("Can't connect to " + ip_address)
             return
 
@@ -85,27 +97,27 @@ class WifiEpuck(Epuck):
         Initial command packet that is send to the e-puck once the first connection succeeded.
         """
         # Init the array containing the commands to be sent to the robot.
-        self.command[0] = 0x80  # Packet id for settings actuators
-        self.command[1] = 2  # Request: only sensors enabled
-        self.command[2] = 0  # Settings: set motors speed
-        self.command[3] = 0  # left motor LSB
-        self.command[4] = 0  # left motor MSB
-        self.command[5] = 0  # right motor LSB
-        self.command[6] = 0  # right motor MSB
-        self.command[7] = 0  # lEDs
-        self.command[8] = 0  # LED2 red
-        self.command[9] = 0  # LED2 green
-        self.command[10] = 0  # LED2 blue
-        self.command[11] = 0  # LED4 red
-        self.command[12] = 0  # LED4 green
-        self.command[13] = 0  # LED4 blue
-        self.command[14] = 0  # LED6 red
-        self.command[15] = 0  # LED6 green
-        self.command[16] = 0  # LED6 blue
-        self.command[17] = 0  # LED8 red
-        self.command[18] = 0  # LED8 green
-        self.command[19] = 0  # LED8 blue
-        self.command[20] = 0  # speaker
+        self.__command[0] = 0x80  # Packet id for settings actuators
+        self.__command[1] = 2  # Request: only sensors enabled
+        self.__command[2] = 0  # Settings: set motors speed
+        self.__command[3] = 0  # left motor LSB
+        self.__command[4] = 0  # left motor MSB
+        self.__command[5] = 0  # right motor LSB
+        self.__command[6] = 0  # right motor MSB
+        self.__command[7] = 0  # lEDs
+        self.__command[8] = 0  # LED2 red
+        self.__command[9] = 0  # LED2 green
+        self.__command[10] = 0  # LED2 blue
+        self.__command[11] = 0  # LED4 red
+        self.__command[12] = 0  # LED4 green
+        self.__command[13] = 0  # LED4 blue
+        self.__command[14] = 0  # LED6 red
+        self.__command[15] = 0  # LED6 green
+        self.__command[16] = 0  # LED6 blue
+        self.__command[17] = 0  # LED8 red
+        self.__command[18] = 0  # LED8 green
+        self.__command[19] = 0  # LED8 blue
+        self.__command[20] = 0  # speaker
 
         self.go_on()
         print('Battery left :'+ str(self.get_battery_level()))
@@ -114,7 +126,10 @@ class WifiEpuck(Epuck):
         """
         :returns: The ip address (replace the dots with underscores e.g: x_x_x_x)
         """
-        return self.get_ip().replace('.', '_')
+        return self.id
+
+    def set_id(self, new_id):
+        return super().set_id(new_id)
 
     def get_ip(self):
         """
@@ -133,15 +148,15 @@ class WifiEpuck(Epuck):
         byte_send = 0
 
         # loop until all fragments of the packet has been sent
-        while byte_send < COMMAND_PACKET_SIZE:
-            sent = self.sock.send(self.command[byte_send:])
+        while byte_send < self.COMMAND_PACKET_SIZE:
+            sent = self.__sock.send(self.__command[byte_send:])
             if sent == 0:
                 raise RuntimeError("Send to e-puck error")
 
             byte_send = byte_send + sent
 
         # stop calibration
-        self.command[2] = 0
+        self.__command[2] = 0
 
     def __receive_part_from_robot(self, msg_len):
         """
@@ -153,7 +168,7 @@ class WifiEpuck(Epuck):
         bytes_recd = 0
         try:
             while bytes_recd < msg_len:
-                chunk = self.sock.recv(min(msg_len - bytes_recd, 2048))
+                chunk = self.__sock.recv(min(msg_len - bytes_recd, 2048))
                 if chunk == b'':
                     raise RuntimeError("socket connection broken")
                 chunks.append(chunk)
@@ -171,16 +186,16 @@ class WifiEpuck(Epuck):
         :returns: True if no problem occured
         """
         # depending of the header, we know what data we receive
-        header = self.__receive_part_from_robot(HEADER_PACKET_SIZE)
+        header = self.__receive_part_from_robot(self.HEADER_PACKET_SIZE)
 
         # camera information
         if header == bytearray([1]):
-            self.rgb565 = self.__receive_part_from_robot(IMAGE_PACKET_SIZE)
-            self.camera_updated = True
+            self.__rgb565 = self.__receive_part_from_robot(self.IMAGE_PACKET_SIZE)
+            self.__camera_updated = True
 
         # sensors information
         elif header == bytearray([2]):
-            self.sensor = self.__receive_part_from_robot(SENSORS_PACKET_SIZE)
+            self.sensors = self.__receive_part_from_robot(self.SENSORS_PACKET_SIZE)
 
         # no information
         else:
@@ -210,7 +225,7 @@ class WifiEpuck(Epuck):
         """
         Gets robot's battery level.
         """
-        battery_level = struct.unpack("H", struct.pack("<BB", self.sensor[83], self.sensor[84]))[0]
+        battery_level = struct.unpack("H", struct.pack("<BB", self.sensors[83], self.sensors[84]))[0]
         return battery_level
 
    
@@ -226,8 +241,8 @@ class WifiEpuck(Epuck):
         if speed_left < 0:
             speed_left = speed_left & 0xFFFF
 
-        self.command[3] = speed_left & 0xFF  # LSByte
-        self.command[4] = speed_left >> 8  # MSByte
+        self.__command[3] = speed_left & 0xFF  # LSByte
+        self.__command[4] = speed_left >> 8  # MSByte
 
     def __set_speed_right(self, speed_right):
         """
@@ -242,8 +257,8 @@ class WifiEpuck(Epuck):
         if speed_right < 0:
             speed_right = speed_right & 0xFFFF
 
-        self.command[5] = speed_right & 0xFF  # LSByte
-        self.command[6] = speed_right >> 8  # MSByte
+        self.__command[5] = speed_right & 0xFF  # LSByte
+        self.__command[6] = speed_right >> 8  # MSByte
 
     def set_speed(self, speed_left, speed_right=None):
         # robot goes staight if user only put one speed
@@ -254,8 +269,8 @@ class WifiEpuck(Epuck):
         self.__set_speed_right(speed_right)
 
     def get_speed(self):
-        right_speed = self.command[5]/100  # offset of 100 with Webots
-        left_speed = self.command[6]/100
+        right_speed = self.__command[5]*self.MAX_SPEED/self.MAX_SPEED_IRL
+        left_speed = self.__command[6]*self.MAX_SPEED/self.MAX_SPEED_IRL
 
         return [left_speed, right_speed]
     
@@ -263,7 +278,7 @@ class WifiEpuck(Epuck):
     def bounded_speed(self, speed):
         #bounded speed is based on Webots maximums
         new_speed = super().bounded_speed(speed)
-        new_speed *=MAX_SPEED_IRL/MAX_SPEED
+        new_speed *=self.MAX_SPEED_IRL/self.MAX_SPEED
         return new_speed
 
     def get_motors_steps(self):
@@ -272,12 +287,11 @@ class WifiEpuck(Epuck):
 
         :returns: [left_wheel, right_wheel]
         :rtype: [int,int]
-        """
-        sensors = self.sensor
+        """ 
         left_steps = struct.unpack("<h", struct.pack(
-            "<BB", sensors[79], sensors[80]))[0]
+            "<BB", self.sensors[79], self.sensors[80]))[0]
         right_steps = struct.unpack("<h", struct.pack(
-            "<BB", sensors[81], sensors[82]))[0]
+            "<BB", self.sensors[81], self.sensors[82]))[0]
         return [left_steps, right_steps]
 
     #### begin ###
@@ -285,17 +299,17 @@ class WifiEpuck(Epuck):
     ##############
 
     def enable_led(self, led_position, red=None, green=None, blue=None):
-        if led_position in range(LED_COUNT_ROBOT):
+        if led_position in range(self.LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
             if led_position % 2 == 0:
 
                 if red or green or blue:
                     print('LED '+ str(led_position) + ' is not RGB')
 
-                self.command[7] = self.command[7] | 1 << (led_position//2)
+                self.__command[7] = self.__command[7] | 1 << (led_position//2)
 
             else:
-                # led_position corresponding to the position in the self.command packet
+                # led_position corresponding to the position in the self.__command packet
                 led_position = (led_position-1)*3//2 + 8
 
                 # if RGB is not specified, we process it like a LED with no RGB
@@ -307,9 +321,9 @@ class WifiEpuck(Epuck):
                         map(between, (red, green, blue)))
 
                     if all(in_rgb_range_values):
-                        self.command[led_position] = red
-                        self.command[led_position+1] = green
-                        self.command[led_position+2] = blue
+                        self.__command[led_position] = red
+                        self.__command[led_position+1] = green
+                        self.__command[led_position+2] = blue
                     else:
                         # Inform what happend
                         for i in range(3):
@@ -320,32 +334,32 @@ class WifiEpuck(Epuck):
 
                 else:
 
-                    self.command[led_position] = 15 & 0xFF  # red
-                    self.command[led_position+1] = 0  # greeen
-                    self.command[led_position+2] = 0  # blue
+                    self.__command[led_position] = 15 & 0xFF  # red
+                    self.__command[led_position+1] = 0  # greeen
+                    self.__command[led_position+2] = 0  # blue
 
         else:
             print(
                 'invalid led position: '+ str(led_position) + '. Accepts 0 <= x <= 7. LED stays unchange.')
 
     def disable_led(self, led_position):
-        if led_position in range(LED_COUNT_ROBOT):
+        if led_position in range(self.LED_COUNT_ROBOT):
 
             if led_position % 2 == 0:
                 led_position //= 2
 
                 # mask will shift the correct bit in the byte for LEDs
                 mask = ~(1 << led_position)
-                self.command[7] = self.command[7] & mask
+                self.__command[7] = self.__command[7] & mask
 
             else:
 
-                # led_position corresponding to the position in the self.command packet
+                # led_position corresponding to the position in the self.__command packet
                 led_position = (led_position-1)*3//2 + 8
 
-                self.command[led_position] = 0x00
-                self.command[led_position+1] = 0x00
-                self.command[led_position+2] = 0x00
+                self.__command[led_position] = 0x00
+                self.__command[led_position+1] = 0x00
+                self.__command[led_position+2] = 0x00
 
         else:
             print(
@@ -360,18 +374,18 @@ class WifiEpuck(Epuck):
     def enable_body_led(self):
         # Shift 1 to the position of the current LED (binary representation),
         # then bitwise OR it with current byte LEDs
-        self.command[7] = self.command[7] | 1 << 4
+        self.__command[7] = self.__command[7] | 1 << 4
 
     def disable_body_led(self):
         mask = ~(1 << 4)
-        self.command[7] = self.command[7] & mask
+        self.__command[7] = self.__command[7] & mask
 
     def enable_front_led(self):
-        self.command[7] = self.command[7] | 1 << 5
+        self.__command[7] = self.__command[7] | 1 << 5
 
     def disable_front_led(self):
         mask = ~(1 << 5)
-        self.command[7] = self.command[7] & mask
+        self.__command[7] = self.__command[7] & mask
 
     ##### END ####
     #    LED     #
@@ -381,42 +395,21 @@ class WifiEpuck(Epuck):
     #################
 
     def init_sensors(self):
-        self.command[1] = self.command[1] | (1 << 1)
+        self.__command[1] = self.__command[1] | (1 << 1)
         # start sensor calibration, with the intern calibration
-        #self.command[2] = 1
+        #self.__command[2] = 1
         # custom calibration
-        self.command[2] = 0 
+        self.__command[2] = 0 
 
     def disable_sensors(self):
         # put the second bit to last at 0
-        self.command[1] = self.command[1] & 0xFD
+        self.__command[1] = self.__command[1] & 0xFD
 
 
     def get_prox(self):
-        prox_values = [0 for _ in range(PROX_SENSORS_COUNT)]
-        sensor = self.sensor
-
-        # Please note that we can easily do a for loop but for comprehension stake we keep it this way.
         # 2 byte per sensor, odd position is LSB and even position is MSB
-        prox_values[PROX_RIGHT_FRONT] = struct.unpack(
-            "H", struct.pack("<BB", sensor[37], sensor[38]))[0]
-        prox_values[PROX_RIGHT_FRONT_DIAG] = struct.unpack(
-            "H", struct.pack("<BB", sensor[39], sensor[40]))[0]
-        prox_values[PROX_RIGHT_SIDE] = struct.unpack(
-            "H", struct.pack("<BB", sensor[41], sensor[42]))[0]
-        prox_values[PROX_RIGHT_BACK] = struct.unpack(
-            "H", struct.pack("<BB", sensor[43], sensor[44]))[0]
-
-        prox_values[PROX_LEFT_BACK] = struct.unpack(
-            "H", struct.pack("<BB", sensor[45], sensor[46]))[0]
-        prox_values[PROX_LEFT_SIDE] = struct.unpack(
-            "H", struct.pack("<BB", sensor[47], sensor[48]))[0]
-        prox_values[PROX_LEFT_FRONT_DIAG] = struct.unpack(
-            "H", struct.pack("<BB", sensor[49], sensor[50]))[0]
-        prox_values[PROX_LEFT_FRONT] = struct.unpack(
-            "H", struct.pack("<BB", sensor[51], sensor[52]))[0]
-
-        self.ps = prox_values
+        prox_values = [struct.unpack(
+            "H", struct.pack("<BB", self.sensors[37+2*i], self.sensors[38+2*i]))[0] for i in range(self.PROX_SENSORS_COUNT)]
 
         return prox_values
 
@@ -429,9 +422,8 @@ class WifiEpuck(Epuck):
     def init_tof():
         pass
 
-    def get_tof(self):
-        sensor = self.sensor
-        return struct.unpack("h", struct.pack("<BB", sensor[69], sensor[70]))[0]
+    def get_tof(self): 
+        return struct.unpack("h", struct.pack("<BB", self.sensors[69], self.sensors[70]))[0]
 
     def disable_tof(self):
         return super().disable_tof()
@@ -442,17 +434,10 @@ class WifiEpuck(Epuck):
         """
         pass
 
-    def get_ground(self):
-        sensor = self.sensor
-        ground_values = [0]*GROUND_SENSORS_COUNT
-        ground_values[GS_LEFT] = struct.unpack(
-            "H", struct.pack("<BB", sensor[90], sensor[91]))[0]
-        ground_values[GS_CENTER] = struct.unpack(
-            "H", struct.pack("<BB", sensor[92], sensor[93]))[0]
-        ground_values[GS_RIGHT] = struct.unpack(
-            "H", struct.pack("<BB", sensor[94], sensor[95]))[0]
+    def get_ground(self): 
 
-        self.gs = ground_values
+        ground_values = [struct.unpack(
+            "H", struct.pack("<BB", self.sensors[90+2*i], self.sensors[91+2*i]))[0] for i in range(self.GROUND_SENSORS_COUNT)]
 
         return ground_values
 
@@ -467,29 +452,26 @@ class WifiEpuck(Epuck):
     #  Time Of Fight     #
     ######################
 
-    def get_gyro_axes(self):
-        sensor = self.sensor
+    def get_gyro_axes(self): 
         gyro_x = struct.unpack("<h", struct.pack(
-            "<BB", sensor[18], sensor[19]))[0]
+            "<BB", self.sensors[18], self.sensors[19]))[0]
         gyro_y = struct.unpack("<h", struct.pack(
-            "<BB", sensor[20], sensor[21]))[0]
+            "<BB", self.sensors[20], self.sensors[21]))[0]
         gyro_z = struct.unpack("<h", struct.pack(
-            "<BB", sensor[22], sensor[23]))[0]
+            "<BB", self.sensors[22], self.sensors[23]))[0]
         return [gyro_x, gyro_y, gyro_z]
 
-    def get_accelerometer_axes(self):
-        sensor = self.sensor
+    def get_accelerometer_axes(self): 
         axe_x = struct.unpack("<h", struct.pack(
-            "<BB", sensor[0], sensor[1]))[0]
+            "<BB", self.sensors[0], self.sensors[1]))[0]
         axe_y = struct.unpack("<h", struct.pack(
-            "<BB", sensor[2], sensor[3]))[0]
+            "<BB", self.sensors[2], self.sensors[3]))[0]
         axe_z = struct.unpack("<h", struct.pack(
-            "<BB", sensor[4], sensor[5]))[0]
+            "<BB", self.sensors[4], self.sensors[5]))[0]
         return [axe_x, axe_y, axe_z]
 
-    def get_acceleration(self):
-        sensor = self.sensor
-        return struct.unpack("f", struct.pack("<BBBB", sensor[6], sensor[7], sensor[8], sensor[9]))[0]
+    def get_acceleration(self): 
+        return struct.unpack("f", struct.pack("<BBBB", self.sensors[6], self.sensors[7], self.sensors[8], self.sensors[9]))[0]
 
 
     def get_roll(self):
@@ -509,16 +491,15 @@ class WifiEpuck(Epuck):
 
         :returns: [front, right, back, left]
         :rtype: array of int
-        """
-        sensor = self.sensor
+        """ 
         front = struct.unpack("<h", struct.pack(
-            "<BB", sensor[77], sensor[78]))[0]
+            "<BB", self.sensors[77], self.sensors[78]))[0]
         right = struct.unpack("<h", struct.pack(
-            "<BB", sensor[71], sensor[72]))[0]
+            "<BB", self.sensors[71], self.sensors[72]))[0]
         back = struct.unpack("<h", struct.pack(
-            "<BB", sensor[75], sensor[76]))[0]
+            "<BB", self.sensors[75], self.sensors[76]))[0]
         left = struct.unpack("<h", struct.pack(
-            "<BB", sensor[73], sensor[74]))[0]
+            "<BB", self.sensors[73], self.sensors[74]))[0]
 
         return [front, right, back, left]
 
@@ -529,9 +510,8 @@ class WifiEpuck(Epuck):
 
         :returns: temperature
         :rtype: int (degree Celsius)
-        """
-        sensor = self.sensor
-        return struct.unpack("b", struct.pack("<B", sensor[36]))[0]
+        """ 
+        return struct.unpack("b", struct.pack("<B", self.sensors[36]))[0]
 
 
 #https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
@@ -541,12 +521,15 @@ class WifiEpuck(Epuck):
         """
         Get data from tv remote received by the robot.
 
-        :returns: toggle, address, data
-        """
-        sensor = self.sensor
-        toggle = struct.unpack("b", struct.pack("<B", sensor[86]))[0]
-        addr = struct.unpack("b", struct.pack("<B", sensor[87]))[0]
-        data = struct.unpack("b", struct.pack("<B", sensor[88]))[0]
+        toggle: alternatively 1 or 0
+        address: address in the remote
+        data: output from the remote
+
+        returns: toggle, address, data
+        """ 
+        toggle = struct.unpack("b", struct.pack("<B", self.sensors[86]))[0]
+        addr = struct.unpack("b", struct.pack("<B", self.sensors[87]))[0]
+        data = struct.unpack("b", struct.pack("<B", self.sensors[88]))[0]
 
         return [toggle, addr, data]
 
@@ -572,20 +555,20 @@ class WifiEpuck(Epuck):
         for j in range(self.__camera_height):
             for i in range(self.__camera_width):
                 index = 3 * (i + j * self.__camera_width)
-                red = self.rgb565[counter]&0xF8
-                green = ((self.rgb565[counter]&0x07) << 5) & 0xFF
+                red = self.__rgb565[counter]&0xF8
+                green = ((self.__rgb565[counter]&0x07) << 5) & 0xFF
                 counter += 1
-                green += ((self.rgb565[counter]&0xE0) >> 3)
-                blue = ((self.rgb565[counter]&0x1F) << 3) & 0xFF
+                green += ((self.__rgb565[counter]&0xE0) >> 3)
+                blue = ((self.__rgb565[counter]&0x1F) << 3) & 0xFF
                 counter += 1
-                self.bgr888[index] = blue
-                self.bgr888[index + 1] = green
-                self.bgr888[index + 2] = red
+                self.__bgr888[index] = blue
+                self.__bgr888[index + 1] = green
+                self.__bgr888[index + 2] = red
 
     def __save_bmp_image(self, filename):
         width = self.__camera_width
         height = self.__camera_height
-        image = self.bgr888
+        image = self.__bgr888
         filesize = 54 + 3 * width * height
         # print("filesize = " + str(filesize))
         bmpfileheader = bytearray(14)
@@ -638,25 +621,25 @@ class WifiEpuck(Epuck):
             '/'+self.get_id()+'_image_video.bmp'
         print(self.my_filename_current_image)
         print('camera enable')
-        self.command[1] = self.command[1] | 1
+        self.__command[1] = self.__command[1] | 1
 
     def disable_camera(self):
         # Set last bit to 0
-        self.command[1] = self.command[1] & 0xFE
+        self.__command[1] = self.__command[1] & 0xFE
 
     def get_camera(self):
-        if self.camera_updated:
+        if self.__camera_updated:
             if self.my_filename_current_image:
                 self.__rgb565_to_bgr888()
 
-            self.camera_updated = False
+            self.__camera_updated = False
 
         #take r,g,b
-        red = self.bgr888[2::3][:self.__camera_width*self.__camera_height]
-        green = self.bgr888[1::3][:self.__camera_width*self.__camera_height]
-        blue = self.bgr888[0::3][:self.__camera_width*self.__camera_height]
+        red = self.__bgr888[2::3][:self.__camera_width*self.__camera_height]
+        green = self.__bgr888[1::3][:self.__camera_width*self.__camera_height]
+        blue = self.__bgr888[0::3][:self.__camera_width*self.__camera_height]
 
-        #rezie 1dim to array of 2dim  
+        #resize 1dim to array of 2dim  
         red = np.array(red).reshape(self.__camera_height, self.__camera_width)
         green = np.array(green).reshape(self.__camera_height, self.__camera_width)
         blue = np.array(blue).reshape(self.__camera_height, self.__camera_width)
@@ -719,27 +702,27 @@ class WifiEpuck(Epuck):
         func = switcher.get(sound_number, self.stop_sound)
         func()
 
-        self.command[20] = 0x00
+        self.__command[20] = 0x00
 
     def play_mario(self):
-        self.command[20] = 0x01
+        self.__command[20] = 0x01
         self.go_on()
-        self.command[20] = 0x00
+        self.__command[20] = 0x00
 
     def play_underworld(self):
-        self.command[20] = 0x02
+        self.__command[20] = 0x02
         self.go_on()
-        self.command[20] = 0x00
+        self.__command[20] = 0x00
 
     def play_star_wars(self):
-        self.command[20] = 0x04
+        self.__command[20] = 0x04
         self.go_on()
-        self.command[20] = 0x00
+        self.__command[20] = 0x00
 
     def stop_sound(self):
-        self.command[20] = 0x20
+        self.__command[20] = 0x20
         self.go_on()
-        self.command[20] = 0x00
+        self.__command[20] = 0x00
     ####  END ####
     #    SOUND   #
     ##############
@@ -759,7 +742,7 @@ class WifiEpuck(Epuck):
         """
         Disables all and closes socket.
         """
-        if self.sock != 0:
+        if self.__sock != 0:
             self.disable_camera()
             self.disable_all_led()
             self.disable_sensors()
@@ -770,5 +753,5 @@ class WifiEpuck(Epuck):
                 self.set_speed(0, 0)
                 self.go_on()
 
-            self.sock.close()
+            self.__sock.close()
         #print('Robot cleaned')
