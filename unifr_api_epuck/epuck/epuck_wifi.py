@@ -41,7 +41,8 @@ class WifiEpuck(Epuck):
         self.__rgb565 = [0 for _ in range(self.IMAGE_PACKET_SIZE)]
         self.__bgr888 = bytearray([0] * self.__camera_width*self.__camera_height*3*2)  # 160x120x3x2
         self.__camera_updated = False
-        self.my_filename_current_image = ''
+        self.__my_filename_current_image = ''
+        self.__save_image_folder='.'
 
 
         # start communication with computer
@@ -613,13 +614,13 @@ class WifiEpuck(Epuck):
                 file.write(image[(width * (height - i - 1) * 3):(width * (height - i - 1) * 3) + (3 * width)])
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
-    def init_camera(self, save_image_folder=None):
-        if not save_image_folder:
-            save_image_folder = './'
+    def init_camera(self, new_image_folder=None):
+        if new_image_folder:
+            self.__save_image_folder = new_image_folder
 
-        self.my_filename_current_image = save_image_folder + \
+        self.__my_filename_current_image = self.__save_image_folder + \
             '/'+self.get_id()+'_image_video.bmp'
-        print(self.my_filename_current_image)
+        print(self.__my_filename_current_image)
         print('camera enable')
         self.__command[1] = self.__command[1] | 1
 
@@ -629,7 +630,7 @@ class WifiEpuck(Epuck):
 
     def get_camera(self):
         if self.__camera_updated:
-            if self.my_filename_current_image:
+            if self.__my_filename_current_image:
                 self.__rgb565_to_bgr888()
 
             self.__camera_updated = False
@@ -650,21 +651,20 @@ class WifiEpuck(Epuck):
         """
         Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_wifi.WifiEpuck.init_camera>`
         """
-        if self.my_filename_current_image:
+        if self.__my_filename_current_image:
             if not filename:
                 self.__rgb565_to_bgr888()
                 # removing the last 4 character of my_filename_current_image
                 # because we add the counter in picture name
                 counter = '{:04d}'.format(self.counter_img)
                 self.__save_bmp_image(
-                    self.my_filename_current_image[:-10] + counter + '.bmp')
+                    self.__my_filename_current_image[:-10] + counter + '.bmp')
                 self.counter_img += 1
             else:
                 self.__rgb565_to_bgr888()
                 # removing the last 4 character of my_filename_current_image
                 # because we add the counter in picture name
-                self.__save_bmp_image(
-                    filename + '.bmp')
+                self.__save_bmp_image(self.__save_image_folder+'/'+filename + '.bmp')
 
     def live_camera(self, duration=None):
         if not self.has_start_stream:
@@ -678,7 +678,7 @@ class WifiEpuck(Epuck):
         if duration is None or (self.current_time - self.start_time) < duration:
             # refresh robot communication
             self.get_camera()
-            self.__save_bmp_image(self.my_filename_current_image)
+            self.__save_bmp_image(self.__my_filename_current_image)
         else:
             self.disable_camera()
 

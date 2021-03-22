@@ -13,7 +13,6 @@ class WebotsEpuck(Epuck):
 
         self.TIME_STEP = 64
 
-
         self.__robot = Robot()
         # init the motors
         self.left_motor = self.__robot.getDevice('left wheel motor')
@@ -24,7 +23,6 @@ class WebotsEpuck(Epuck):
 
         # init the leds
         self.__led = []
-
         self.__id = self.__robot.getName()
 
         # led 8 is body and 9 is front red LED
@@ -341,7 +339,7 @@ class WebotsEpuck(Epuck):
         if not save_image_folder:
             save_image_folder = './'
 
-        self.save_image_folder = save_image_folder
+        self.__save_image_folder = save_image_folder
         self.camera.enable(self.TIME_STEP*camera_rate)
 
     def disable_camera(self):
@@ -367,15 +365,19 @@ class WebotsEpuck(Epuck):
         return [red, green, blue]
 
     # https://www.cyberbotics.com/doc/reference/camera?tab-language=python
-    def take_picture(self):
+    def take_picture(self, filename = None):
         """
         Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_webots.WebotsEpuck.init_camera>`
         """
         try:
-            counter = '{:04d}'.format(self.counter_img)
-            save_as = self.save_image_folder + '/image' + counter +  "_" + str(time.time()) +  '.png'
-            self.camera.saveImage(save_as)  # 100 for best quality
-            self.counter_img += 1
+            if not filename:
+                counter = '{:04d}'.format(self.counter_img)
+                save_as = self.__save_image_folder+ '/'+self.get_id()+'_image'+ counter +  '.png'
+                self.camera.saveImage(save_as,100)  # 100 for best quality
+                self.counter_img += 1
+            else:
+                self.camera.saveImage(self.__save_image_folder+'/'+filename +'.png',100)
+
         except Exception as e:
             print(e)
 
@@ -394,7 +396,7 @@ class WebotsEpuck(Epuck):
 
         if live_time is None or (self.current_time - self.start_time) < live_time:
             try:
-                save_as = self.save_image_folder + '/'+ self.get_id() +'_image_video.png'
+                save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
                 self.camera.saveImage(save_as, 100)  # 100 for best quality
                 self.counter_img += 1
             except Exception as e:
