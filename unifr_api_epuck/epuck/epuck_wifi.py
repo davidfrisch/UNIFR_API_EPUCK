@@ -644,20 +644,27 @@ class WifiEpuck(Epuck):
         green = np.array(green).reshape(self.__camera_height, self.__camera_width)
         blue = np.array(blue).reshape(self.__camera_height, self.__camera_width)
 
-
         return [red, green, blue]
 
-    def take_picture(self):
+    def take_picture(self, filename = None):
         """
         Takes a picture and saves it in defined image folder from :py:meth:`init_camera<unifr_api_epuck.epuck_wifi.WifiEpuck.init_camera>`
         """
         if self.my_filename_current_image:
-            # removing the last 4 character of my_filename_current_image
-            # because we add the counter in picture name
-            counter = '{:04d}'.format(self.counter_img)
-            self.__save_bmp_image(
-                self.my_filename_current_image[:-4] + counter + "_" + str(time.time()) + '.bmp')
-            self.counter_img += 1
+            if not filename:
+                self.__rgb565_to_bgr888()
+                # removing the last 4 character of my_filename_current_image
+                # because we add the counter in picture name
+                counter = '{:04d}'.format(self.counter_img)
+                self.__save_bmp_image(
+                    self.my_filename_current_image[:-10] + counter + '.bmp')
+                self.counter_img += 1
+            else:
+                self.__rgb565_to_bgr888()
+                # removing the last 4 character of my_filename_current_image
+                # because we add the counter in picture name
+                self.__save_bmp_image(
+                    filename + '.bmp')
 
     def live_camera(self, duration=None):
         if not self.has_start_stream:
