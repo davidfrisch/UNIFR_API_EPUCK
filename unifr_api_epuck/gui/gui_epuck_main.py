@@ -4,8 +4,6 @@ import json
 import webbrowser
 from .gui_epuck_communication import open_new_window_communication
 from .gui_epuck_camera import open_new_window_camera
-#from unifr_api_epuck import gui_epuck_communication 
-#from unifr_api_epuck import gui_epuck_camera
 
 
 class MainWindow(tk.Frame):

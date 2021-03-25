@@ -1,9 +1,10 @@
+from .host_epuck_communication import get_available_epucks
 from multiprocessing.managers import SyncManager
 import socket
 import time
 from math import sqrt, atan2, pi
 import numpy as np
-
+import sys
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
@@ -47,7 +48,10 @@ class Epuck:
 
         # var for identification
         self.ip_addr = ip_addr
-        self.id = ip_addr.replace('.', '_')
+        if ip_addr:
+            self.id = ip_addr.replace('.', '_')
+        else:
+            self.id = 'pi-puck'
 
 
         # proximity sensors init
@@ -280,6 +284,9 @@ class Epuck:
 
         # enable light as witness
         self.enable_all_led()
+        
+        for _ in range(10):
+            self.go_on()
 
         sums_per_sensor = np.array([0]*self.PROX_SENSORS_COUNT)
         # get multiple readings for each sensor
@@ -293,9 +300,10 @@ class Epuck:
         self.ps_err = sums_per_sensor/self.NBR_CALIB
 
         
-        print(self.get_id() + ' finish calibrating IR proximity')
         self.disable_all_led()
-        self.go_on()
+        self.sleep(2)
+        print(self.get_id() + ' finish calibrating IR proximity')
+
 
     def get_calibrate_prox(self):
         """
@@ -523,7 +531,8 @@ class Epuck:
                         'Please create a GUI host by executing in your terminal: `python3 -m unifr_api_epuck`')
 
                 # exit method
-                return
+                self.clean_up()
+                sys.exit(1)
 
         # connecting to host manager
         is_connect = False
@@ -551,7 +560,8 @@ class Epuck:
             except Exception as e:
                 print(e)
                 print(self.get_id() + ' lost connection with host manager messages.')
-                self.manager = None
+                self.clean_up()
+                sys.exit(1)
 
     def __stay_alive(self):
         """
@@ -562,7 +572,7 @@ class Epuck:
                 self.lock.acquire(timeout=1)
                 # must make a copy to get value from key
                 current_dict = self.syncdict.copy()
-                current_dict['connected'][self.get_id()] += 1
+                current_dict['connected'][self.get_id()] += 100
                 
                 self.syncdict.update(current_dict)
                 self.lock.release()
@@ -609,8 +619,8 @@ class Epuck:
         """
         :returns: True if the robot has pending messages in his queue.
         """
-        self.__stay_alive()
         if self.manager:
+            self.__stay_alive()
             try:
                 self.lock.acquire(timeout=1)
 
@@ -636,8 +646,9 @@ class Epuck:
 
         :returns recv_mess: any 
         """
-        self.__stay_alive()
         if self.manager:
+            self.__stay_alive()
+
             try:
                 if self.has_receive_msg():
                     self.lock.acquire(timeout=1)
@@ -656,3 +667,30 @@ class Epuck:
 
 
         return None
+
+    def get_connected_epucks(self):
+        """
+        Get list of connected epucks to the host.
+
+        :returns: array of connected epucks
+        """
+        #method from host_epuck_communication
+        if self.manager:
+            try:
+                self.lock.acquire(timeout=1)
+
+                # must make a copy if we want to acces via key
+                current_dict = self.syncdict.copy()
+                available_epucks_list = get_available_epucks(current_dict['connected'])
+                # Check if array is empty
+                self.lock.release()
+
+                return available_epucks_list
+
+            except Exception as e:
+                self.manager = None
+                print(e)
+                print(self.get_id() + ' lost connection with host manager messages.')
+        
+    def clean_up():
+        pass

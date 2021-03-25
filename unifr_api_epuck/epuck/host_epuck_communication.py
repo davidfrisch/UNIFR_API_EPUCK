@@ -2,7 +2,7 @@ import socket, time, sys
 from multiprocessing.managers import SyncManager
 from multiprocessing import Lock
 
-MAX_COMM_LIFE_PTS = 100
+MAX_COMM_LIFE_PTS = 1000
 WARNING_COMM_LIFE_TIME = 90
 DAMAGE_PTS = 20
 DEATH = 0
@@ -93,39 +93,41 @@ def start_life_manager(host_ip):
     start_time = time.time()
     
     while alive:
+        try:
+            lock.acquire(timeout=1)
+            tmp_dict = syncdict.copy()
 
-        lock.acquire()
-        tmp_dict = syncdict.copy()
-
-        if has_start and len(get_available_epucks(tmp_dict['connected'])) < 1 :
-            alive = False
-
-        old_dict = tmp_dict['connected']
-
-        if len(old_dict) == 0 and alive:
-            if time.time() > start_time + 5*60:
+            if has_start and len(get_available_epucks(tmp_dict['connected'])) < 1 :
                 alive = False
 
-        for epuck, life_pts in old_dict.items():
+            old_dict = tmp_dict['connected']
+
+            if len(old_dict) == 0 and alive:
+                if time.time() > start_time + 15:
+                    alive = False
+
+            for epuck, life_pts in old_dict.items():
+                
+                has_start = True
+
+                if life_pts > DEATH:
+                    new_life_pts = life_pts - DAMAGE_PTS
+                    if life_pts > MAX_COMM_LIFE_PTS:
+                        new_life_pts = MAX_COMM_LIFE_PTS   
+                else:
+                    new_life_pts = 0
+                    tmp_dict[epuck] = []
+
+                tmp_dict['connected'][epuck] = new_life_pts
+                
+
             
-            has_start = True
+            syncdict.update(tmp_dict)
+            lock.release()
+            time.sleep(0.1)
 
-            if life_pts > DEATH:
-                new_life_pts = life_pts - DAMAGE_PTS
-                if life_pts > MAX_COMM_LIFE_PTS:
-                    new_life_pts = MAX_COMM_LIFE_PTS   
-
-            else:
-                new_life_pts = 0
-                tmp_dict[epuck] = []
-
-            tmp_dict['connected'][epuck] = new_life_pts
-            
-
-           
-        syncdict.update(tmp_dict)
-        lock.release()
-        time.sleep(1)
+        except Exception as e:
+            print(e)
 
 class EpuckCommunicationManager(SyncManager):
     """Singleton that host the communication between the robots.

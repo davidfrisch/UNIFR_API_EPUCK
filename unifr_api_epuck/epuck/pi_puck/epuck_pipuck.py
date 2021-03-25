@@ -207,8 +207,11 @@ class PiPuckEpuck(Epuck):
 
         return data
  
-    def go_on(self):
+    def go_on(self, clock_speed = None):
         #checksum before sending to the robot 
+        if clock_speed:
+            self.clock_speed = clock_speed
+
         checksum = 0
         for i in range(I2C_COMMAND_PACKET_SIZE-1):
             checksum ^= self.i2c_command[i]		
@@ -542,33 +545,27 @@ class PiPuckEpuck(Epuck):
         self.tof.stop_ranging()
         self.tof.close()
 
-    def init_camera(self, save_image_folder=None, camera_rate=1):
-        
-        trial = 0
-        while trial < 2:
-            try:
-                self.camera = cv2.VideoCapture(0)
-                break
-            except:
-                cam_init_thread = Thread(target=main_cam_configuration, args=())
-                cam_init_thread.join()
-                cam_init_thread.start()
-                trial += 1
+    def init_camera(self):
+        cam_init_thread = Thread(target=main_cam_configuration, args=())
+        cam_init_thread.start()
+        cam_init_thread.join()
+        self.camera = cv2.VideoCapture(0)
 
 
     def disable_camera(self):
         self.camera.release()
     
-  
-    def get_camera(self):
+    
+    def get_camera(self, size=(None,None), camera_rate = 0.2):
         start = time.time()
-        ret, frame = self.get_camera_read()
-        
+        ret, frame = self.get_camera_read(size, camera_rate)
+
+
         #print('read in '+ str(time.time() - start))
         # Grabbing frequency @ 5 Hz.
         self.time_diff_cam = time.time() - start
-        if self.time_diff_cam < 0.2:
-            self.sleep(0.2 - self.time_diff_cam)
+        if self.time_diff_cam < camera_rate:
+            self.sleep(camera_rate - self.time_diff_cam)
 
         if ret:
             b,g,r = cv2.split(frame)
@@ -576,17 +573,24 @@ class PiPuckEpuck(Epuck):
 
         return None,None,None
 
-    def get_camera_read(self):
+    def get_camera_read(self, size=(None,None), camera_rate = 0.2):
         """ 
             get camera.read() of openCV
+            :params size: resize the image size = (width, height)
         """
+
         start = time.time()
         success, frame = self.camera.read()
         self.time_diff_cam = time.time() - start
-        if self.time_diff_cam < 0.2:
-            self.sleep(0.2 - self.time_diff_cam)
 
+        if self.time_diff_cam < camera_rate:
+            self.sleep(camera_rate - self.time_diff_cam)
+
+        width, height = size
         if success:
+            if width and height:
+                frame = cv2.resize(frame, size)
+
             return success, frame
 
         return

@@ -296,6 +296,12 @@ def po8030_init(bus):
 	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_SCALE_TH_H, 0x00)
 	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_SCALE_TH_L, 0x0A)
 
+
+	#David - auto white balance activate
+	# http://projects.gctronic.com/E-Puck/docs/Camera/PO8030D.pdf
+	bus.write_byte_data(SENSOR_I2C_ADDR, BANK_REGISTER, BANK_C)
+	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_AUTO_CONTROL_1, 0x04)
+
 	###################################################################################
 	## Set frame size to 960x512 or 875x800 to slow the maximum frame rate to 15 fps ##
 	###################################################################################
@@ -313,6 +319,13 @@ def po8030_init(bus):
 	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_FRAMEWIDTH_L, frame_width & 0xFF) # Frame width, low
 	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_FRAMEHEIGHT_H, (frame_height >> 8) & 0xFF) # Frame height, high
 	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_FRAMEHEIGHT_L, frame_height & 0xFF) # Frame height, low
+	
+	#David - auto white balance gain
+	## set rgb white balance
+	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_WB_RGAIN, 0x99) # wb_red_gain
+	#print('hi')
+	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_WB_GGAIN, 0x99) # wb_green_gain
+	bus.write_byte_data(SENSOR_I2C_ADDR, PO8030_REG_WB_BGAIN, 0xFF ) # wb_blue_gain
 
 
 def ov7670_init(bus):
