@@ -6,7 +6,7 @@ import socket
 import os
 import time
 import sys
-from ..epuck.host_epuck_communication import start_manager_gui, get_available_epucks, DEATH, WARNING_COMM_LIFE_TIME
+from ..epuck.host_epuck_communication import start_manager_gui, get_available_epucks
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
@@ -194,8 +194,7 @@ class MonitorCommunication(Frame):
    
     def update_label_connected(self, connected_dict):
         number_epucks_alive = len(get_available_epucks(connected_dict))
-
-        if number_epucks_alive > DEATH:
+        if number_epucks_alive > 0:
             if number_epucks_alive == 1:
                 text = "There is " + str(number_epucks_alive) + " epuck connected."
 
@@ -211,16 +210,12 @@ class MonitorCommunication(Frame):
 
     def update_epuck(self, tmp_dict, epuck):
         epuck_mailbox = tmp_dict[epuck]
-        life_time = tmp_dict['connected'][epuck]
-        if life_time > DEATH:
+        epuck_is_alive = tmp_dict['connected'][epuck]
+        if epuck_is_alive:
             text = epuck + " has " + \
                 str(len(epuck_mailbox)) + " messages pending."
             a_label = Label(self, text=text)
 
-            if life_time < WARNING_COMM_LIFE_TIME:
-                    text += '(connecting...)'
-       
-      
                  
             a_label = Label(self, text=text)
             a_label.pack()
@@ -230,19 +225,26 @@ class MonitorCommunication(Frame):
     def update_monitor_communication(self):
         try:
             if self.is_alive:
+
                 self.lock.acquire(timeout=1)
                 tmp_dict = self.syncdict.copy()
-
                 for label in self.list_labels:
-                    label.destroy()
+                        label.destroy()
 
-                #update pending messages
-                for key in tmp_dict:
-                    if key == 'connected':
-                        self.update_label_connected(tmp_dict[key])
-                    else:
-                        #key is an epuck 
-                        self.update_epuck(tmp_dict, key)
+                host_alive = tmp_dict['host_alive']
+                if host_alive: 
+                    #update pending messages
+                    for key in tmp_dict:
+                        if key == 'connected':
+                            self.update_label_connected(tmp_dict[key])
+                        elif key != 'host_alive' and key !='connected':
+                            #key is an epuck 
+                            self.update_epuck(tmp_dict, key)
+                else:
+                    self.label_online.destroy()
+                    self.label_online = Label(self, text="OFFLINE", fg='red', pady=20)
+                    self.label_online.pack()
+
                        
                 self.lock.release()
                 self.after(1000, self.update_monitor_communication)

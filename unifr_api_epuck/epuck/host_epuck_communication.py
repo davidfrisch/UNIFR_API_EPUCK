@@ -2,11 +2,6 @@ import socket, time, sys
 from multiprocessing.managers import SyncManager
 from multiprocessing import Lock
 
-MAX_COMM_LIFE_PTS = 1000
-WARNING_COMM_LIFE_TIME = 90
-DAMAGE_PTS = 20
-DEATH = 0
-
 SyncManager.register("syncdict")
 SyncManager.register("lock")
 
@@ -33,8 +28,8 @@ def start_manager_gui(ip_addr):
 
 def get_available_epucks(connected_dict):
     list_epucks = []
-    for epuck, life_points in connected_dict.items():
-        if life_points > 0:
+    for epuck, is_alive in connected_dict.items():
+        if is_alive:
             list_epucks += [epuck]
 
     return list_epucks
@@ -73,17 +68,11 @@ def start_life_manager(host_ip):
             manager = SyncManager((host_ip, 50000), authkey=b"abc")
             manager.connect()
             print('life manager connected to host IP!')
-           
-
             # get shared dictionnary of host
             lock = manager.lock()
             syncdict =  manager.syncdict()
             if lock and syncdict:
                 is_connect = True
-        
-
-          
-
         except Exception as e:
             print(e)
             
@@ -91,35 +80,37 @@ def start_life_manager(host_ip):
     has_start = False
     alive = True
     start_time = time.time()
+    last_timestamp = start_time
     
     while alive:
         try:
             lock.acquire(timeout=1)
             tmp_dict = syncdict.copy()
+            tmp_connect_dict = tmp_dict['connected']
 
-            if has_start and len(get_available_epucks(tmp_dict['connected'])) < 1 :
+            #give a minute to an e-puck to connect
+            if not has_start and start_time + 120 < time.time():
                 alive = False
 
-            old_dict = tmp_dict['connected']
 
-            if len(old_dict) == 0 and alive:
-                if time.time() > start_time + 15:
-                    alive = False
-
-            for epuck, life_pts in old_dict.items():
+            elif has_start and len(get_available_epucks(tmp_connect_dict)) < 1 and last_timestamp + 120 < time.time():
+                alive = False
                 
-                has_start = True
 
-                if life_pts > DEATH:
-                    new_life_pts = life_pts - DAMAGE_PTS
-                    if life_pts > MAX_COMM_LIFE_PTS:
-                        new_life_pts = MAX_COMM_LIFE_PTS   
-                else:
-                    new_life_pts = 0
-                    tmp_dict[epuck] = []
+            if last_timestamp + 5 < time.time():
+                for epuck, is_alive in tmp_connect_dict.items():
+                    has_start = True
+                    if is_alive:
+                        is_alive = False 
+                    else:
+                        tmp_dict[epuck] = []
 
-                tmp_dict['connected'][epuck] = new_life_pts
+                    tmp_dict['connected'][epuck] = is_alive
                 
+                last_timestamp = time.time()
+
+            tmp_dict['host_alive'] = alive
+
 
             
             syncdict.update(tmp_dict)
@@ -140,7 +131,7 @@ class EpuckCommunicationManager(SyncManager):
         """
         
         self.ip_addr = ip_addr
-        self.syncdict = {'connected':{}}
+        self.syncdict = {'connected':{},'host_alive':True}
         self.lock = Lock()
         self.is_gui = is_gui
        
@@ -168,9 +159,6 @@ class EpuckCommunicationManager(SyncManager):
                 start_life_manager(self.ip_addr)
 
             sock.settimeout(None)
-           
-           
-
         except OSError:
             print('Server already online')
             

@@ -8,7 +8,6 @@ import sys
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
-SyncManager.register("shutdown")
 
 
 class Epuck:
@@ -111,6 +110,12 @@ class Epuck:
             Put it as a condition in a while loop.
             Then, if you would like to finish the infinite while loop, break inside.
         """
+        try:
+            if self.manager:
+                self.__stay_alive()
+        except:
+            print('Error in go_on with host')
+            
 
     def sleep(self, duration):
         """
@@ -301,7 +306,9 @@ class Epuck:
 
         
         self.disable_all_led()
-        self.sleep(2)
+        for _ in range(10):
+            self.go_on()
+
         print(self.get_id() + ' finish calibrating IR proximity')
 
 
@@ -572,8 +579,7 @@ class Epuck:
                 self.lock.acquire(timeout=1)
                 # must make a copy to get value from key
                 current_dict = self.syncdict.copy()
-                current_dict['connected'][self.get_id()] += 100
-                
+                current_dict['connected'][self.get_id()] = True
                 self.syncdict.update(current_dict)
                 self.lock.release()
                 
@@ -598,9 +604,9 @@ class Epuck:
                 current_dict = self.syncdict.copy()
                 for epuck, epuck_mailbox in current_dict.items():
 
-                    if epuck != self.get_id() and epuck != 'connected':
+                    if epuck != self.get_id() and epuck != 'connected' and epuck != 'host_alive':
 
-                        if len(epuck_mailbox) < self.MAX_MESSAGE:
+                        if len(epuck_mailbox) < self.MAX_MESSAGE and current_dict['connected'][epuck]:
                             epuck_mailbox.append(msg)
 
                         # update the dictionnary
@@ -620,7 +626,6 @@ class Epuck:
         :returns: True if the robot has pending messages in his queue.
         """
         if self.manager:
-            self.__stay_alive()
             try:
                 self.lock.acquire(timeout=1)
 
@@ -647,7 +652,6 @@ class Epuck:
         :returns recv_mess: any 
         """
         if self.manager:
-            self.__stay_alive()
 
             try:
                 if self.has_receive_msg():
