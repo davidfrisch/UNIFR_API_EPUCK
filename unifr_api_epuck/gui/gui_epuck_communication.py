@@ -39,6 +39,15 @@ class MonitorCommunication(Frame):
         self.label_online = Label(self, text="OFFLINE", fg='red')
         self.label_online.pack()
 
+        #reset button
+        # top bar menu
+        menu = Menu(self.master)
+        master.config(menu=menu)
+        file_menu = Menu(menu)
+        file_menu.add_command(label='Reset Messages', command=self.reset_host)
+        menu.add_cascade(label="Reset", menu=file_menu)
+
+
 
     def init_communication(self, host_ip='localhost'):
         """
@@ -61,6 +70,7 @@ class MonitorCommunication(Frame):
 
         if self.is_alive:
             if not is_online == 0:
+                
                 try:
                     print('    starting server', end=" "),
                     self.host = Thread(
@@ -75,6 +85,7 @@ class MonitorCommunication(Frame):
                 except Exception as e:
                     Label(text=e, fg='red').pack()
                     print(e)
+            
 
             # connecting to host manager
             try:
@@ -85,6 +96,7 @@ class MonitorCommunication(Frame):
 
                 if is_online == 0:
                     # connect to host ip
+                    self.is_alive = True
                     self.manager = SyncManager((host_ip, 50000), authkey=b"abc")
                     self.manager.connect()
                     print('Monitor CONNECTED to host IP!')
@@ -132,6 +144,13 @@ class MonitorCommunication(Frame):
         self.message_frame.pack(side=BOTTOM)
 
 
+    def reset_host(self):
+        self.lock.acquire(timeout=1)
+        current_dict = self.syncdict.copy()
+        for epuck in current_dict['connected']:
+            current_dict[epuck] = []
+        self.syncdict.update(current_dict)
+        self.lock.release()
 
 
     def send_msg(self, event):
@@ -240,14 +259,20 @@ class MonitorCommunication(Frame):
                         elif key != 'host_alive' and key !='connected':
                             #key is an epuck 
                             self.update_epuck(tmp_dict, key)
-                else:
-                    self.label_online.destroy()
-                    self.label_online = Label(self, text="OFFLINE", fg='red', pady=20)
-                    self.label_online.pack()
+             
 
                        
                 self.lock.release()
-                self.after(1000, self.update_monitor_communication)
+
+            else:
+                self.label_online.destroy()
+                self.label_online = Label(self, text="OFFLINE", fg='red', pady=20)
+                self.is_alive = False
+                #print(self.host.is_alive())
+                self.label_online.pack()
+            
+            self.after(1000, self.update_monitor_communication)
+
 
         except Exception as e:
             self.is_alive = False

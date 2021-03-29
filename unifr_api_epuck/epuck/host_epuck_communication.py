@@ -81,20 +81,15 @@ def start_life_manager(host_ip):
     alive = True
     start_time = time.time()
     last_timestamp = start_time
-    
     while alive:
         try:
             lock.acquire(timeout=1)
             tmp_dict = syncdict.copy()
             tmp_connect_dict = tmp_dict['connected']
 
-            #give a minute to an e-puck to connect
-            if not has_start and start_time + 120 < time.time():
-                alive = False
-
-
-            elif has_start and len(get_available_epucks(tmp_connect_dict)) < 1 and last_timestamp + 120 < time.time():
-                alive = False
+            # automatically turn off host.
+            #if has_start and len(get_available_epucks(tmp_connect_dict)) < 1 and last_timestamp + 600 < time.time():
+            #    alive = False
                 
 
             if last_timestamp + 5 < time.time():

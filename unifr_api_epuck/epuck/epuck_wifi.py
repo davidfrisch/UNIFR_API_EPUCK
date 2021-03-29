@@ -211,7 +211,6 @@ class WifiEpuck(Epuck):
         :returns: True (if no problem occurs)
         """
         super().go_on()
-        
         # check return is a boolean to say if all went ok.
         self.__send_to_robot()
         check_return = self.__receive_from_robot()
