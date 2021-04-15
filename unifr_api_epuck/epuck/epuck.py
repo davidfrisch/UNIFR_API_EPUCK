@@ -1,4 +1,4 @@
-from .host_epuck_communication import get_available_epucks
+from ..host_communication import get_available_epucks
 from multiprocessing.managers import SyncManager
 import socket
 import time
@@ -181,6 +181,10 @@ class Epuck:
 
         :param led_position: int
             value between 0 and 7 
+
+        .. image:: ../res/leds_img.png
+            :width: 300
+            :alt: add the Node
 
         .. important:: 
             * Only LEDs at position 1,3,5 and 7 are RGB
@@ -604,7 +608,7 @@ class Epuck:
                 current_dict = self.syncdict.copy()
                 for epuck, epuck_mailbox in current_dict.items():
 
-                    if epuck != self.get_id() and epuck != 'connected' and epuck != 'host_alive':
+                    if epuck != self.get_id() and epuck != 'connected':
 
                         if len(epuck_mailbox) < self.MAX_MESSAGE and current_dict['connected'][epuck]:
                             epuck_mailbox.append(msg)
@@ -623,7 +627,7 @@ class Epuck:
 
     def has_receive_msg(self):
         """
-        :returns: True if the robot has pending messages in his queue.
+        :returns: True if the robot has pending messages in his queue otherwise False.
         """
         if self.manager:
             try:
@@ -647,9 +651,7 @@ class Epuck:
 
     def receive_msg(self):
         """
-        Gets next message from the robot queue.
-
-        :returns recv_mess: any 
+        Get next message from the robot queue otherwise returns None.
         """
         if self.manager:
 

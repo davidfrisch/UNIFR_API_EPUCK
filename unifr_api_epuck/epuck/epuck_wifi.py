@@ -489,6 +489,10 @@ class WifiEpuck(Epuck):
         .. note:: 
             Mic volume: between 0 and 4095
 
+        .. image:: ../res/micro_img.png
+            :width: 300
+            :alt: add the Node
+
         :returns: [front, right, back, left]
         :rtype: array of int
         """ 
