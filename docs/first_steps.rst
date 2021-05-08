@@ -4,7 +4,7 @@ First Steps
 
 Welcome to the UNIFR API e-puck's documentation. 
 
-unifr_epi_epuck is a simple API wrapper that lets you control a real or simulated e-puck robot. 
+unifr_api_epuck is a simple API wrapper that lets you control a real or simulated e-puck robot. 
 Please find below the instructions to get started with the API for Python3.
 
 Submitted by: David Roman Frischer
