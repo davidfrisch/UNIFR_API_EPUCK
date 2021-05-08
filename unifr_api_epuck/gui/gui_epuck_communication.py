@@ -6,7 +6,7 @@ import socket
 import os
 import time
 import sys
-from ..epuck.host_epuck_communication import start_manager_gui, get_available_epucks
+from ..host_communication import start_manager_gui, get_available_epucks
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
@@ -250,15 +250,14 @@ class MonitorCommunication(Frame):
                 for label in self.list_labels:
                         label.destroy()
 
-                host_alive = tmp_dict['host_alive']
-                if host_alive: 
+                
                     #update pending messages
-                    for key in tmp_dict:
-                        if key == 'connected':
-                            self.update_label_connected(tmp_dict[key])
-                        elif key != 'host_alive' and key !='connected':
-                            #key is an epuck 
-                            self.update_epuck(tmp_dict, key)
+                for key in tmp_dict:
+                    if key == 'connected':
+                        self.update_label_connected(tmp_dict[key])
+                    elif key !='connected':
+                        #key is an epuck 
+                        self.update_epuck(tmp_dict, key)
              
 
                        

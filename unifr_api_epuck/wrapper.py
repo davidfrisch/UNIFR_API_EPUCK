@@ -19,7 +19,16 @@ def get_robot(ip_addr=None, is_pipuck = False):
         return __get_robot_pipuck(ip_addr)
 
     if ip_addr != None:
-        return __get_robot_wifi(ip_addr)
+        try:
+            return __get_robot_wifi(ip_addr)
+        except Exception as e:
+            print(e)
+
+        print('trying as pi-puck')
+        try:
+            return __get_robot_pipuck(ip_addr)
+        except Exception as e:
+            print(e)
 
     return __get_robot_webot()
 

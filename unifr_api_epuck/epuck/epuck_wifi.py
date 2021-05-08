@@ -518,7 +518,7 @@ class WifiEpuck(Epuck):
         return struct.unpack("b", struct.pack("<B", self.sensors[36]))[0]
 
 
-#https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
+# https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
 # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     
     def get_tv_remote(self):

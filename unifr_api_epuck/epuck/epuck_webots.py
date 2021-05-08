@@ -353,14 +353,15 @@ class WebotsEpuck(Epuck):
 
         # get the rgb of each pixel
         for n in range(self.__camera_width):
-            red.append([])
-            green.append([])
-            blue.append([])
-            
             for m in range(self.__camera_height):
-                red[n].append(cameraData[n][m][0])
-                green[n].append(cameraData[n][m][1])
-                blue[n].append(cameraData[n][m][2])
+                red.append(cameraData[n][m][0])
+                green.append(cameraData[n][m][1])
+                blue.append(cameraData[n][m][2])
+        
+        #resize 1dim to array of 2dim  
+        red = np.array(red).reshape(self.__camera_height, self.__camera_width)
+        green = np.array(green).reshape(self.__camera_height, self.__camera_width)
+        blue = np.array(blue).reshape(self.__camera_height, self.__camera_width)
         
         return [red, green, blue]
 

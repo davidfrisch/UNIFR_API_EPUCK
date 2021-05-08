@@ -1,18 +1,17 @@
 =============
-README
-=============
+First Steps
+==============
 
 Welcome to the UNIFR API e-puck's documentation. 
 
 unifr_epi_epuck is a simple API wrapper that lets you control a real or simulated e-puck robot. 
-Please find below the instructions to get started with the API using Python3.
+Please find below the instructions to get started with the API for Python3.
 
 Submitted by: David Roman Frischer
 
 Supervisor: Dr. Julien Nembrini
 
 github : https://github.com/davidfrisch/UNIFR_API_EPUCK
-documentation : https://unifr-api-epuck.readthedocs.io/en/latest/index.html
 
 Requirements
 --------------
@@ -28,9 +27,10 @@ With Real Robots
 ====================
 
 1. How to install the package from your terminal.
-.. code-block:: shell
 
-    $ pip install unifr_api_epuck
+    .. code-block:: shell
+
+        $ pip install unifr_api_epuck
 
 
 2. How to implement
@@ -38,7 +38,7 @@ With Real Robots
     
     .. code-block:: python
 
-        from unifr_api_epuck import api_epuck as ae
+        from unifr_api_epuck import wrapper
     
     * To create an instance of the robot:
 
@@ -46,7 +46,7 @@ With Real Robots
     
         #Put the IP address of your robot.
         MY_IP = '192.168.43.125' 
-        r = ae.get_robot(MY_IP)
+        r = wrapper.get_robot(MY_IP)
 
     * To control the robot by calling its actions:
 
@@ -63,11 +63,11 @@ With Real Robots
         r.clean_up() #makes a reset
 
 3. To run the file
-    * In Real Life (IRL) run your Python file with the following command:
         
         .. code-block:: shell
 
             $ python3 my_controller_file.py 
+
 
 With Webots
 ==============
@@ -108,28 +108,27 @@ With Webots
 
 3. To run the file:
     
-    * ⏯  press play 
+    * ⏯  press play on Webots
 
 
-Example Code
---------------
+Simple Example Code
+--------------------
 
 | Q: What does it do ?
-| A: The robot goes forward at a speed of 2, prints its proximitiy sensor values and streams images from its camera.
+| A: The robot goes forward at a speed of 2 and prints its proximitiy sensor values.
 
 .. code-block:: python
 
     from unifr_api_epuck import wrapper
     
+    ip_addr = '192.168.43.125'
     r = wrapper.get_robot(ip_addr)
+    
     r.set_speed(2)        #sets the speed of the wheels
-
-    r.init_sensors()        #initiates the proximity sensor
-    r.init_camera('./')     #initiates the camera. It will save the image in './'
+    r.init_sensors()      #initiates the proximity sensor
 
     #infinite loop
     while r.go_on():
-        r.live_camera()     #live stream (you can watch the stream from the GUI !)
         print(r.get_prox()) #prints the proximity sensor values on the terminal
 
         #inserts some more code here to control your robot
@@ -138,7 +137,7 @@ Example Code
 
 
 
-Graphic User Interface
+Graphic User Interface 
 --------------------------
     * A GUI is available in the package. To start it, please run the following command:
         
@@ -176,4 +175,14 @@ Pi-Puck
     
     https://github.com/gctronic/Pi-puck
         
-    
+
+.. image:: res/unifr_logo.png
+    :width: 100
+    :alt: UNIFR logo
+
+
+
+.. image:: res/humanist_logo.jpg
+    :width: 100
+    :alt: Human-IST logo
+

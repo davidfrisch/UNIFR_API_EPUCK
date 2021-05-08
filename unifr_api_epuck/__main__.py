@@ -1,12 +1,12 @@
 from .gui import gui_epuck_main 
-from .epuck import host_epuck_communication
+from . import host_communication
 import sys
 
 
 def main():
     has_arg = False
     if any(i in sys.argv[1:] for i in ['h','host','-host','--host','-h']):
-        host_epuck_communication.start_manager('localhost')
+        host_communication.start_manager('localhost')
         has_arg = True
 
     if any(i in sys.argv[1:] for i in ['g','gui','-gui','--gui','-g']):
