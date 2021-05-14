@@ -624,7 +624,7 @@ class WifiEpuck(Epuck):
         self.__my_filename_current_image = self.__save_image_folder + \
             '/'+self.get_id()+'_image_video.bmp'
         print(self.__my_filename_current_image)
-        print('camera enable')
+        #print('camera enable')
         self.__command[1] = self.__command[1] | 1
 
     def disable_camera(self):
