@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/python3  -u my_controller.py
-WorkingDirectory=../pipuck_boot_controller/
+WorkingDirectory=/home/pi/UNIFR_API_EPUCK/pi-puck-conf/pipuck_boot_controller/
 StandardOutput=inherit
 StandardError=inherit
 Restart=no
