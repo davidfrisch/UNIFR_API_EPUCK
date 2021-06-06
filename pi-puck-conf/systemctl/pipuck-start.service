@@ -1,0 +1,14 @@
+[Unit]
+Description=Start controller for the pi-puck
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3  -u my_controller.py
+WorkingDirectory=/home/pi/pipuck_boot_controller/
+StandardOutput=inherit
+StandardError=inherit
+Restart=no
+User=pi
+
+[Install]
+WantedBy=multi-user.target
