@@ -1,6 +1,5 @@
-=============
 First Steps
-==============
+----------------------
 
 Welcome to the UNIFR API e-puck's documentation. 
 
