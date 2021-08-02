@@ -113,7 +113,7 @@ class Epuck:
         """
         try:
             if self.manager:
-                self.stay_alive()
+                self.__stay_alive()
         except:
             print('Error in go_on with host')
             
@@ -532,7 +532,7 @@ class Epuck:
         self.ClientComunication.init_client_communication(host_ip)
 
 
-    def stay_alive(self):
+    def __stay_alive(self):
         """
         Keeps the host aware that the epuck is alive
         """
