@@ -5,19 +5,19 @@ E-puck with Pi-puck
 Table Of Contents
 =====================
 
-* :py:meth:`Motors<.pipuck.PiPuckEpuck.set_speed>`
-* :py:meth:`Sleep<.pipuck.PiPuckEpuck.sleep>`
-* :py:meth:`LED<.pipuck.PiPuckEpuck.enable_led>`
-* :py:meth:`Proximity Sensors<.pipuck.PiPuckEpuck.init_sensors>`
-* :py:meth:`Ground Sensors<.pipuck.PiPuckEpuck.init_ground>`
-* :py:meth:`Camera<.pipuck.PiPuckEpuck.init_camera>`
-* :py:meth:`Communication<.pipuck.PiPuckEpuck.init_client_communication>`
-* :py:meth:`Time Of Flight<.pipuck.PiPuckEpuck.get_tof>`
-* :py:meth:`Gyroscope<.pipuck.PiPuckEpuck.get_gyro_axes>`
-* :py:meth:`Accelerometer<.pipuck.PiPuckEpuck.get_accelerometer_axes>`
-* :py:meth:`Microphones<.pipuck.PiPuckEpuck.get_microphones>`
-* :py:meth:`Play Sound<.pipuck.PiPuckEpuck.play_sound>`
-* :py:meth:`Get TV remote<.pipuck.PiPuckEpuck.get_tv_remote>`
+* :py:meth:`Motors<.pi_puck.PiPuckEpuck.set_speed>`
+* :py:meth:`Sleep<.pi_puck.PiPuckEpuck.sleep>`
+* :py:meth:`LED<.pi_puck.PiPuckEpuck.enable_led>`
+* :py:meth:`Proximity Sensors<.pi_puck.PiPuckEpuck.init_sensors>`
+* :py:meth:`Ground Sensors<.pi_puck.PiPuckEpuck.init_ground>`
+* :py:meth:`Camera<.pi_puck.PiPuckEpuck.init_camera>`
+* :py:meth:`Communication<.pi_puck.PiPuckEpuck.init_client_communication>`
+* :py:meth:`Time Of Flight<.pi_puck.PiPuckEpuck.get_tof>`
+* :py:meth:`Gyroscope<.pi_puck.PiPuckEpuck.get_gyro_axes>`
+* :py:meth:`Accelerometer<.pi_puck.PiPuckEpuck.get_accelerometer_axes>`
+* :py:meth:`Microphones<.pi_puck.PiPuckEpuck.get_microphones>`
+* :py:meth:`Play Sound<.pi_puck.PiPuckEpuck.play_sound>`
+* :py:meth:`Get TV remote<.pi_puck.PiPuckEpuck.get_tv_remote>`
 
 
 
