@@ -49,6 +49,8 @@ Examples
 
 * To get an instance of a client communication for a PC
 
+.. code-block:: python
+
     from unifr_api_epuck import wrapper
     
     my_computer = wrapper.get_client('computer_192.168.112.24')
