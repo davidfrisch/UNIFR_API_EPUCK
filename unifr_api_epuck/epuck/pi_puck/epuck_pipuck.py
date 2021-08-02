@@ -519,7 +519,9 @@ class PiPuckEpuck(Epuck):
         """
         It is required to have the VL53L0X package to be able to use the TOF sensor.
 
-        install it from your terminal :
+        install it from your terminal:
+            pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python
+        
 
         """
         import VL53L0X as VL53L0X
