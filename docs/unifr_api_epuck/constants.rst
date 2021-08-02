@@ -1,5 +1,5 @@
 Global Constants  
--------------------
+------------------
 
 The following constants are available by calling it with its instance.
 
