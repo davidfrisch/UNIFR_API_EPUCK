@@ -9,7 +9,7 @@ E-puck Documentation
 
    wrapper.rst
    constants.rst
-   client_communciation.rst
+   client_communication.rst
    epuck_wifi.rst
    epuck_webots.rst
    epuck_pipuck.rst

@@ -636,14 +636,20 @@ class PiPuckEpuck(Epuck):
     # return front, right, back. left microphones
     #TODO To check array positions
     def get_microphones(self):
-        super().get_microphones()
         """
+           Gets microphones' intensity 
+
         .. note:: 
             Mic volume: between 0 and 4095
 
+        .. image:: ../res/micro_img.png
+            :width: 300
+            :alt: add the Node
+
         :returns: [front, right, back, left]
         :rtype: array of int
-        """
+        """ 
+        super().get_microphones()
         #retrieve microphones data
         for i in range(4):
             #To be tested

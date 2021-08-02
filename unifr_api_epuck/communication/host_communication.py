@@ -117,7 +117,7 @@ class EpuckCommunicationManager(SyncManager):
 
     def __init__(self, is_gui, ip_addr='localhost'):
         """
-        :params ip_addr: ip_address of where to create host communication. (default : localhost)
+        :param ip_addr: ip_address of where to create host communication. (default : localhost)
         """
         
         self.ip_addr = ip_addr

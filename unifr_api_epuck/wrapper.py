@@ -9,8 +9,8 @@ def get_robot(ip_addr=None, is_pipuck = False):
     .. note::
         Leave the parameters empty if you will be using Webots
 
-    :params ip_addr: ip address of the e-puck
-    :params is_pipuck: boolean
+    :param ip_addr: ip address of the e-puck
+    :param is_pipuck: boolean
 
     :returns: instance of the e-puck
     """
@@ -32,6 +32,17 @@ def get_robot(ip_addr=None, is_pipuck = False):
             print(e)
 
     return __get_robot_webot()
+
+def get_client(client_id):
+    """
+    Get an instance of a client for communication
+
+    :param client_id: put an unique name id for the communication
+
+    :returns: instance of a ClientCommunication
+    """
+    return ClientCommunication(client_id)
+
 
 
 def __get_robot_wifi(ip_addr):
@@ -65,6 +76,4 @@ def __get_robot_pipuck(ip_addr):
     print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)
 
-def get_client(client_id):
-    return ClientCommunication(client_id)
 
