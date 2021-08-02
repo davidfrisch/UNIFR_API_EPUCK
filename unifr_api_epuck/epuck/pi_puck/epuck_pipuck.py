@@ -522,6 +522,7 @@ class PiPuckEpuck(Epuck):
         install it from your terminal :
 
         .. code-block:: shell
+        
             $ pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python
         
         """
