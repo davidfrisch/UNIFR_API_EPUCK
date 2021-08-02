@@ -521,10 +521,6 @@ class PiPuckEpuck(Epuck):
 
         install it from your terminal :
 
-        .. code-block:: shell
-        
-            $ pip3 install git+https://github.com/gctronic/VL53L0X_rasp_python
-        
         """
         import VL53L0X as VL53L0X
         self.tof = VL53L0X.VL53L0X(i2c_bus=ROBOT_I2C_CHANNEL, i2c_address=TOF_VL53L0X_ADDRESS)
