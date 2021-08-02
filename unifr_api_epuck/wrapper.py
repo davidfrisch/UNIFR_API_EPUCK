@@ -1,5 +1,6 @@
 from .epuck.epuck_webots import WebotsEpuck 
 from .epuck.epuck_wifi import WifiEpuck
+from .communication.client_communication import ClientCommunication
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
@@ -64,4 +65,6 @@ def __get_robot_pipuck(ip_addr):
     print('Initiating connection with Pi-puck')
     return PiPuckEpuck(ip_addr)
 
+def get_client(client_id):
+    return ClientCommunication(client_id)
 

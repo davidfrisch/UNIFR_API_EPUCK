@@ -6,7 +6,7 @@ import socket
 import os
 import time
 import sys
-from ..host_communication import start_manager_gui, get_available_epucks
+from ..communication.host_communication import start_manager_gui, get_available_clients
 
 SyncManager.register("syncdict")
 SyncManager.register("lock")
@@ -38,13 +38,16 @@ class MonitorCommunication(Frame):
         self.manager = None
         self.label_online = Label(self, text="OFFLINE", fg='red')
         self.label_online.pack()
+        self.timelock = 4
 
-        #reset button
+        #reset buttons
         # top bar menu
         menu = Menu(self.master)
         master.config(menu=menu)
         file_menu = Menu(menu)
         file_menu.add_command(label='Reset Messages', command=self.reset_host)
+        file_menu.add_command(label='Reset Locker', command=self.reset_lock)
+
         menu.add_cascade(label="Reset", menu=file_menu)
 
 
@@ -123,34 +126,44 @@ class MonitorCommunication(Frame):
 
         #list of available Epucks to send messages
         if self.is_alive:
-            self.lock.acquire(timeout=1)
-            tmp_dict = self.syncdict.copy()
-        
-            self.available_epucks = get_available_epucks(tmp_dict['connected'])
-            self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_combo_list_epucks, state="readonly" )
-            self.cmb_available_epucks.pack(side=LEFT)
+            is_locked = self.lock.acquire(timeout=self.timelock)
+            if is_locked:
+                tmp_dict = self.syncdict.copy()
             
-            self.syncdict.update(tmp_dict)
-            self.lock.release()
+                self.available_epucks = get_available_clients(tmp_dict['connected'])
+                self.cmb_available_epucks = ttk.Combobox(self.message_frame, values=self.available_epucks, postcommand=self.refresh_combo_list_epucks, state="readonly" )
+                self.cmb_available_epucks.pack(side=LEFT)
+                
+                self.syncdict.update(tmp_dict)
+                self.lock.release()
 
             #input message from user
             self.message = Entry(self.message_frame)
             self.message.pack(side=LEFT)
 
-        #send button
-        #Button(self.message_frame, text='Send', padx=5, command=self.send_msg).pack(side=LEFT)
+            #send button
+            #Button(self.message_frame, text='Send', padx=5, command=self.send_msg).pack(side=LEFT)
 
-        #pack
-        self.message_frame.pack(side=BOTTOM)
+            #pack
+            self.message_frame.pack(side=BOTTOM)
+
+
+    def reset_lock(self):
+        try:
+            self.lock.release()
+        except Exception:
+            pass
 
 
     def reset_host(self):
-        self.lock.acquire(timeout=1)
-        current_dict = self.syncdict.copy()
-        for epuck in current_dict['connected']:
-            current_dict[epuck] = []
-        self.syncdict.update(current_dict)
-        self.lock.release()
+        is_locked = self.lock.acquire(timeout=self.timelock)
+
+        if is_locked:
+            current_dict = self.syncdict.copy()
+            for epuck in current_dict['connected']:
+                current_dict[epuck] = []
+            self.syncdict.update(current_dict)
+            self.lock.release()
 
 
     def send_msg(self, event):
@@ -171,16 +184,16 @@ class MonitorCommunication(Frame):
     def send_msg_to(self, epuck, msg):
         if self.is_alive:
             try:
-                self.lock.acquire(timeout=1)
+                is_locked = self.lock.acquire(timeout=self.timelock)
+                if is_locked:
+                    #send msg
+                    current_dict = self.syncdict.copy()
+                    epuck_inbox = current_dict[epuck]
+                    epuck_inbox.append(msg)
+                    current_dict.update({epuck: epuck_inbox})
 
-                #send msg
-                current_dict = self.syncdict.copy()
-                epuck_inbox = current_dict[epuck]
-                epuck_inbox.append(msg)
-                current_dict.update({epuck: epuck_inbox})
-
-                self.syncdict.update(current_dict)
-                self.lock.release()
+                    self.syncdict.update(current_dict)
+                    self.lock.release()
 
             except Exception as e:
                 self.is_alive = False
@@ -190,35 +203,39 @@ class MonitorCommunication(Frame):
 
     def refresh_combo_list_epucks(self):
         #list of available Epucks to send messages
-        self.lock.acquire(timeout=1)
-        tmp_dict = self.syncdict.copy()
-        available_epucks = get_available_epucks(tmp_dict['connected'])
-        number_available_epucks = len(available_epucks)
+        try:
+            is_locked = self.lock.acquire(timeout=self.timelock)
+            if is_locked:
+                tmp_dict = self.syncdict.copy()
+                available_epucks = get_available_clients(tmp_dict['connected'])
+                number_available_epucks = len(available_epucks)
 
-        if number_available_epucks > 1:
-            self.available_epucks = ['All']
-        else:
-            self.available_epucks = []
-            
-        self.available_epucks += available_epucks
-        self.cmb_available_epucks['values']= self.available_epucks
+                if number_available_epucks > 1:
+                    self.available_epucks = ['All']
+                else:
+                    self.available_epucks = []
+                    
+                self.available_epucks += available_epucks
+                self.cmb_available_epucks['values']= self.available_epucks
 
-        if number_available_epucks > 0:
-            self.cmb_available_epucks.current(0)
-        else:
-            self.cmb_available_epucks.set('')
+                if number_available_epucks > 0:
+                    self.cmb_available_epucks.current(0)
+                else:
+                    self.cmb_available_epucks.set('')
 
-        self.lock.release()
+                self.lock.release()
+        except Exception as e:
+                    print(e)
         
    
     def update_label_connected(self, connected_dict):
-        number_epucks_alive = len(get_available_epucks(connected_dict))
+        number_epucks_alive = len(get_available_clients(connected_dict))
         if number_epucks_alive > 0:
             if number_epucks_alive == 1:
-                text = "There is " + str(number_epucks_alive) + " epuck connected."
+                text = "There is " + str(number_epucks_alive) + " client connected."
 
             else:
-                text = "There are "+  str(number_epucks_alive) + " epucks connected."
+                text = "There are "+  str(number_epucks_alive) + " clients connected."
 
             a_label = Label(self, text=text, bd=5, fg='blue')
         
@@ -244,24 +261,27 @@ class MonitorCommunication(Frame):
     def update_monitor_communication(self):
         try:
             if self.is_alive:
+                try:
+                    is_locked = self.lock.acquire(timeout=self.timelock)
+                    if is_locked:
+                        tmp_dict = self.syncdict.copy()
+                        for label in self.list_labels:
+                                label.destroy()
 
-                self.lock.acquire(timeout=1)
-                tmp_dict = self.syncdict.copy()
-                for label in self.list_labels:
-                        label.destroy()
+                        
+                            #update pending messages
+                        for key in tmp_dict:
+                            if key == 'connected':
+                                self.update_label_connected(tmp_dict[key])
+                            elif key !='connected':
+                                #key is an epuck 
+                                self.update_epuck(tmp_dict, key)
+                    
 
-                
-                    #update pending messages
-                for key in tmp_dict:
-                    if key == 'connected':
-                        self.update_label_connected(tmp_dict[key])
-                    elif key !='connected':
-                        #key is an epuck 
-                        self.update_epuck(tmp_dict, key)
-             
-
-                       
-                self.lock.release()
+                            
+                        self.lock.release()
+                except Exception as e:
+                    print(e)
 
             else:
                 self.label_online.destroy()

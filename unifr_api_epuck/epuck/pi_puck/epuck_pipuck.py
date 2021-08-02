@@ -45,15 +45,22 @@ class PiPuckEpuck(Epuck):
         #TOF sensor reading 
         if not ip_addr:
             print('Attention, no IP address is define for the Pi-Puck. \n'+
-                    'Will not initiate communication with others if needed.')
+                    'Will not initiate correctly communication with others.')
         super().__init__(ip_addr)
+        
+        if not ip_addr or ip_addr == '':
+            super().set_id('pipuck_undefined')
+        else:
+            id = 'raspberry_'+ ip_addr.replace('.','_')
+            super().set_id(id) 
+
         """
         A class used to represent a robot Real Robot.
         :param ip_addr: str - The IP address of the Epuck
         """
         # communication Robot <-> Rasberry Pi
         # communication Pipuck <--> Rasberry Pi
-        self.clock_speed = 1/5 #sec
+        self.clock_speed = 1/20 #sec
         self.robot_i2c_bus = None
         self.pipuck_i2c_bus = None
 
@@ -61,8 +68,10 @@ class PiPuckEpuck(Epuck):
         self.camera = None
         self.__camera_width = 640
         self.__camera_height = 480
+        self.__camera_rate = 0.2
         self.counter_img = 0
         self.camera_updated = False
+        self.time_diff_cam = self.__camera_rate
         self.my_filename_current_image = ''
 
         #robot propeties
@@ -86,6 +95,7 @@ class PiPuckEpuck(Epuck):
         #camera
         self.stream_has_start = False
         self.stream_thread = None
+        self.folder_save_img = None
 
         #microphone of PIPUCK
         self.start_time_record = None
@@ -103,7 +113,7 @@ class PiPuckEpuck(Epuck):
             sys.exit(1)
         
         # Pipuck propeties
-        ## capable of LEDs, ¿ micro and speaker ?
+        ## capable of LEDs, micro and speaker ?
         self.ft903 = FT903(self.pipuck_i2c_bus)
        
     def set_clock_speed(self, clock_speed):
@@ -112,7 +122,6 @@ class PiPuckEpuck(Epuck):
    
     def __init_command(self):
         # Init the array containing the commands to be sent to the robot from pi-puck 
-        #TODO Check.
         self.i2c_command[0] = 0		    # Left speed
         self.i2c_command[1] = 0         #
         self.i2c_command[2] = 0		    # Right speed
@@ -143,12 +152,7 @@ class PiPuckEpuck(Epuck):
             self.imu_addr = MPU9250_ADDRESS_AD1_0
 
     def get_id(self):
-        if not self.get_ip():
-            return 'pipuck_undefined'
-        return 'raspberry_'+ self.get_ip().replace('.','_')
-
-
-        
+        return self.id
 
     def get_ip(self):
         return self.ip_addr
@@ -193,9 +197,7 @@ class PiPuckEpuck(Epuck):
         while trials < 2:
             try:			
                 data = self.robot_i2c_bus.read_i2c_block_data(self.imu_addr, reg, count)
-                #print(data)
             except:
-                #print("trial = " + str(trials))
                 trials += 1
                 self.mpu9250_change_addr()
                 continue
@@ -208,6 +210,8 @@ class PiPuckEpuck(Epuck):
         return data
  
     def go_on(self, clock_speed = None):
+        super().go_on()
+
         #checksum before sending to the robot 
         if clock_speed:
             self.clock_speed = clock_speed
@@ -242,7 +246,6 @@ class PiPuckEpuck(Epuck):
 
             except Exception as e:
                 trials += 1
-                self.set_speed(0)
                 print(e)
             
             if trials > max_trials:
@@ -301,7 +304,6 @@ class PiPuckEpuck(Epuck):
         self.__set_speed_right(speed_right)
 
     def get_speed(self):
-        #TODO maybe use registers data instead of local data
         right_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[0], self.i2c_command[1]))[0]
         left_speed = struct.unpack("<h", struct.pack("<BB", self.i2c_command[2], self.i2c_command[3]))[0]
 
@@ -366,8 +368,6 @@ class PiPuckEpuck(Epuck):
 
         elif led_position in range(8, 8+LED_COUNT_PIPUCK):
             led_position -= 8
-            #color = str(red + green*256 + blue*256**2)
-            print('hello')
 
             total_color = 0
             i = 0
@@ -517,7 +517,7 @@ class PiPuckEpuck(Epuck):
 
     def init_tof(self):
         """
-        It is required to have the VL53L0X pacakage to be able to use the TOF sensor.
+        It is required to have the VL53L0X package to be able to use the TOF sensor.
 
         install it from your terminal :
 
@@ -539,33 +539,45 @@ class PiPuckEpuck(Epuck):
         try:
             return self.tof.get_distance()
         except:
-            print('You must call robot.init_tof(), to get values from the TOF sensors')
+            print('You must call robot.init_tof(), before to get values from the TOF sensors')
 
     def disable_tof(self):
         self.tof.stop_ranging()
         self.tof.close()
 
-    def init_camera(self):
+    def init_camera(self, folder_save_img = None, size= (None,None), camera_rate = 0.2):
+        
+        if camera_rate != self.__camera_rate:
+            self.__camera_rate = camera_rate
+
+        if not folder_save_img:
+            self.folder_save_img = '.'
+        else:
+            self.folder_save_img = folder_save_img
+        
+        
+        width, height = size
+        if width:
+            self.__camera_width = width
+        if height:
+            self.__camera_height = height
+
+        
+         
         cam_init_thread = Thread(target=main_cam_configuration, args=())
         cam_init_thread.start()
         cam_init_thread.join()
         self.camera = cv2.VideoCapture(0)
 
 
+
     def disable_camera(self):
         self.camera.release()
     
     
-    def get_camera(self, size=(None,None), camera_rate = 0.2):
+    def get_camera(self):
         start = time.time()
-        ret, frame = self.get_camera_read(size, camera_rate)
-
-
-        #print('read in '+ str(time.time() - start))
-        # Grabbing frequency @ 5 Hz.
-        self.time_diff_cam = time.time() - start
-        if self.time_diff_cam < camera_rate:
-            self.sleep(camera_rate - self.time_diff_cam)
+        ret, frame = self.get_camera_read()
 
         if ret:
             b,g,r = cv2.split(frame)
@@ -573,42 +585,53 @@ class PiPuckEpuck(Epuck):
 
         return None,None,None
 
-    def get_camera_read(self, size=(None,None), camera_rate = 0.2):
+    def get_camera_read(self):
         """ 
             get camera.read() of openCV
-            :params size: resize the image size = (width, height)
         """
 
-        start = time.time()
-        success, frame = self.camera.read()
-        self.time_diff_cam = time.time() - start
+        #get last possible image
+        if self.time_diff_cam < self.__camera_rate:
+            self.sleep(self.__camera_rate - self.time_diff_cam)
+        
+        start_time = time.time()
+        
+        #give time to read until last img possible
+        for _ in range(10):
+            success, frame = self.camera.read()
+        
+        self.time_diff_cam = time.time() - start_time
+        print('time loop:'+str(self.time_diff_cam))
 
-        if self.time_diff_cam < camera_rate:
-            self.sleep(camera_rate - self.time_diff_cam)
+        
 
-        width, height = size
         if success:
-            if width and height:
-                frame = cv2.resize(frame, size)
+            if self.__camera_width != 640 and self.__camera_height != 480:
+                frame = cv2.resize(frame, (self.__camera_width, self.__camera_height))
 
             return success, frame
 
         return
 
-    def take_picture(self):
+    def take_picture(self, filename=None):
         """
         Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_pipuck.PiPuckEpuck.init_camera>`
         """
         start = time.time()
-        ret, frame = self.camera.read()
+        _, frame = self.get_camera_read()
         self.counter_img += 1
-        cv2.imwrite(self.get_id()+"_image{0:04d}_" + str(time.time()) + ".jpg".format(self.counter_img), frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+        if not filename:
+            path_save_img = self.folder_save_img+"/"+self.get_id() + str(time.time()) + ".jpg"
         
-        # Grabbing frequency @ 5 Hz.
-        self.time_diff_cam = time.time() - start
-        if self.time_diff_cam < 0.2:
-            time.sleep(0.2 - self.time_diff_cam)
-
+        else:
+            if '.jpg' in filename:
+                path_save_img = self.folder_save_img+"/"+filename
+            else:
+                path_save_img = self.folder_save_img+"/"+filename+".jpg"
+        
+        cv2.imwrite(path_save_img, frame, [int(cv2.IMWRITE_JPEG_QUALITY), 70])
+        
+       
 
     # return front, right, back. left microphones
     #TODO To check array positions

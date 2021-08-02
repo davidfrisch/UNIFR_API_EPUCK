@@ -1,4 +1,4 @@
-from ..host_communication import get_available_epucks
+from ..communication.client_communication import ClientCommunication
 from multiprocessing.managers import SyncManager
 import socket
 import time
@@ -44,6 +44,7 @@ class Epuck:
 
         self.host = None
         self.manager = None
+        self.ClientComunication = None
 
         # var for identification
         self.ip_addr = ip_addr
@@ -112,7 +113,7 @@ class Epuck:
         """
         try:
             if self.manager:
-                self.__stay_alive()
+                self.stay_alive()
         except:
             print('Error in go_on with host')
             
@@ -462,7 +463,7 @@ class Epuck:
         pass
 
 
-    def init_camera(self, save_image_folder=None, camera_rate=1):
+    def init_camera(self, save_image_folder=None, filename=None, camera_rate=1, size=(None,None)):
         """
         Enables the robot's camera 
 
@@ -527,72 +528,15 @@ class Epuck:
         """
         .. warning:: The host should be created first before calling this method. (ref. Examples/Communication)
         """
-       
-        is_online = 1
+        self.ClientComunication = ClientCommunication(self.id)
+        self.ClientComunication.init_client_communication(host_ip)
 
-        time_fail = time.time() + 10
-        while is_online != 0:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            is_online = sock.connect_ex((host_ip, 50000))
-            if time_fail < time.time():
-                print('No communication for ' + self.get_id() +
-                        '. Not connected to host manager.')
-                if not host_ip:
-                    print(
-                        'Please create a GUI host by executing in your terminal: `python3 -m unifr_api_epuck`')
 
-                # exit method
-                self.clean_up()
-                sys.exit(1)
-
-        # connecting to host manager
-        is_connect = False
-        while not is_connect:
-            try:
-                # connect to host ip
-                self.manager = SyncManager((host_ip, 50000), authkey=b"abc")
-                self.manager.connect()
-                print('CONNECT to host IP!')
-                is_connect = True
-
-                # get shared dictionnary of host
-                self.lock = self.manager.lock()
-                self.syncdict = self. manager.syncdict()
-
-                self.lock.acquire(timeout=1)
-                # adding its own id in the dictionnary and life points 
-                tmp_dict = self.syncdict.copy()
-                tmp_dict[self.get_id()] = []
-                tmp_dict['connected'][self.get_id()] = 100
-                
-                self.syncdict.update(tmp_dict)
-                self.lock.release()
-
-            except Exception as e:
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
-                self.clean_up()
-                sys.exit(1)
-
-    def __stay_alive(self):
+    def stay_alive(self):
         """
         Keeps the host aware that the epuck is alive
         """
-        if self.manager:
-            try:
-                self.lock.acquire(timeout=1)
-                # must make a copy to get value from key
-                current_dict = self.syncdict.copy()
-                current_dict['connected'][self.get_id()] = True
-                self.syncdict.update(current_dict)
-                self.lock.release()
-                
-            except Exception as e:
-                self.manager = None
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
-
-
+        self.ClientComunication.stay_alive()
 
     def send_msg(self, msg):
         """
@@ -600,79 +544,19 @@ class Epuck:
 
         :param msg: any 
         """
-        # strictly subjective value to avoid overload
-        if self.manager:
-            try:
-                self.lock.acquire(timeout=1)
-                # we can only iterate on a copy
-                current_dict = self.syncdict.copy()
-                for epuck, epuck_mailbox in current_dict.items():
-
-                    if epuck != self.get_id() and epuck != 'connected':
-
-                        if len(epuck_mailbox) < self.MAX_MESSAGE and current_dict['connected'][epuck]:
-                            epuck_mailbox.append(msg)
-
-                        # update the dictionnary
-                        current_dict.update({epuck: epuck_mailbox})
-
-                self.syncdict.update(current_dict)
-                self.lock.release()
-
-            except Exception as e:
-                self.manager = None
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
-
+        self.ClientComunication.send_msg(msg)
 
     def has_receive_msg(self):
         """
         :returns: True if the robot has pending messages in his queue otherwise False.
         """
-        if self.manager:
-            try:
-                self.lock.acquire(timeout=1)
-
-                # must make a copy if we want to acces via key
-                current_dict = self.syncdict.copy()
-                epuck_array = current_dict[self.get_id()]
-
-                # Check if array is empty
-                has_msg = len(epuck_array) > 0
-                self.lock.release()
-
-                return has_msg
-
-            except Exception as e:
-                self.manager = None
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
-
+        return self.ClientComunication.has_receive_msg()
 
     def receive_msg(self):
         """
         Get next message from the robot queue otherwise returns None.
         """
-        if self.manager:
-
-            try:
-                if self.has_receive_msg():
-                    self.lock.acquire(timeout=1)
-                    # must make a copy to get value from key
-                    current_dict = self.syncdict.copy()
-                    recv_mess = current_dict[self.get_id()].pop(0)
-                    self.syncdict.update(
-                        {self.get_id(): current_dict[self.get_id()]})
-                    self.lock.release()
-                    return recv_mess
-         
-            except Exception as e:
-                self.manager = None
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
-
-
-        return None
+        return self.ClientComunication.receive_msg()
 
     def get_connected_epucks(self):
         """
@@ -681,22 +565,10 @@ class Epuck:
         :returns: array of connected epucks
         """
         #method from host_epuck_communication
-        if self.manager:
-            try:
-                self.lock.acquire(timeout=1)
+        return self.ClientComunication.get_available_epucks()
 
-                # must make a copy if we want to acces via key
-                current_dict = self.syncdict.copy()
-                available_epucks_list = get_available_epucks(current_dict['connected'])
-                # Check if array is empty
-                self.lock.release()
-
-                return available_epucks_list
-
-            except Exception as e:
-                self.manager = None
-                print(e)
-                print(self.get_id() + ' lost connection with host manager messages.')
+    def clean_msg(self):
+        self.ClientComunication.clean_msg()
         
     def clean_up():
         pass

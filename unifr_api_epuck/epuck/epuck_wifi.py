@@ -518,7 +518,7 @@ class WifiEpuck(Epuck):
         return struct.unpack("b", struct.pack("<B", self.sensors[36]))[0]
 
 
-# https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
+#https://students.iitk.ac.in/roboclub/2017/12/21/Beginners-Guide-to-IMU.html#:~:text=it%20a%20try!-,Gyroscope,in%20roll%2C%20pitch%20and%20yaw.    
 # definition of roll and pitch https://www.youtube.com/watch?v=5IkPWZjUQlw
     
     def get_tv_remote(self):
@@ -617,7 +617,11 @@ class WifiEpuck(Epuck):
                 file.write(image[(width * (height - i - 1) * 3):(width * (height - i - 1) * 3) + (3 * width)])
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
-    def init_camera(self, new_image_folder=None):
+    def init_camera(self, new_image_folder=None, size=(None, None)):
+
+        if size != (None, None):
+                print('Only sizable for pipuck')
+                
         if new_image_folder:
             self.__save_image_folder = new_image_folder
 
@@ -664,10 +668,13 @@ class WifiEpuck(Epuck):
                     self.__my_filename_current_image[:-10] + counter + '.bmp')
                 self.counter_img += 1
             else:
+                if not '.bmp' in filename:
+                    filename+='.bmp'
+
                 self.__rgb565_to_bgr888()
                 # removing the last 4 character of my_filename_current_image
                 # because we add the counter in picture name
-                self.__save_bmp_image(self.__save_image_folder+'/'+filename + '.bmp')
+                self.__save_bmp_image(self.__save_image_folder+'/'+filename)
 
     def live_camera(self, duration=None):
         if not self.has_start_stream:

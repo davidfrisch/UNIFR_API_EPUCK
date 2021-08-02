@@ -335,7 +335,11 @@ class WebotsEpuck(Epuck):
     ##############
     # Need to init_camera before calling other methods
 
-    def init_camera(self, save_image_folder=None, camera_rate=1):
+    def init_camera(self, save_image_folder=None, camera_rate=1, size=(None,None)):
+        
+        if size != (None, None):
+            print('Only sizable for pipuck')
+
         if not save_image_folder:
             save_image_folder = './'
 

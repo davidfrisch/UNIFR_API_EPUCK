@@ -5,16 +5,6 @@ from multiprocessing import Lock
 SyncManager.register("syncdict")
 SyncManager.register("lock")
 
-def start_manager(ip_addr):
-    """
-    To start the manager for communication between the Epucks.
-    :param ip_addr: ip_address of where to create host communication.
-    """
-    manager = EpuckCommunicationManager(False, ip_addr)
-    manager.start()
-    
-
-
 def start_manager_gui(ip_addr):
     """
     To start the manager from GUI for communication between the Epucks.
@@ -81,30 +71,41 @@ def start_life_manager(host_ip):
     host_alive = True
     start_time = time.time()
     last_timestamp = start_time
+    thresh_time = start_time
     
     #loop until exit program
     while host_alive:
         try:
-            lock.acquire(timeout=1)
-            tmp_dict = syncdict.copy()
-            tmp_connect_dict = tmp_dict['connected']
-            
-           
-            if last_timestamp + 5 < time.time():
-                for epuck, epuck_is_alive in tmp_connect_dict.items():
-                    #has_start = True
-                    if epuck_is_alive:
-                        epuck_is_alive = False 
-                    else:
-                        tmp_dict[epuck] = []
 
-                    tmp_dict['connected'][epuck] = epuck_is_alive
-                
+            if last_timestamp + 10 < time.time():
                 last_timestamp = time.time()
-  
-            syncdict.update(tmp_dict)
-            lock.release()
-            time.sleep(0.1)
+
+                is_locked = lock.acquire(timeout=1)
+                if is_locked:
+                    tmp_dict = syncdict.copy()
+                    tmp_connect_dict = tmp_dict['connected']
+                    
+                    number_alive = 0
+                    for epuck, epuck_is_alive in tmp_connect_dict.items():
+                        #has_start = True
+                        if epuck_is_alive:
+                            number_alive += 1
+                            epuck_is_alive = False 
+                        else:
+                            tmp_dict[epuck] = []
+
+                        tmp_dict['connected'][epuck] = epuck_is_alive
+                        
+                    if thresh_time + 10*60 < time.time():
+                        thresh_time = time.time()
+                        if number_alive == 0:
+                            host_alive = False
+                            print('host turn off')
+
+        
+                    syncdict.update(tmp_dict)
+                    lock.release()
+                    time.sleep(0.2)
 
         except Exception as e:
             print(e)
@@ -167,7 +168,3 @@ class EpuckCommunicationManager(SyncManager):
 def main(host_ip='localhost'):
     manager = EpuckCommunicationManager(False, host_ip)
     manager.start()
-
-
-if __name__ == "__main__":   
-    start_manager('localhost') 

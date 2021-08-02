@@ -51,6 +51,14 @@ class MonitorCamera(tk.Frame):
             except:
                 load = None
 
+        #for pipuck test 
+        try:
+            self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.jpg'
+            load = Image.open(self.image_directory)
+            load = load.resize((320, 240), Image.ADAPTIVE)
+        except:
+            load = None
+
 
         # begin of text to display directory of where the image is load
         footer_frame = tk.Frame(self)
