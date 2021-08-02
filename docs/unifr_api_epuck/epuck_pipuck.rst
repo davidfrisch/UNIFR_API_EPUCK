@@ -16,8 +16,6 @@ Table Of Contents
 * :py:meth:`Gyroscope<.pi_puck.epuck_pipuck.PiPuckEpuck.get_gyro_axes>`
 * :py:meth:`Accelerometer<.pi_puck.epuck_pipuck.PiPuckEpuck.get_accelerometer_axes>`
 * :py:meth:`Microphones<.pi_puck.epuck_pipuck.PiPuckEpuck.get_microphones>`
-* :py:meth:`Play Sound<.pi_puck.epuck_pipuck.PiPuckEpuck.play_sound>`
-* :py:meth:`Get TV remote<.pi_puck.epuck_pipuck.PiPuckEpuck.get_tv_remote>`
 
 
 
