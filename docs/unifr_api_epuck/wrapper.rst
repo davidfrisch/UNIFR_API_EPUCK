@@ -37,7 +37,7 @@ Examples
 
 
 
-* To get an instance of the e-puck from the pi-puck (soon available)
+* To get an instance of the e-puck from the pi-puck
 
 .. code-block:: python
 
@@ -49,7 +49,7 @@ Examples
 
 * To get an instance of a client communication for a PC
 
-.. code-block:: python3
+.. code-block:: python
 
     from unifr_api_epuck import wrapper
     
