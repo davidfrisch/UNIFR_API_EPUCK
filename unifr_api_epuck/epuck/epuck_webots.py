@@ -337,8 +337,18 @@ class WebotsEpuck(Epuck):
 
     def init_camera(self, save_image_folder=None, camera_rate=1, size=(None,None)):
         
-        if size != (None, None):
-            print('Only sizable for pipuck')
+        
+        if (self.__camera_width,self.__camera_height) != (self.camera.getWidth(), self.camera.getHeight()):
+            self.__camera_width = self.camera.getWidth()
+            self.__camera_height = self.camera.getHeight()
+            print('Camera size adjusted (width,height) : (' +str(self.__camera_width) +','+str(self.__camera_height)+')')
+
+        
+        width, height = size
+        if width and height:
+            print('Camera size must be configure in the e-puck Node')
+            print('Camera (width,height) : (' +str(self.__camera_width) +','+str(self.__camera_height)+')')
+            
 
         if not save_image_folder:
             save_image_folder = './'
