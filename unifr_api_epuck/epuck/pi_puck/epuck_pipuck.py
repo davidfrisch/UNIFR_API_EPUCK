@@ -45,7 +45,7 @@ class PiPuckEpuck(Epuck):
         #TOF sensor reading 
         if not ip_addr:
             print('Attention, no IP address is define for the Pi-Puck. \n'+
-                    'Will not initiate correctly communication with others.')
+                    'Will not initiate correctly the intercommunication service.')
         super().__init__(ip_addr)
         
         if not ip_addr or ip_addr == '':
@@ -68,10 +68,8 @@ class PiPuckEpuck(Epuck):
         self.camera = None
         self.__camera_width = 640
         self.__camera_height = 480
-        self.__camera_rate = 0.2
         self.counter_img = 0
         self.camera_updated = False
-        self.time_diff_cam = self.__camera_rate
         self.my_filename_current_image = ''
 
         #robot propeties
@@ -546,9 +544,6 @@ class PiPuckEpuck(Epuck):
 
     def init_camera(self, folder_save_img = None, size= (None,None), camera_rate = 0.2):
         
-        if camera_rate != self.__camera_rate:
-            self.__camera_rate = camera_rate
-
         if not folder_save_img:
             self.folder_save_img = '.'
         else:
@@ -588,23 +583,12 @@ class PiPuckEpuck(Epuck):
         """ 
             get camera.read() of openCV
         """
-
-        #get last possible image
-        if self.time_diff_cam < self.__camera_rate:
-            self.sleep(self.__camera_rate - self.time_diff_cam)
-        
-        start_time = time.time()
-        
         #give time to read until last img possible
-        for _ in range(10):
+        for _ in range(5):
             success, frame = self.camera.read()
-        
-        self.time_diff_cam = time.time() - start_time
-        print('time loop:'+str(self.time_diff_cam))
-
-        
 
         if success:
+            #resize the image if end user asked to change it
             if self.__camera_width != 640 and self.__camera_height != 480:
                 frame = cv2.resize(frame, (self.__camera_width, self.__camera_height))
 
@@ -616,11 +600,10 @@ class PiPuckEpuck(Epuck):
         """
         Take a picture and save it in the image folder define in :py:meth:`init_camera<unifr_api_epuck.epuck_pipuck.PiPuckEpuck.init_camera>`
         """
-        start = time.time()
         _, frame = self.get_camera_read()
         self.counter_img += 1
         if not filename:
-            path_save_img = self.folder_save_img+"/"+self.get_id() + str(time.time()) + ".jpg"
+            path_save_img = self.folder_save_img+"/"+self.get_id()+"_"+ str(time.time()).replace('.','_') + ".jpg"
         
         else:
             if '.jpg' in filename:

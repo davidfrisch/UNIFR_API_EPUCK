@@ -337,7 +337,12 @@ class WebotsEpuck(Epuck):
 
     def init_camera(self, save_image_folder=None, camera_rate=1, size=(None,None)):
         
-        
+        if not save_image_folder:
+            save_image_folder = './'
+
+        self.__save_image_folder = save_image_folder
+        self.camera.enable(self.TIME_STEP*camera_rate)
+         
         if (self.__camera_width,self.__camera_height) != (self.camera.getWidth(), self.camera.getHeight()):
             self.__camera_width = self.camera.getWidth()
             self.__camera_height = self.camera.getHeight()
@@ -347,14 +352,8 @@ class WebotsEpuck(Epuck):
         width, height = size
         if width and height:
             print('Camera size must be configure in the e-puck Node')
-            print('Camera (width,height) : (' +str(self.__camera_width) +','+str(self.__camera_height)+')')
+            print('Camera (width,height) : ('+str(self.__camera_width) +','+str(self.__camera_height)+')')
             
-
-        if not save_image_folder:
-            save_image_folder = './'
-
-        self.__save_image_folder = save_image_folder
-        self.camera.enable(self.TIME_STEP*camera_rate)
 
     def disable_camera(self):
         self.camera.disable()
@@ -362,16 +361,17 @@ class WebotsEpuck(Epuck):
 
     def get_camera(self):
         red,green,blue = [],[],[]
-        
         cameraData = self.camera.getImageArray()
 
+        #print(len(cameraData[0]))
         # get the rgb of each pixel
         for n in range(self.__camera_width):
             for m in range(self.__camera_height):
                 red.append(cameraData[n][m][0])
                 green.append(cameraData[n][m][1])
                 blue.append(cameraData[n][m][2])
-        
+
+    
         #resize 1dim to array of 2dim  
         red = np.array(red).reshape(self.__camera_height, self.__camera_width)
         green = np.array(green).reshape(self.__camera_height, self.__camera_width)

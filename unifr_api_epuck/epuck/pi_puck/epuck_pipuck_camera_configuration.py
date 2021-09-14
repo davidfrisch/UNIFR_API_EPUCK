@@ -361,6 +361,7 @@ def ov7670_init(bus):
 	bus.write_byte_data(OV7670_ADDR, 0xa2, 0x02)
 	
 
+#main of the epuck_pipuck_camera_configuration
 def main():
 	poXXXX_detected = False
 	ov7670_detected = False
