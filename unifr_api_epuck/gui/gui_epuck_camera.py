@@ -36,7 +36,7 @@ class MonitorCamera(tk.Frame):
         self.canvas.pack(fill=tk.BOTH, expand=True)
         self.image = None  # none yet
         
-
+        found_type_robot = False
         #check if is real robot
         try:
             self.image_directory = folder_directory+'/'+self.epuck_id+'_image_video.bmp'
@@ -51,13 +51,13 @@ class MonitorCamera(tk.Frame):
             except:
                 load = None
 
-        #for pipuck test 
-        try:
-            self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.jpg'
-            load = Image.open(self.image_directory)
-            load = load.resize((320, 240), Image.ADAPTIVE)
-        except:
-            load = None
+                 #for pipuck test 
+                try:
+                    self.image_directory = folder_directory+'/'+ self.epuck_id +'_image_video.jpg'
+                    load = Image.open(self.image_directory)
+                    load = load.resize((320, 240), Image.ADAPTIVE)
+                except:
+                    load = None
 
 
         # begin of text to display directory of where the image is load
@@ -158,4 +158,3 @@ def open_new_window_camera(master, folder_directory, epuck_ip):
     # refresh after 1sec
     root.after(1000, app.update)
     root.mainloop()
-
