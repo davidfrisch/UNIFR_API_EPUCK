@@ -1,6 +1,6 @@
 from .epuck import Epuck
 from .models.helper import non_max_suppression,plot_detection
-from .models.yolo import attempt_load, scale_img
+from .models.yolo import attempt_load
 import struct
 import socket
 import sys

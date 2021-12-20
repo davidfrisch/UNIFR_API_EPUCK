@@ -1,0 +1,2 @@
+include unifr_api_epuck/epuck/best.pt
+include unifr_api_epuck/epuck/models/yolov5x.yaml
