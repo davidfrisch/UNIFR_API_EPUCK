@@ -10,6 +10,7 @@ Table Of Contents
 * :py:meth:`Proximity Sensors<.WifiEpuck.init_sensors>`
 * :py:meth:`Ground Sensors<.WifiEpuck.init_ground>`
 * :py:meth:`Camera<.WifiEpuck.init_camera>`
+* :py:meth:`Detection<.WifiEpuck.initiate_model>`
 * :py:meth:`Communication<.WifiEpuck.init_client_communication>`
 * :py:meth:`Time Of Flight<.WifiEpuck.get_tof>`
 * :py:meth:`Gyroscope<.WifiEpuck.get_gyro_axes>`
@@ -17,7 +18,7 @@ Table Of Contents
 * :py:meth:`Microphones<.WifiEpuck.get_microphones>`
 * :py:meth:`Play Sound<.WifiEpuck.play_sound>`
 * :py:meth:`Get TV remote<.WifiEpuck.get_tv_remote>`
-* :py:meth:`Objects Detection<.WifiEpuck.initiate_model>`
+
 
 
 Code

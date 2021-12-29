@@ -1,4 +1,4 @@
-Object detection
+Detection
 ================
 
 Using the object detection capabilities of the robot
