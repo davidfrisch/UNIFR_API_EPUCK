@@ -823,16 +823,6 @@ class WifiEpuck(Epuck):
     
     #Call at the beginning of the session only
     def initiate_model(self,weights=None):
-        """
-        Initiate the network used to recognized blocks
-
-        Need to be called once at the beginning
-
-        :param weights: a .pt file containing new possible weights (default: the one trained by Vincent Carrel)
-
-        .. warning:: 
-            Only works with real robots
-        """
 
         global model
         
