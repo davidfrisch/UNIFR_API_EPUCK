@@ -17,6 +17,7 @@ Table Of Contents
 * :py:meth:`Microphones<.WifiEpuck.get_microphones>`
 * :py:meth:`Play Sound<.WifiEpuck.play_sound>`
 * :py:meth:`Get TV remote<.WifiEpuck.get_tv_remote>`
+* :py:meth:`Objects Detection<.WifiEpuck.initiate_model>`
 
 
 Code

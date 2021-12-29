@@ -495,3 +495,20 @@ class WebotsEpuck(Epuck):
             self.set_speed(0, 0)
             self.go_on()
         #print('Robot cleaned')
+
+
+
+    #############################
+
+
+    def initiate_model(self,weights=None):
+        pass 
+
+    def get_detection(self,img = None):
+        pass
+
+    def save_detection(self,filename = None):
+        pass
+
+    def live_detection(self,duration = None):
+        pass

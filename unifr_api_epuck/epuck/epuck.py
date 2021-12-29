@@ -572,3 +572,56 @@ class Epuck:
         
     def clean_up():
         pass
+
+    #####################################
+
+    def initiate_model(self,weights=None):
+        """
+        Initiate the network used to recognized blocks
+
+        Need to be called once at the beginning
+
+        :param weights: a .pt file containing new possible weights (default: the one trained by Vincent Carrel)
+
+        .. warning:: 
+            Only works with real robots
+        """
+        pass 
+
+    def get_detection(self,img = None):
+        """
+        Analyze the picture passed as img
+        
+        :param img: the 120x160x3 array containing a picture returned by the function get_picture
+
+        :return: array of Detected objects
+
+        .. warning:: 
+            Only works with real robots
+        """
+        pass
+
+    def save_detection(self,filename = None):
+        """
+        Save the annotated image either with a default name or the one given in filename
+
+        :param filename: str under which the picture should be saved
+
+        .. warning:: 
+            Only works with real robots
+        """
+        pass
+
+    def live_detection(self,duration = None):
+        """
+        Lets you stream the annotated image from the GUI
+
+        The live_detection method needs to be called at each step.
+
+        :param duration: int - duration of the stream. (default: until program ends)
+
+        .. warning:: 
+            Only works with real robots
+        
+        """
+        pass

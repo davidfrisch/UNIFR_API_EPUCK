@@ -8,5 +8,6 @@ Examples
    :caption: Contents:
 
    camera.rst
+   detection.rst
    communication.rst
 

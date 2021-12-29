@@ -27,13 +27,13 @@ sys.path.insert(0, __location__)
 
 #The Object returned when looking for detection
 class Detected:
-        def __init__(self, x_center, y_center,width,height,confidence,label):
-            self.x_center = x_center
-            self.y_center = y_center
-            self.width = width
-            self.height = height
-            self.confidence = confidence
-            self.label = label
+    def __init__(self, x_center, y_center,width,height,confidence,label):
+        self.x_center = x_center
+        self.y_center = y_center
+        self.width = width
+        self.height = height
+        self.confidence = confidence
+        self.label = label
 
 ###############
 
@@ -814,17 +814,33 @@ class WifiEpuck(Epuck):
     ####################
 
     ####################
+    #  START VINCENT   #
+    ####################
+
+    ####################
     #   DETECTION      #
     ####################
     
     #Call at the beginning of the session only
-    def initiate_model(self,weights='best.pt'):
+    def initiate_model(self,weights=None):
+        """
+        Initiate the network used to recognized blocks
+
+        Need to be called once at the beginning
+
+        :param weights: a .pt file containing new possible weights (default: the one trained by Vincent Carrel)
+
+        .. warning:: 
+            Only works with real robots
+        """
+
         global model
         
         # Initialize
         
+        if weights is None:
+            weights = os.path.join(__location__,'best.pt')
         device = 'cpu'        
-        weights = os.path.join(__location__, weights)
         
         # Load model
         
@@ -833,7 +849,17 @@ class WifiEpuck(Epuck):
 
 
     def get_detection(self,img = None):
+        """
+        Analyze the picture passed as img
         
+        :param img: the 120x160x3 array containing a picture returned by the function get_picture
+
+        :return: array of Detected objects
+
+        .. warning:: 
+            Only works with real robots
+        """
+
         global model
         device = 'cpu'
         
@@ -853,7 +879,6 @@ class WifiEpuck(Epuck):
         img = torch.from_numpy(img).to(device)
         img = img.float()  # uint8 to fp32
         img = img / 255.0  # 0 - 255 to 0.0 - 1.0
-        #img = torch.permute(img, (2, 0, 1)) #correct tensor shape
         
         if len(img.shape) == 3:
             img = img[None]  # expand for batch dim
@@ -877,15 +902,23 @@ class WifiEpuck(Epuck):
             h = det[3] - det[1]
             
             conf = det[4]
-            cls = choices.get(int(det[5]), 'default')
+            cls = choices.get(int(det[5]), int(det[5]))
             
             rep.append(Detected(x_center=x,y_center=y,width=w,height=h,confidence=conf,label=cls))
 
-        return rep
+        return rep or []
 
     #Take a picture, analyse it and save the anotated picture in the defined image folder
     def save_detection(self,filename = None):
-        
+        """
+        Save the annotated image either with a default name or the one given in filename
+
+        :param filename: str under which the picture should be saved
+
+        .. warning:: 
+            Only works with real robots
+        """
+
         #Take the picture
         img = self.get_camera()
         img = np.array(img)
@@ -915,7 +948,18 @@ class WifiEpuck(Epuck):
             cv2.imwrite(self.__save_image_folder+'/'+filename,bgr_img)
 
     def live_detection(self,duration=None):
+        """
+        Lets you stream the annotated image from the GUI
 
+        The live_detection method needs to be called at each step.
+
+        :param duration: int - duration of the stream. (default: until program ends)
+
+        .. warning:: 
+            Only works with real robots
+        
+        """
+        
         if not self.has_start_stream:
             # time setting
             self.start_time = time.time()

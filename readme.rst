@@ -8,6 +8,8 @@ Please find below the instructions to get started with the API for Python3.
 
 Submitted by: David Roman Frischer
 
+Object detection section by: Vincent Carrel
+
 Supervisor: Dr. Julien Nembrini
 
 documentation : https://unifr-api-epuck.readthedocs.io/en/latest/

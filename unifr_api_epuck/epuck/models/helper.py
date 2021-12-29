@@ -2,7 +2,7 @@ import time
 import math
 import cv2
 import numpy as np
-
+import random
 import torch
 import torchvision
 
@@ -18,8 +18,10 @@ def label_to_color(label):
         return (255,0,0)
     elif label == "Green Block":
         return (0,255,0)
-    else:
+    elif label == "Epuck":
         return (0,255,255)
+    else:
+        return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
 
 
 # draw a single bounding box onto a numpy array image
@@ -38,7 +40,7 @@ def draw_bounding_box(img, detect):
     conf = str(detect.confidence)
     
     cv2.rectangle(img,(x_min,y_min),(x_max,y_max), color, 2)
-    cv2.putText(img,label+": "+conf,(x_min,y_min-10),cv2.FONT_HERSHEY_SIMPLEX,0.9,color,2)
+    cv2.putText(img,label+": "+conf,(x_min,y_min-10),cv2.FONT_HERSHEY_SIMPLEX,0.5,color,1)
 
 
 # draw all annotation bounding boxes on an image
