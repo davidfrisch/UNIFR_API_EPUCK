@@ -19,11 +19,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../unifr_api_epuck'))
 # -- Project information -----------------------------------------------------
 
 project = 'UNIFR API E-puck'
-copyright = '2021, David Roman Frischer'
-author = 'David Roman Frischer'
+copyright = '2022, David Roman Frischer & Vincent Carrel'
+author = 'David Roman Frischer & Vincent Carrel'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------
