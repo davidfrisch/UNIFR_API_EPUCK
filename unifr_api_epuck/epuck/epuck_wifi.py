@@ -884,6 +884,12 @@ class WifiEpuck(Epuck):
 
         for det in tensor_temp:
             
+            conf = det[4]
+            
+            #Added test, to remove all the low confidence predictions, according to the report
+            if conf < 0.9:
+                continue
+
             det = det.numpy()
 
             x = (det[0] + det[2]) / 2
@@ -891,7 +897,6 @@ class WifiEpuck(Epuck):
             w = det[2] - det[0]
             h = det[3] - det[1]
             
-            conf = det[4]
             cls = choices.get(int(det[5]), int(det[5]))
             
             rep.append(Detected(x_center=x,y_center=y,width=w,height=h,confidence=conf,label=cls))
