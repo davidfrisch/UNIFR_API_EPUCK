@@ -588,11 +588,13 @@ class Epuck:
         """
         pass 
 
-    def get_detection(self,img = None):
+    def get_detection(self,img = None,conf_thresh = 0.9):
         """
         Analyze the picture passed as img
         
         :param img: the 120x160x3 array containing a picture returned by the function get_picture
+
+        :param conf_thresh: an artifical threshold to limit the detections only to the confident one
 
         :return: array of Detected objects
 

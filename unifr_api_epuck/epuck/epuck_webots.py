@@ -504,7 +504,7 @@ class WebotsEpuck(Epuck):
     def initiate_model(self,weights=None):
         pass 
 
-    def get_detection(self,img = None):
+    def get_detection(self,img = None,conf_thresh = 0.9):
         pass
 
     def save_detection(self,filename = None):
