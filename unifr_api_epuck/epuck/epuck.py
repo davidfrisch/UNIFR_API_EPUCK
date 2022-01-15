@@ -594,7 +594,7 @@ class Epuck:
         
         :param img: the 120x160x3 array containing a picture returned by the function get_picture
 
-        :param conf_thresh: an artifical threshold to limit the detections only to the confident one
+        :param conf_thresh: an artifical threshold to limit the detections only to a certain confidence level
 
         :return: array of Detected objects
 
