@@ -528,7 +528,7 @@ class Epuck:
         """
         .. warning:: The host should be created first before calling this method. (ref. Examples/Communication)
         """
-        self.ClientComunication = ClientCommunication(self.id)
+        self.ClientComunication = ClientCommunication(self.get_id())
         self.ClientComunication.init_client_communication(host_ip)
 
 
