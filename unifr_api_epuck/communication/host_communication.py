@@ -37,7 +37,7 @@ def start_life_manager(host_ip):
             is_online = sock.connect_ex((host_ip, 50000))
 
             if time_fail < time.time():
-                print('No communication for life_points manager. Not connected to host manager.')
+                print('Not connected to host manager.')
 
                 if not host_ip:
                     print(
@@ -130,7 +130,7 @@ class EpuckCommunicationManager(SyncManager):
         "start the host communication"
        
         try:    
-            #check if port ised
+            #check if port is used
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(2)
             is_online = sock.connect_ex((self.ip_addr, 50000))

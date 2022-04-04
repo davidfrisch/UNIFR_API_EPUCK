@@ -10,7 +10,8 @@ class WebotsEpuck(Epuck):
     def __init__(self):
         from controller import Robot
         super().__init__('localhost')
-
+        
+        print(self.ClientComunication)
         self.TIME_STEP = 64
 
         self.__robot = Robot()
@@ -24,6 +25,7 @@ class WebotsEpuck(Epuck):
         # init the leds
         self.__led = []
         self.__id = self.__robot.getName()
+        
 
         # led 8 is body and 9 is front red LED
         ledNames = [
@@ -336,7 +338,7 @@ class WebotsEpuck(Epuck):
     # Need to init_camera before calling other methods
 
     def init_camera(self, save_image_folder=None, camera_rate=1, size=(None,None)):
-        
+        super().init_camera()
         if not save_image_folder:
             save_image_folder = './'
 
@@ -356,6 +358,7 @@ class WebotsEpuck(Epuck):
             
 
     def disable_camera(self):
+        super().disable_camera()
         self.camera.disable()
 
 
@@ -408,14 +411,23 @@ class WebotsEpuck(Epuck):
 
         # refresh time
         self.current_time = time.time()
-
+        
         if live_time is None or (self.current_time - self.start_time) < live_time:
             try:
-                save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
-                self.camera.saveImage(save_as, 100)  # 100 for best quality
+                if self.ClientComunication:
+                    save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
+                    self.camera.saveImage(save_as, 100)  # 100 for best quality
+                    with open(save_as, 'rb') as f:
+                        image_data = f.read()
+                    self.ClientComunication.stream_img(image_data) 
+                else:
+                    save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
+                    self.camera.saveImage(save_as, 100)  # 100 for best quality
+               
                 self.counter_img += 1
             except Exception as e:
                 print(e)
+                print('Camera is not online!')
         else:
             self.disable_camera()
 
@@ -495,20 +507,3 @@ class WebotsEpuck(Epuck):
             self.set_speed(0, 0)
             self.go_on()
         #print('Robot cleaned')
-
-
-
-    #############################
-
-
-    def initiate_model(self,weights=None):
-        pass 
-
-    def get_detection(self,img = None,conf_thresh = 0.9):
-        pass
-
-    def save_detection(self,filename = None):
-        pass
-
-    def live_detection(self,duration = None):
-        pass

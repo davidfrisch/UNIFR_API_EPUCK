@@ -12,7 +12,7 @@ with open(os.path.join(HERE, "readme.rst")) as fid:
 # This call to setup() does all the work
 setup(
     name="unifr_api_epuck",
-    version="1.1.4",
+    version="1.2.0",
     description="An API controller for the e-puck2 from GCtronic for Webots and Python3",
     long_description=README,
     long_description_content_type="text/x-rst",
@@ -30,6 +30,9 @@ setup(
     install_requires=[
         "Pillow",
         "smbus2",
-        "numpy"
+        "numpy",
+        "Flask-Cors",
+        "Flask-SocketIO",
+        "simple-websocket"
     ],
 )

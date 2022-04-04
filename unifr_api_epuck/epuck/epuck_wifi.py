@@ -1,42 +1,10 @@
 from .epuck import Epuck
-from .models.helper import non_max_suppression,plot_detection
-from .models.yolo import attempt_load
 import struct
 import socket
 import sys
 import time
 import logging
 import numpy as np
-import torch
-import os
-import cv2
-
-
-###############
-#  Detection  #
-###############
-
-#Needed for the detection
-#the model is the network with can be build with initiate_model()
-#it needs some path to the weights file
-#and the model itself is passed as global variable, so they can enable/disable the camera when needed without rebuilding the network
-
-model = None
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-sys.path.insert(0, __location__)
-
-#The Object returned when looking for detection
-class Detected:
-    def __init__(self, x_center, y_center,width,height,confidence,label):
-        self.x_center = x_center
-        self.y_center = y_center
-        self.width = width
-        self.height = height
-        self.confidence = confidence
-        self.label = label
-
-###############
-
 
 class WifiEpuck(Epuck):
 
@@ -74,8 +42,6 @@ class WifiEpuck(Epuck):
         self.__camera_updated = False
         self.__my_filename_current_image = ''
         self.__save_image_folder='.'
-        self.__counter_img = 0
-        self.__counter_detec_img = 0
 
 
         # start communication with computer
@@ -334,6 +300,7 @@ class WifiEpuck(Epuck):
     def enable_led(self, led_position, red=None, green=None, blue=None):
         if led_position in range(self.LED_COUNT_ROBOT):
             # LEDs in even position are not RGB
+            
             if led_position % 2 == 0:
 
                 if red or green or blue:
@@ -344,7 +311,7 @@ class WifiEpuck(Epuck):
             else:
                 # led_position corresponding to the position in the self.__command packet
                 led_position = (led_position-1)*3//2 + 8
-
+                
                 # if RGB is not specified, we process it like a LED with no RGB
                 if red != None and green != None and blue != None:
 
@@ -651,7 +618,7 @@ class WifiEpuck(Epuck):
                 file.write(bmppad[0:((4 - (width * 3) % 4) % 4)])
 
     def init_camera(self, new_image_folder=None, size=(None, None)):
-
+        super().init_camera()
         if size != (None, None):
                 print('Only sizable for pipuck')
                 
@@ -660,13 +627,13 @@ class WifiEpuck(Epuck):
 
         self.__my_filename_current_image = self.__save_image_folder + \
             '/'+self.get_id()+'_image_video.bmp'
-            
         # print(self.__my_filename_current_image)
         # print('camera enable')
         self.__command[1] = self.__command[1] | 1
 
     def disable_camera(self):
         # Set last bit to 0
+        super().disable_camera()
         self.__command[1] = self.__command[1] & 0xFE
 
     def get_camera(self):
@@ -697,10 +664,10 @@ class WifiEpuck(Epuck):
                 self.__rgb565_to_bgr888()
                 # removing the last 4 character of my_filename_current_image
                 # because we add the counter in picture name
-                counter = '{:04d}'.format(self.__counter_img)
+                counter = '{:04d}'.format(self.counter_img)
                 self.__save_bmp_image(
                     self.__my_filename_current_image[:-10] + counter + '.bmp')
-                self.__counter_img += 1
+                self.counter_img += 1
             else:
                 if not '.bmp' in filename:
                     filename+='.bmp'
@@ -723,6 +690,11 @@ class WifiEpuck(Epuck):
             # refresh robot communication
             self.get_camera()
             self.__save_bmp_image(self.__my_filename_current_image)
+            if self.ClientComunication:
+                with open(self.__save_bmp_image, 'rb') as f:
+                    image_data = f.read()
+                self.ClientComunication.stream_img(image_data) 
+          
         else:
             self.disable_camera()
 
@@ -806,179 +778,3 @@ class WifiEpuck(Epuck):
 
             self.__sock.close()
         #print('Robot cleaned')
-
-    
-    
-
-    ####################
-    #    END DAVID     #
-    ####################
-
-    ####################
-    #  START VINCENT   #
-    ####################
-
-    ####################
-    #   DETECTION      #
-    ####################
-    
-    #Call at the beginning of the session only
-    def initiate_model(self,weights=None):
-
-        global model
-        
-        # Initialize
-        
-        if weights is None:
-            weights = os.path.join(__location__,'best.pt')
-        device = 'cpu'        
-        
-        # Load model
-        
-        model = attempt_load(weights, map_location=device)  # load FP32 model
-        print("model initialized, ready to use")
-
-
-    def get_detection(self,img = None,conf_thresh = 0.9):
-        """
-        Analyze the picture passed as img
-        
-        :param img: the 120x160x3 array containing a picture returned by the function get_picture
-
-        :param conf_thresh: an artifical threshold to limit the detections only to a certain confidence level
-
-        :return: array of Detected objects
-
-        .. warning:: 
-            Only works with real robots
-        """
-
-        global model
-        device = 'cpu'
-        
-        if model is None:
-            print("You forgot to initialyse the network")
-            return
-
-        if img is None:
-            print("Give a picture to analyse")
-            return
-        
-        #add padding
-        temp = np.zeros((3,8,160),dtype='uint8')
-        img = np.append(img, temp, axis=1)
-        
-        # Run inference
-        img = torch.from_numpy(img).to(device)
-        img = img.float()  # uint8 to fp32
-        img = img / 255.0  # 0 - 255 to 0.0 - 1.0
-        
-        if len(img.shape) == 3:
-            img = img[None]  # expand for batch dim
-
-        #Use the model to predict 
-        pred = model(img, augment=False, visualize=False)[0]
-        pred = non_max_suppression(pred, 0.25, 0.45, None, False, max_det=1000)
-        
-        #Result processing (manipulating Pytorch tensor to numpy array of Object)
-        [tensor_temp] = pred
-        rep = []
-        choices = {0: "Red Block", 1: "Black Block",2:"Black Ball",3:"Blue Block",4:"Epuck",5:"Green Block"}
-
-        for det in tensor_temp:
-            
-            conf = det[4]
-            
-            #Added test, to remove all the low confidence predictions, according to the report
-            if conf < conf_thresh:
-                continue
-
-            det = det.numpy()
-
-            x = (det[0] + det[2]) / 2
-            y = (det[1] + det[3]) / 2
-            w = det[2] - det[0]
-            h = det[3] - det[1]
-            
-            cls = choices.get(int(det[5]), int(det[5]))
-            
-            rep.append(Detected(x_center=x,y_center=y,width=w,height=h,confidence=conf,label=cls))
-
-        return rep or []
-
-    #Take a picture, analyse it and save the anotated picture in the defined image folder
-    def save_detection(self,filename = None):
-        """
-        Save the annotated image either with a default name or the one given in filename
-
-        :param filename: str under which the picture should be saved
-
-        .. warning:: 
-            Only works with real robots
-        """
-
-        #Take the picture
-        img = self.get_camera()
-        img = np.array(img)
-
-        #Get the detection
-        detection = self.get_detection(img)
-
-        #Need some work on the picture to save it
-        img_copy = img.transpose(1,2,0).astype(np.uint8).copy()
-        bgr_img = cv2.cvtColor(img_copy, cv2.COLOR_RGB2BGR)
-
-        #plot detection
-        plot_detection(bgr_img,detection)
-        
-        if not filename:
-    
-            counter = '{:04d}'.format(self.__counter_detec_img)
-
-            cv2.imwrite(self.__save_image_folder+'/'+self.get_id() +'_detected_image_'+ counter + '.bmp',bgr_img)
-
-            self.__counter_detec_img += 1
-        
-        else:
-            if not '.bmp' in filename:
-                filename+='.bmp'
-
-            cv2.imwrite(self.__save_image_folder+'/'+filename,bgr_img)
-
-    def live_detection(self,duration=None):
-        """
-        Lets you stream the annotated image from the GUI
-
-        The live_detection method needs to be called at each step.
-
-        :param duration: int - duration of the stream. (default: until program ends)
-
-        .. warning:: 
-            Only works with real robots
-        
-        """
-        
-        if not self.has_start_stream:
-            # time setting
-            self.start_time = time.time()
-            self.has_start_stream = True
-        
-        # refresh time
-        self.current_time = time.time()
-
-        if duration is None or (self.current_time - self.start_time) < duration:
-            # refresh robot communication
-            img = self.get_camera()
-            img = np.array(img)
-
-            detection = self.get_detection(img)
-
-            img_copy = img.transpose(1,2,0).astype(np.uint8).copy()
-            bgr_img = cv2.cvtColor(img_copy, cv2.COLOR_RGB2BGR)
-            plot_detection(bgr_img,detection)
-            
-            #overwrite always the same picture
-            cv2.imwrite(self.__save_image_folder+'/'+self.get_id()+'_image_video.bmp',bgr_img)
-
-        else:
-            self.disable_camera()

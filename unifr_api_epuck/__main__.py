@@ -1,20 +1,11 @@
-from .gui import gui_epuck_main 
+from .flask_server_gui_communication.app import start_flask_server
 import sys
+import webbrowser
 
 
 def main():
-    has_arg = False
-
-    if any(i in sys.argv[1:] for i in ['g','gui','-gui','--gui','-g']):
-        gui_epuck_main.main()
-        has_arg = True
-
-    if not has_arg:
-        gui_epuck_main.main()
-
-    
-    
-
+    webbrowser.open('http://127.0.0.1:8000/', new=1)
+    start_flask_server()
 
 if __name__ == "__main__":
     main()
