@@ -1,2 +1,4 @@
 include unifr_api_epuck/epuck/best.pt
 include unifr_api_epuck/epuck/models/yolov5m.yaml
+include unifr_api_epuck/flask_server_gui_communication/templates/*
+include unifr_api_epuck/flask_server_gui_communication/static/assets/*
