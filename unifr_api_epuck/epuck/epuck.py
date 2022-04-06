@@ -469,8 +469,10 @@ class Epuck:
         :param save_image_folder: input directory folder to save the images taken by the robot
         :param camera_rate: camera_rate
         """
-        self.ClientComunication.send_init_camera()
-
+        try:
+            self.ClientComunication.send_init_camera()
+        except:
+            print('Warning: Enable first communication to stream on monitor')
     def disable_camera(self):
         """
         Disables the robot's camera

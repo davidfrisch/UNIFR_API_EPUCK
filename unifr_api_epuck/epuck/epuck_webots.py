@@ -426,8 +426,7 @@ class WebotsEpuck(Epuck):
                
                 self.counter_img += 1
             except Exception as e:
-                print(e)
-                print('Camera is not online!')
+                pass
         else:
             self.disable_camera()
 
