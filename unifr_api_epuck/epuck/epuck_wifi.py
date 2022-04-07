@@ -724,7 +724,7 @@ class WifiEpuck(Epuck):
             self.get_camera()
             self.__save_bmp_image(self.__my_filename_current_image)
             if self.ClientComunication:
-                with open(self.__save_bmp_image, 'rb') as f:
+                with open(self.__my_filename_current_image, 'rb') as f:
                     image_data = f.read()
                 self.ClientComunication.stream_img(image_data) 
           
@@ -974,6 +974,12 @@ class WifiEpuck(Epuck):
 
             #overwrite always the same picture
             cv2.imwrite(self.__save_image_folder+'/'+self.get_id()+'_image_video.bmp',bgr_img)
+            save = self.__save_image_folder+'/'+self.get_id()+'_image_video.bmp'
+
+            if self.ClientComunication:
+                with open(save,"rb") as f:
+                    image_data = f.read()
+                self.ClientComunication.stream_img(image_data)
 
         else:
             self.disable_camera()
