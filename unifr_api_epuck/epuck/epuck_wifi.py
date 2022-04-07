@@ -918,7 +918,7 @@ class WifiEpuck(Epuck):
         img = np.array(img)
 
         #Get the detection
-        detection = self.get_detection(img)
+        detection = self.get_detection(img,conf_thresh = 0.1)
 
         #Need some work on the picture to save it
         img_copy = img.transpose(1,2,0).astype(np.uint8).copy()
