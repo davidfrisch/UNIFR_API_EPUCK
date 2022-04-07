@@ -38,7 +38,7 @@ def draw_bounding_box(img, detect):
     label = detect.label
     color = label_to_color(label)
     conf = str(detect.confidence)
-    
+   
     cv2.rectangle(img,(x_min,y_min),(x_max,y_max), color, 2)
     cv2.putText(img,label+": "+conf,(x_min,y_min-10),cv2.FONT_HERSHEY_SIMPLEX,0.5,color,1)
 

@@ -73,6 +73,8 @@ class WifiEpuck(Epuck):
         self.__camera_updated = False
         self.__my_filename_current_image = ''
         self.__save_image_folder='.'
+        self.__counter_img = 0
+        self.__counter_detec_img = 0
 
 
         # start communication with computer
@@ -695,10 +697,10 @@ class WifiEpuck(Epuck):
                 self.__rgb565_to_bgr888()
                 # removing the last 4 character of my_filename_current_image
                 # because we add the counter in picture name
-                counter = '{:04d}'.format(self.counter_img)
+                counter = '{:04d}'.format(self.__counter_img)
                 self.__save_bmp_image(
                     self.__my_filename_current_image[:-10] + counter + '.bmp')
-                self.counter_img += 1
+                self.__counter_img += 1
             else:
                 if not '.bmp' in filename:
                     filename+='.bmp'
@@ -885,7 +887,7 @@ class WifiEpuck(Epuck):
 
         for det in tensor_temp:
 
-            conf = det[4]
+            conf = det[4].item()
 
             #Added test, to remove all the low confidence predictions, according to the report
             if conf < conf_thresh:
