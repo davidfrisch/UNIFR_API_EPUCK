@@ -561,14 +561,15 @@ class Epuck:
         """
         return self.ClientComunication.receive_msg()
 
-    def get_connected_epucks(self):
-        """
+    # TODO 
+    """ def get_connected_epucks(self):
+        
         Get list of connected epucks to the host.
 
         :returns: array of connected epucks
-        """
+        
         #method from host_epuck_communication
-        return self.ClientComunication.get_available_epucks()
+        return self.ClientComunication.get_available_epucks() """
 
     def clean_msg(self):
         self.ClientComunication.clean_msg()
