@@ -45,7 +45,7 @@ def new_connection(data):
 @socketio.on('ask_who_is_alive')
 def ask_who_is_alive():
     emit('who_is_alive', broadcast=True, include_self=False)
-
+ 
 @socketio.on('i_am_alive')
 def i_am_alive(data):
     emit('is_alive', data, broadcast=True, include_self=False)

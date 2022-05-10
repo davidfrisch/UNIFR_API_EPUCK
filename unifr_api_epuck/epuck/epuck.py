@@ -473,12 +473,14 @@ class Epuck:
         try:
             self.ClientComunication.send_init_camera()
         except:
-            print('Warning: Enable first communication to stream on monitor')
+            print('Warning: Camera will not be streamed, communication must be turned on to stream on monitor')
+            
     def disable_camera(self):
         """
         Disables the robot's camera
         """
-        self.ClientComunication.send_disable_camera()
+        if self.ClientComunication:
+            self.ClientComunication.send_disable_camera()
 
     def get_camera(self):
         """
@@ -559,14 +561,15 @@ class Epuck:
         """
         return self.ClientComunication.receive_msg()
 
-    def get_connected_epucks(self):
-        """
+    # TODO 
+    """ def get_connected_epucks(self):
+        
         Get list of connected epucks to the host.
 
         :returns: array of connected epucks
-        """
+        
         #method from host_epuck_communication
-        return self.ClientComunication.get_available_epucks()
+        return self.ClientComunication.get_available_epucks() """
 
     def clean_msg(self):
         self.ClientComunication.clean_msg()
