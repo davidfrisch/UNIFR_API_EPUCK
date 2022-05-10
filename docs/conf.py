@@ -60,7 +60,8 @@ autodoc_mock_imports = ['PIL',
                         'Flask-Cors',
                         'Flask-SocketIO',
                         'simple-websocket',
-                        'socket']
+                        'socket',
+                        'socketio']
 
 
 # Add any paths that contain templates here, relative to this directory.
