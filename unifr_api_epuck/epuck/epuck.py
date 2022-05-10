@@ -561,13 +561,11 @@ class Epuck:
         """
         return self.ClientComunication.receive_msg()
 
-    # TODO 
     def get_available_epucks(self):
         """
         Get list of connected epucks to the host.
         
-        .. warning:: 
-            Monitor must be online!
+        .. warning:: Monitor must be online!
 
         :returns: array of connected epucks
         """
