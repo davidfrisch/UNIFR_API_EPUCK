@@ -45,6 +45,7 @@ for _ in range(100):
 ###########################
 
 r.init_camera('/Users/THEMACBOOK/Desktop/images')
+print('init camera')
 #take pictures
 
 for _ in range(10):
@@ -60,6 +61,7 @@ for _ in range(50):
     r.live_camera()
 
 r.disable_camera()
+print('camera disable')
 
 
 ###########################
@@ -67,11 +69,15 @@ r.disable_camera()
 ###########################
 
 #robot connects to the host communication
-r.init_client_communication('localhost')
+print('init_comm')
+try:
+    r.init_client_communication('localhost')
 
-start_time = time.time()
+    start_time = time.time()
 
-while start_time + 15 > time.time():
-    if r.has_receive_msg():
-        print(r.receive_msg())
+    while start_time + 15 > time.time():
+        if r.has_receive_msg():
+            print(r.receive_msg())
+except:
+    print("Communication is not online")
 
