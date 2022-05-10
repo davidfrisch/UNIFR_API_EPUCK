@@ -281,7 +281,6 @@ class WebotsEpuck(Epuck):
     #  Time Of Fight     #
     ######################
 
-
     def get_gyro_axes(self):
         # round values to integers for homogeniety with real robot
         round_values = [round(i) for i in self.gyro.getValues()]

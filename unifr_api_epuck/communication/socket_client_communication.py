@@ -1,6 +1,7 @@
 #################
 # COMMUNICATION #
 #################
+from numpy import array
 import socketio
 from queue import Queue
 import time
@@ -30,6 +31,7 @@ class SocketClientCommunication:
             
         self.MAX_MESSAGE = 30
         self.box_message = Queue(self.MAX_MESSAGE)
+        self.available_epucks = []
         self.camera_delay = 1 # seconds
         self.last_time_send = time.time()
 
@@ -55,11 +57,16 @@ class SocketClientCommunication:
             
         @self.sio.on(self.id+'_on_receive')
         def receive_private_message(data):
-            print(data)
             timestamp = int(time.time() * 1000)
             self.box_message.put(data)
             self.sio.emit('confirm_reception', {'timestamp':timestamp, 'id':self.id, 'msg': data, 'is_receiver': True })
 
+        @self.sio.on('receive_avaiable_epucks')
+        def receive_avaiable_epucks(list_epucks):
+            if(len(list_epucks) > 0):
+                self.available_epucks = list_epucks
+            else:
+                self.available_epucks = []
 
     def get_id(self):
         """
@@ -77,11 +84,12 @@ class SocketClientCommunication:
 
 
     
-    #def get_available_epucks(self):
-    """
-    TODO To be implemented
-    :param msg: any 
-    """
+    def get_available_epucks(self):
+        """
+        TODO To be implemented
+        :param msg: any 
+        """
+        return self.available_epucks
                 
     @sio.event
     def send_msg_to(self, dest_client_id, msg):

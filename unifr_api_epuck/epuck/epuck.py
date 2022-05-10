@@ -562,14 +562,22 @@ class Epuck:
         return self.ClientComunication.receive_msg()
 
     # TODO 
-    """ def get_connected_epucks(self):
-        
+    def get_available_epucks(self):
+        """
         Get list of connected epucks to the host.
+        
+        .. warning:: 
+            Monitor must be online!
 
         :returns: array of connected epucks
+        """
         
         #method from host_epuck_communication
-        return self.ClientComunication.get_available_epucks() """
+        if(self.ClientComunication):
+            return self.ClientComunication.get_available_epucks()
+        else:
+            print('WARNING : Please init communication')
+            return []
 
     def clean_msg(self):
         self.ClientComunication.clean_msg()

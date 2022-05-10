@@ -81,6 +81,11 @@ def disable_camera(data):
     
     if monitor_socket_id:
         emit(f"{id}_disable_camera", room=monitor_socket_id)
+        
+@socketio.on('send_available_epucks')
+def send_available_epucks(data):
+    list_epucks = data['list_epucks']
+    emit("receive_avaiable_epucks", list_epucks, broadcast=True, include_self=False)
 
 
 def start_flask_server():
