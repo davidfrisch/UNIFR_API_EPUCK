@@ -74,12 +74,17 @@ class SocketClientCommunication:
             """
             self.sio.emit('broadcast', {'from':self.id, 'msg':msg})
 
+
+    def resp_get_available_epucks(self, list):
+        print(list)
+        pass
+    
     def get_available_epucks(self):
         """
         TODO To be implemented
         :param msg: any 
         """
-        return None
+        self.sio.send('get_available_epuck', callback=self.resp_get_available_epucks)
                 
     @sio.event
     def send_msg_to(self, dest_client_id, msg):

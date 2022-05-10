@@ -473,12 +473,14 @@ class Epuck:
         try:
             self.ClientComunication.send_init_camera()
         except:
-            print('Warning: Enable first communication to stream on monitor')
+            print('Warning: Camera will not be streamed, communication must be turned on to stream on monitor')
+            
     def disable_camera(self):
         """
         Disables the robot's camera
         """
-        self.ClientComunication.send_disable_camera()
+        if self.ClientComunication:
+            self.ClientComunication.send_disable_camera()
 
     def get_camera(self):
         """
