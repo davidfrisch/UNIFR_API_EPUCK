@@ -1,11 +1,10 @@
 from unifr_api_epuck import wrapper
 
-robot = wrapper.get_robot()
-robot.init_client_communication()
+my_computer = wrapper.get_client(client_id='MyUniqueName', host_ip='http://127.0.0.1:8000')
 
 while(True):
-    if(robot.has_receive_msg()):
-        robot.receive_msg()
-        print(robot.get_available_epucks())
+    if(my_computer.has_receive_msg()):
+        msg = my_computer.receive_msg()
+        print(msg)
         
-    robot.go_on()
+  

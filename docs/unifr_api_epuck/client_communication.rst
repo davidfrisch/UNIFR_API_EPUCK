@@ -8,10 +8,12 @@ This example shows how to use the client communication. The code below uses the 
 
 .. code-block:: python3
 
-    from unifr_api_epuck import wrapper
-    
-    my_computer = wrapper.get_client('computer_192.168.112.24')
-    my_computer.init_client_communication('192.168.112.24')
+    my_computer = wrapper.get_client(client_id='MyUniqueName', host_ip='http://127.0.0.1:8000')
+
+    while(True):
+        if(my_computer.has_receive_msg()):
+            msg = my_computer.receive_msg()
+            print(msg)
 
    
 

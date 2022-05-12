@@ -1,6 +1,6 @@
 from .epuck.epuck_webots import WebotsEpuck 
 from .epuck.epuck_wifi import WifiEpuck
-from .communication.client_communication import ClientCommunication
+from .communication.socket_client_communication import SocketClientCommunication
 
 def get_robot(ip_addr=None, is_pipuck = False):
     """
@@ -33,7 +33,7 @@ def get_robot(ip_addr=None, is_pipuck = False):
 
     return __get_robot_webot()
 
-def get_client(client_id):
+def get_client(client_id, host_ip='localhost'):
     """
     Get an instance of a client for communication
 
@@ -41,7 +41,7 @@ def get_client(client_id):
 
     :returns: instance of a ClientCommunication
     """
-    return ClientCommunication(client_id)
+    return SocketClientCommunication(client_id, host_ip)
 
 
 
