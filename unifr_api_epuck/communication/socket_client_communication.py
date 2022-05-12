@@ -70,23 +70,22 @@ class SocketClientCommunication:
 
     def get_id(self):
         """
-        Get the id of the
+        Get the id of the client
         """
         return self.id
 
     @sio.event
     def send_msg(self, msg):
-            """
-            :param msg: any 
-            """
-            self.sio.emit('broadcast', {'from':self.id, 'msg':msg})
+        """
+        :param msg: any 
+        """
+        self.sio.emit('broadcast', {'from':self.id, 'msg':msg})
 
 
 
     
     def get_available_epucks(self):
         """
-        TODO To be implemented
         :param msg: any 
         """
         return self.available_epucks
@@ -94,41 +93,52 @@ class SocketClientCommunication:
     @sio.event
     def send_msg_to(self, dest_client_id, msg):
         """
-        TODO Send a message to a specific id client
+        Send a message to a specific id client
         """
         self.sio.emit('send_msg_to', {'from':self.id, 'to': dest_client_id, 'msg': msg})     
 
 
     def has_receive_msg(self):
         """
-        TODO :returns: True if the robot has pending messages in his queue otherwise False.
+        :returns: True if the robot has pending messages in his queue otherwise False.
         """
         return not self.box_message.empty()
                     
 
     def receive_msg(self):
         """
-        TODO Get next message from the robots queue otherwise returns None.
+        Get next message from the robots queue otherwise returns None.
         """
         return self.box_message.get(block=False)
 
     def clean_msg(self):
         """
-        TODO Deletes all its pending messages
+        Deletes all its pending messages
         """
         self.box_message = Queue(self.MAX_MESSAGE)
                     
 
     def stream_img(self, img):
-        
+        """
+        .. warning::
+            Only works with robots
+        """
         if self.camera_delay < time.time() - self.last_time_send:
             self.sio.emit('stream_img', {'id': self.get_id(), 'img': img}) 
             self.last_time_send = time.time()
         
         
     def send_init_camera(self):
+        """
+        .. warning::
+            Only works with robots
+        """
         self.sio.emit('init_camera', {'id': self.get_id()})  
         
     def send_disable_camera(self):
+        """
+        .. warning::
+            Only works with robots
+        """
         self.sio.emit('disable_camera', {'id': self.get_id()}) 
             
