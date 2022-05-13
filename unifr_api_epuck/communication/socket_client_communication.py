@@ -107,7 +107,7 @@ class SocketClientCommunication:
 
     def receive_msg(self):
         """
-        Get next message from the robots queue otherwise returns None.
+        Get next message from the robots queue otherwise throws an error.
         """
         return self.box_message.get(block=False)
 
