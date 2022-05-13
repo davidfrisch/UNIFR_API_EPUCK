@@ -1,6 +1,7 @@
-#################
-# COMMUNICATION #
-#################
+##################################################
+# OLD COMMUNICATION. This code is now deprecated #
+# New version is : Socket Client Communication.  #
+##################################################
 from multiprocessing.managers import SyncManager
 import socket
 import time, sys
