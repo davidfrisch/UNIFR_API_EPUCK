@@ -452,7 +452,7 @@ class WifiEpuck(Epuck):
     def get_calibrate_prox(self):
         return super().get_calibrate_prox()
 
-    def init_tof():
+    def init_tof(self):
         pass
 
     def get_tof(self): 
