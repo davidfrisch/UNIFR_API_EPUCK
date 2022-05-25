@@ -95,7 +95,7 @@ class SocketClientCommunication:
         """
         Send a message to a specific id client
         """
-        self.sio.emit('send_msg_to', {'from':self.id, 'to': dest_client_id, 'msg': msg})     
+        self.sio.emit('send_msg_to', {'from':self.id, 'dest': dest_client_id, 'msg': msg})     
 
 
     def has_receive_msg(self):
