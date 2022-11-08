@@ -177,13 +177,13 @@ Pi-Puck
     https://github.com/gctronic/Pi-puck
         
 
-.. image:: res/unifr_logo.png
+.. image:: docs/res/unifr_logo.png
     :width: 100
     :alt: UNIFR logo
 
 
 
-.. image:: res/humanist_logo.jpg
+.. image:: docs/res/humanist_logo.jpg
     :width: 100
     :alt: Human-IST logo
 
