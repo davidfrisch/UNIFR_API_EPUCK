@@ -44,7 +44,7 @@ class Epuck:
 
         self.host = None
         self.manager = None
-        self.ClientComunication = None
+        self.ClientCommunication = None
 
         # var for identification
         self.ip_addr = ip_addr
@@ -85,6 +85,9 @@ class Epuck:
         self.has_start_stream = False
         self.start_time = 0
         self.counter_img = 0
+
+        # dict for suppressing multiplication of warnings if not relevant 
+        self.__printed_warnings = {}
 
     def get_id(self):
         pass
@@ -471,16 +474,18 @@ class Epuck:
         :param camera_rate: camera_rate
         """
         try:
-            self.ClientComunication.send_init_camera()
+            self.ClientCommunication.send_init_camera()
         except:
-            print('Warning: Camera will not be streamed, communication must be turned on to stream on monitor')
+            if  "camera_stream" not in self.__printed_warnings.keys() :
+                print('Warning: Camera will not be streamed, communication must be turned on to stream on monitor')
+                self.__printed_warnings["camera_stream"] = True
             
     def disable_camera(self):
         """
         Disables the robot's camera
         """
-        if self.ClientComunication:
-            self.ClientComunication.send_disable_camera()
+        if self.ClientCommunication:
+            self.ClientCommunication.send_disable_camera()
 
     def get_camera(self):
         """
@@ -532,14 +537,14 @@ class Epuck:
         """
         .. warning:: The host should be created first before calling this method. (ref. Examples/Communication)
         """
-        self.ClientComunication = SocketClientCommunication(self.get_id(), host_ip)
+        self.ClientCommunication = SocketClientCommunication(self.get_id(), host_ip)
 
 
     def __stay_alive(self):
         """
         Keeps the host aware that the epuck is alive
         """
-        self.ClientComunication.stay_alive()
+        self.ClientCommunication.stay_alive()
 
     def send_msg(self, msg):
         """
@@ -547,19 +552,19 @@ class Epuck:
 
         :param msg: any 
         """
-        self.ClientComunication.send_msg(msg)
+        self.ClientCommunication.send_msg(msg)
 
     def has_receive_msg(self):
         """
         :returns: True if the robot has pending messages in his queue otherwise False.
         """
-        return self.ClientComunication.has_receive_msg()
+        return self.ClientCommunication.has_receive_msg()
 
     def receive_msg(self):
         """
         Get next message from the robot queue otherwise returns None.
         """
-        return self.ClientComunication.receive_msg()
+        return self.ClientCommunication.receive_msg()
 
     def get_available_epucks(self):
         """
@@ -571,14 +576,14 @@ class Epuck:
         """
         
         #method from host_epuck_communication
-        if(self.ClientComunication):
-            return self.ClientComunication.get_available_epucks()
+        if(self.ClientCommunication):
+            return self.ClientCommunication.get_available_epucks()
         else:
             print('WARNING : Please init communication')
             return []
 
     def clean_msg(self):
-        self.ClientComunication.clean_msg()
+        self.ClientCommunication.clean_msg()
         
     def clean_up():
         pass
