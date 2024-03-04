@@ -10,6 +10,7 @@ from .models.yolo import attempt_load
 import torch
 import os
 import cv2
+import signal
 
 
 ###############
@@ -63,7 +64,7 @@ class WifiEpuck(Epuck):
         # communication Robot <-> Computer
         self.__sock = 0
         self.__command = bytearray([0] * self.COMMAND_PACKET_SIZE)
-
+ 
 
         # camera init specific for Real Robot
         self.__camera_width = 160
@@ -81,6 +82,11 @@ class WifiEpuck(Epuck):
         self.__tcp_init()
         self.__init_command()
 
+        signal.signal(signal.SIGINT, self.__stopcontroller_handler)   
+
+        print("Robot initialized")
+
+    
     def __tcp_init(self):
         """
             Initiate the TCP communication between the robot and host computer.
@@ -100,19 +106,19 @@ class WifiEpuck(Epuck):
                 self.__sock.connect((ip_address, self.TCP_PORT))
             except socket.timeout as err:
                 self.__sock.close()
-                logging.error("Error from " + ip_address + ":")
+                logging.error("Timeout error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
             except socket.OSError as err:
                 self.__sock.close()
-                logging.error("Error from " + ip_address + ":")
+                logging.error("OS error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
             except Exception as err:
                 self.__sock.close()
-                logging.error("Error from " + ip_address + ":")
+                logging.error("General error from " + ip_address + ":")
                 logging.error(err)
                 trials += 1
                 continue
@@ -123,7 +129,8 @@ class WifiEpuck(Epuck):
             return
 
         print("Connected to " + ip_address)
-        print("\r\n")
+        print("\r\n")       
+
 
     def __init_command(self):
         """
@@ -201,9 +208,18 @@ class WifiEpuck(Epuck):
         bytes_recd = 0
         try:
             while bytes_recd < msg_len:
-                chunk = self.__sock.recv(min(msg_len - bytes_recd, 2048))
-                if chunk == b'':
-                    raise RuntimeError("socket connection broken")
+                # old code
+                #chunk = self.__sock.recv(min(msg_len - bytes_recd, 2048))
+                #if chunk == b'':
+                #    raise RuntimeError("socket connection broken")
+            
+                trials = 0
+                chunk = b''
+                while chunk == b'':
+                    trials += 1
+                    chunk = self.__sock.recv(min(msg_len - bytes_recd, 2048))
+                    if chunk == b'' and trials == self.MAX_NUM_CONN_TRIALS:
+                        raise RuntimeError("socket connection broken")
                 chunks.append(chunk)
                 bytes_recd = bytes_recd + len(chunk)
             return b''.join(chunks)
@@ -794,6 +810,15 @@ class WifiEpuck(Epuck):
     def has_receive_msg(self):
         return super().has_receive_msg()
 
+    def __stopcontroller_handler(self, signum, frame):
+        """
+        Gracefully stops the controller of the robot
+        """
+        signal.signal(signum, signal.SIG_IGN) # ignore additional signals
+        print('leaning up  ...     ')
+        self.clean_up()
+
+
     def clean_up(self):
         """
         Disables all and closes socket.
@@ -805,11 +830,14 @@ class WifiEpuck(Epuck):
             self.disable_front_led()
             self.disable_body_led()
 
-            for _ in range(50):
+            for _ in range(10):
                 self.set_speed(0, 0)
                 self.go_on()
 
+            self.sleep(1)
+
             self.__sock.close()
+            sys.exit(0)
         #print('Robot cleaned')
 
 
