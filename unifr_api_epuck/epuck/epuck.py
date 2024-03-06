@@ -395,10 +395,38 @@ class Epuck:
         .. note:: acceleration magnitude, between 0.0 and about 2600.0 (~3.46 g)
 
         :returns: value of the accelerometer 
-        :rtype: int
+        :rtype: float
         """
         pass
 
+    def get_orientation(self):
+        """
+        Gets the direction angle (0 to 360, on the XY plane) of the inclination of the acceleration vector. Inclination is provided by 
+        the :py:meth:`get_inclination()<.get_inclination>` function, and the magnitude of the acceleration 
+        by the :py:meth:`get_acceleration()<.get_acceleration>` function 
+
+        .. note:: orientation angle, between 0.0 and 360° 
+
+        :returns: value of the orientation  
+        :rtype: float
+        """
+        pass
+
+    def get_inclination(self):
+        """
+        Gets the inclination angle (0 to 180) of the acceleration vector. Orientation is provided by 
+        the :py:meth:`get_orientation()<.get_orientation>` function, and the magnitude of the acceleration 
+        by the :py:meth:`get_acceleration()<.get_acceleration>` function 
+
+        .. note:: inclination angle, between 0.0 and 180° 
+
+        :returns: value of the inclination  
+        :rtype: float
+        """
+        pass
+    
+    
+    
     def get_accelerometer_axes(self):
         """
         Gets the accelerometer axis raw values.

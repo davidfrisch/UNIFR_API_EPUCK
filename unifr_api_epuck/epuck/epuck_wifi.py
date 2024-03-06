@@ -522,6 +522,12 @@ class WifiEpuck(Epuck):
     def get_acceleration(self): 
         return struct.unpack("f", struct.pack("<BBBB", self.sensors[6], self.sensors[7], self.sensors[8], self.sensors[9]))[0]
 
+    def get_orientation(self): 
+        return struct.unpack("f", struct.pack("<BBBB", self.sensors[10], self.sensors[11], self.sensors[12], self.sensors[13]))[0]
+
+    def get_inclination(self): 
+        return struct.unpack("f", struct.pack("<BBBB", self.sensors[14], self.sensors[15], self.sensors[16], self.sensors[17]))[0]
+
 
     def get_roll(self):
         return super().get_roll()
