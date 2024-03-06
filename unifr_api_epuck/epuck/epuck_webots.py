@@ -11,7 +11,7 @@ class WebotsEpuck(Epuck):
         from controller import Robot
         super().__init__('localhost')
         
-        print(self.ClientComunication)
+        print(self.ClientCommunication)
         self.TIME_STEP = 64
 
         self.__robot = Robot()
@@ -413,12 +413,12 @@ class WebotsEpuck(Epuck):
         
         if live_time is None or (self.current_time - self.start_time) < live_time:
             try:
-                if self.ClientComunication:
+                if self.ClientCommunication:
                     save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
                     self.camera.saveImage(save_as, 100)  # 100 for best quality
                     with open(save_as, 'rb') as f:
                         image_data = f.read()
-                    self.ClientComunication.stream_img(image_data) 
+                    self.ClientCommunication.stream_img(image_data) 
                 else:
                     save_as = self.__save_image_folder + '/'+ self.get_id() +'_image_video.png'
                     self.camera.saveImage(save_as, 100)  # 100 for best quality
