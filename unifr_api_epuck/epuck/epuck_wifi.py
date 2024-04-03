@@ -36,6 +36,25 @@ class Detected:
         self.confidence = confidence
         self.label = label
 
+    def __str__(self):
+        return f'x_center: {self.x_center}, y_center: {self.y_center}, width: {self.width}, height: {self.height}, confidence: {self.confidence}, label: {self.label}'
+
+
+#The ColorDetected returned when looking for color detection
+class ColorDetected:
+    def __init__(self, x_center = 0, y_center = 0,width = 0, height = 0, area = 0, label = 'none'):
+        self.x_center = x_center
+        self.y_center = y_center
+        self.width = width
+        self.height = height
+        self.area = area
+        self.label = label
+        
+    def __str__(self):
+        return f'x_center: {self.x_center}, y_center: {self.y_center}, width: {self.width}, height: {self.height}, area: {self.area}, label: {self.label}'
+
+
+
 ###############
 
 class WifiEpuck(Epuck):
@@ -76,6 +95,7 @@ class WifiEpuck(Epuck):
         self.__save_image_folder='.'
         self.__counter_img = 0
         self.__counter_detec_img = 0
+        self.__counter_colordetec_img = 0
 
 
         # start communication with computer
@@ -1017,3 +1037,258 @@ class WifiEpuck(Epuck):
 
         else:
             self.disable_camera()
+                    
+                    
+    ####################
+    #    END VINCENT   #
+    ####################
+
+    ####################
+    # COLOR DETECTION  #
+    ####################
+    
+
+    def detect_color_masks(self,img, tol = 20, height = 50) :
+
+        b,g,r = cv2.split(img)
+        # change type to allow pixel operations 
+        b = b.astype(np.int16)
+        g = g.astype(np.int16)
+        r = r.astype(np.int16)
+        
+        bg = b-g
+        gr = g-r
+        rb = r-b
+
+        
+        gray_mask = (abs(gr) <= 20) & (abs(rb) <= 20) | (abs(bg) <= 20) & (abs(rb) <= 20) | (abs(bg) <= 20) & (abs(gr) <= 20) | ((r>240) & (g >240) & (b > 240))       
+        
+        white_mask = ((r>200) & (g >200) & (b > 200))
+        black_mask = (r+g+b < 400)
+
+        # color masks
+        red_mask = ~gray_mask & ((gr < -tol) & (rb > tol))    
+        green_mask = ~gray_mask & ((bg < - tol) & (gr > tol)) 
+        blue_mask = ~gray_mask & ((rb < -tol) & (bg > tol))
+
+        # convert gray to white
+        white_mask = white_mask | gray_mask
+
+        # convert upper black pixels to white
+        upper_black = np.full(img.shape[0:2],False)
+        upper_black[0:height,:] = black_mask[0:height,:]
+        
+        white_mask = white_mask | upper_black
+        black_mask[0:height,:] = False
+
+        red_mask = red_mask & ~white_mask
+        green_mask = green_mask & ~white_mask
+        blue_mask = blue_mask & ~white_mask
+
+        #black_mask = black_mask & ~white_mask
+
+        return [red_mask, green_mask, blue_mask, black_mask, white_mask, gray_mask]
+     
+    def erosion(self,img, size = 2, shape = cv2.MORPH_RECT):
+        #shape =  cv.MORPH_RECT
+        #shape =  cv.MORPH_CROSS
+        #shape =  cv.MORPH_ELLIPSE
+        element = cv2.getStructuringElement(shape, (2 * size + 1, 2 * size + 1),(size, size))
+        return  cv2.erode(img, element)
+
+    def dilatation(self,img, size = 2, shape = cv2.MORPH_RECT):
+        #shape =  cv.MORPH_RECT
+        #shape =  cv.MORPH_CROSS
+        #shape =  cv.MORPH_ELLIPSE
+        element = cv2.getStructuringElement(shape, (2 * size + 1, 2 * size + 1),(size, size))
+        return cv2.dilate(img, element)
+     
+
+    def mask_cleanup(self,mask) :
+
+        mask = self.dilatation(mask,size=1)
+        mask = self.erosion(mask,size=2) 
+        mask = self.dilatation(mask,size=2)
+        mask = self.erosion(mask,size=2) 
+
+        #binary = dilatation(binary,size=3)
+        #binary = erosion(binary)
+
+        return mask
+
+    def color_img_from_mask(self,mask,color,bg_color) :
+        shp = mask.shape + (3,)
+        img = np.zeros(shp, np.uint8)
+
+        mask = mask.astype(np.uint8)
+
+        mask = self.mask_cleanup(mask)
+        
+        # Fill image with color(set each pixel to color)
+        img[:,:,:] = color
+
+        img[~mask.astype(bool),:] = bg_color
+
+        return img 
+     
+
+    def is_gray(self,r, g, b):
+        """Vérifie si une couleur est proche du gris, by Ali Gökkaya"""
+        return ((abs(r-g) <= 20 and abs(r-b) <= 20) or 
+                (abs(b-g) <= 20 and abs(b-r) <= 20) or
+                (abs(r-g) <= 20 and abs(g-b) <= 20) or
+                r > 240 and g > 240 and b > 240 )
+
+
+    def color(self,r, g, b):
+        """Détecte la couleur primaire prédominante dans une couleur RGB donnée, by Ali Gökkaya"""
+        r = int(r)
+        g = int(g)
+        b = int(b)
+        
+        tol = 15
+        
+        if self.is_gray(r, g, b):
+            if (r > 200 and g > 200 and b > 200):
+                return 1  # Blanc
+            elif ((r+g+b) < 400):
+                return 2  # Noir
+            else:
+                return 1  # Gris
+        else:
+            if r > g + tol and r > b + tol:
+                return 3  # Rouge
+            elif g > r  + tol and g > b  + tol:
+                return 4  # Vert
+            elif b > r  + tol and b > g  + tol:
+                return 5  # Bleu
+            else:
+                return 1  # Autre
+
+
+
+    def detect_color_masks_alt(self,img) :
+        array = np.array(img)
+        rgb = np.empty((120,160))  # Crée un tableau vide pour stocker les valeurs RGB
+            
+        # Convertit les valeurs du tableau d'entrée en couleurs, by Ali Gökkaya
+        for i in range(120):
+            for j in range(160):
+                rgb[i][j] = self.color(array[i][j][2], array[i][j][1], array[i][j][0])
+                #if i < 50 and rgb[i][j] == 2:
+                #    rgb[i][j] = 1
+        #create masks according to rbg array
+                    
+        red_mask = (rgb == 3)
+        green_mask = (rgb == 4)
+        blue_mask = (rgb == 5)
+        black_mask = (rgb == 2)
+        white_mask = (rgb == 1)
+        gray_mask = (rgb == 0)
+
+        return [red_mask, green_mask, blue_mask, black_mask, white_mask, gray_mask]
+
+
+    def find_contours(self,mask, img, min_area = 100, max_area = 20000, draw = False, rect_color=(0,0,255), label = None) :
+        
+        binary = mask.astype(np.uint8)*255
+
+        binary = self.mask_cleanup(binary)
+
+        # find contours
+        contours, hierarchy = cv2.findContours(binary,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+        # filter contours
+        filtered_contours = []
+        for c in contours :
+            area = cv2.contourArea(c)
+            if area > min_area and area < max_area :
+                filtered_contours.append(c)
+
+        img_copy = np.copy(img)
+        
+        # draw contours
+        if draw : 
+            cv2.drawContours(img_copy, filtered_contours, -1, (0,255,0), 1)
+
+        objects = []
+        for cnt in filtered_contours:
+            rect = cv2.boundingRect(cnt)
+            x,y,w,h = rect
+            c_x = x + (w / 2)
+            c_y = y + (h / 2)            
+            cv2.rectangle(img_copy,(x,y),(x+w,y+h),rect_color,2)
+
+            objects.append(ColorDetected(x_center=c_x, y_center=c_y, width=w, height=h, area=cv2.contourArea(cnt), label=label))
+
+        return objects, img_copy
+
+
+
+
+
+
+    def get_colordetection(self,img = None, min_area = 100, saveimg = False, savemasks = False, filename = None) :
+
+        img_copy = img.transpose(1,2,0).astype(np.uint8).copy()
+        bgr_img = cv2.cvtColor(img_copy, cv2.COLOR_RGB2BGR)
+                
+        cv2.imwrite('./img/feed.bmp',bgr_img)
+        
+        # TODO replace Ali's detection with opencv masks
+        #masks = [r,g,b,k,w,j] = self.detect_color_masks(img, 15, 49)
+        masks = [r,g,b,k,w,j] = self.detect_color_masks_alt(bgr_img)
+
+        
+        allcontours = []
+
+        rect_colors = [(255,0,0),(0,255,0),(0,0,255),(0,0,0)]
+        labels = ['Blue','Green','Red','Black']
+
+        img_cont = bgr_img
+        for i,m in enumerate([b,g,r,k]) :
+            contours,img_cont = self.find_contours(m, img_cont, rect_color=rect_colors[i], label=labels[i], min_area=min_area)
+            allcontours = allcontours + contours
+            
+        if not filename:
+            filename = self.get_id()     
+             
+        if not '.bmp' in filename:
+            filename+='.bmp'
+
+        if saveimg :
+            cv2.imwrite(self.__save_image_folder+'/'+'colordetection_'+filename,img_cont)
+
+        if savemasks :
+
+            colors_img = []
+            out_colors = [(0,0,255),(0,255,0),(255,0,0),(0,0,0),(255,255,255),(150,150,150)]
+            bg_colors = [(255,255,255),(255,255,255),(255,255,255),(255,255,255),(50,50,50),(255,255,255)]
+
+            allmasks = np.zeros_like(bgr_img)
+            for i,m in enumerate(masks):
+                allmasks = allmasks + self.color_img_from_mask(m,out_colors[i],(0,0,0))
+
+            cv2.imwrite(self.__save_image_folder+'/'+'colordetection_masks_'+filename,allmasks)
+
+        return allcontours
+        
+
+    def save_colordetection(self,img = None, min_area = 100, savemasks = True, filename = None) :
+
+        if not filename:
+            counter = '{:04d}'.format(self.__counter_colordetec_img)
+            self.__counter_colordetec_img += 1
+
+            self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id()+'_'+counter)
+
+        else :
+            self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
+
+
+    def live_colordetection(self,img = None, minarea = 100, savemasks = True) :
+        self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
+
+                
+                
+                

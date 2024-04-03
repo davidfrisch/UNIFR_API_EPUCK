@@ -658,3 +658,43 @@ class Epuck:
             Only works with real robots
         
         """
+        pass
+               
+    def get_colordetection(self,img = None, min_area = 100, saveimg = False, savemasks = False, filename = None) :
+        """
+        Analyze the picture passed as img to extract red / blue/ green colored contours
+        
+        :param img: the 120x160x3 array containing a picture returned by the function get_picture
+        :param min_area: the minimal area of a contour
+        :param saveimg: boolean to save the image overlayed with contours
+        :param savemasks: boolean to save the color masking image
+        :param filename: str under which the picture should be saved
+        :return: array of ColorDetected objects
+        .. warning:: 
+            Only works with real robots
+        """
+        pass
+
+    def save_colordetection(self,img = None, min_area = 100, savemasks = True, filename = None) :
+        """
+        Save the image annoted with color contours, either with a default name or the one given in filename
+        :param min_area: the minimal area of a contour
+        :param savemasks: boolean to save the color masking image
+        :param filename: str under which the picture should be saved
+        .. warning:: 
+            Only works with real robots
+        """
+        pass
+
+    def live_colordetection(self,img = None, minarea = 100, savemasks = True) :
+        """
+        Lets you stream the annotated image from the GUI
+        The live_detection method needs to be called at each step.
+        :param duration: int - duration of the stream. (default: until program ends)
+        :param min_area: the minimal area of a contour
+        :param savemasks: boolean to save the color masking image
+        .. warning:: 
+            Only works with real robots
+        
+        """
+        pass
