@@ -1049,6 +1049,13 @@ class WifiEpuck(Epuck):
     
 
     def detect_color_masks(self,img, tol = 20, height = 50) :
+        """
+        Computes masks of primary colors R, G or B, black gray or white
+        
+        .. warning:: 
+            Not currently used
+            Only works with real robots
+        """
 
         b,g,r = cv2.split(img)
         # change type to allow pixel operations 
@@ -1133,7 +1140,7 @@ class WifiEpuck(Epuck):
      
 
     def is_gray(self,r, g, b):
-        """Vérifie si une couleur est proche du gris, by Ali Gökkaya"""
+        """Checks if a pixel is gray, by Ali Gökkaya"""
         return ((abs(r-g) <= 20 and abs(r-b) <= 20) or 
                 (abs(b-g) <= 20 and abs(b-r) <= 20) or
                 (abs(r-g) <= 20 and abs(g-b) <= 20) or
@@ -1141,7 +1148,7 @@ class WifiEpuck(Epuck):
 
 
     def color(self,r, g, b):
-        """Détecte la couleur primaire prédominante dans une couleur RGB donnée, by Ali Gökkaya"""
+        """Detects the primary color the predominates in an rgb pixel, by Ali Gökkaya"""
         r = int(r)
         g = int(g)
         b = int(b)
@@ -1168,6 +1175,13 @@ class WifiEpuck(Epuck):
 
 
     def detect_color_masks_alt(self,img) :
+        """
+        Computes masks of primary colors R, G or B, black gray or white, using non-optimal pixel-per-pixel comparison
+        
+        .. warning:: 
+            Only works with real robots
+        """
+
         array = np.array(img)
         rgb = np.empty((120,160))  # Crée un tableau vide pour stocker les valeurs RGB
             
@@ -1190,6 +1204,13 @@ class WifiEpuck(Epuck):
 
 
     def find_contours(self,mask, img, min_area = 100, max_area = 20000, draw = False, rect_color=(0,0,255), label = None) :
+        """
+        Finds and filter contours on masks depending on the min_area.
+        Returns a list of ColorDetected objects for each filtered contour
+        .. warning:: 
+            Only works with real robots
+        
+        """
         
         binary = mask.astype(np.uint8)*255
 
@@ -1280,14 +1301,19 @@ class WifiEpuck(Epuck):
             counter = '{:04d}'.format(self.__counter_colordetec_img)
             self.__counter_colordetec_img += 1
 
-            self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id()+'_'+counter)
+            self.get_colordetection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id()+'_'+counter)
 
         else :
-            self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
+            self.get_colordetection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
 
 
-    def live_colordetection(self,img = None, minarea = 100, savemasks = True) :
-        self.get_colordectection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
+    def live_colordetection(self,img = None, min_area = 100, savemasks = True) :
+    
+        if (not img) :
+            img = self.get_camera()
+            img = np.array(img)
+            
+        self.get_colordetection(img, min_area = min_area, saveimg = True, savemasks = savemasks, filename = self.get_id())
 
                 
                 
